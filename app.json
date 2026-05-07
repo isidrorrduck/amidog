@@ -1,0 +1,18 @@
+{
+  "expo": {
+    "name": "Amidog",
+    "slug": "amidog",
+    "scheme": "amidog",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "plugins": ["expo-router"],
+    "experiments": {
+      "typedRoutes": true
+    },
+    "android": {
+      "package": "com.isidrorrduck.amidog"
+    }
+  }
+}
