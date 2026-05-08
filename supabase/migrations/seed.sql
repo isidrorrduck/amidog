@@ -1,0 +1,3 @@
+--- seed file placeholder
+- Seed script for Amidog
+-- TODO: Add initial data

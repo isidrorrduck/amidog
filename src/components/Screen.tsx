@@ -1,25 +1,27 @@
 import { ReactNode } from 'react';
-import { SafeAreaView, ScrollView, View } from 'react-native';
+import { SafeAreaView, ScrollView, View, ViewProps } from 'react-native';
 
-type ScreenProps = {
+interface ScreenProps extends ViewProps {
   children: ReactNode;
-  scroll?: boolean;
-};
+  scrollable?: boolean;
+  contentClassName?: string;
+  className?: string;
+}
 
-export function Screen({ children, scroll = false }: ScreenProps) {
-  if (scroll) {
-    return (
-      <SafeAreaView className="flex-1 bg-slate-950">
-        <ScrollView contentContainerClassName="flex-grow p-6">
-          {children}
-        </ScrollView>
-      </SafeAreaView>
-    );
-  }
+export default function Screen({ children, scrollable = false, className, contentClassName, ...props }: ScreenProps) {
+  const content = (
+    <View className={`flex-1 gap-5 px-5 py-4 ${contentClassName ?? ''}`} {...props}>
+      {children}
+    </View>
+  );
 
   return (
-    <SafeAreaView className="flex-1 bg-slate-950">
-      <View className="flex-1 p-6">{children}</View>
+    <SafeAreaView className={`flex-1 bg-slate-50 ${className ?? ''}`}>
+      {scrollable ? (
+        <ScrollView contentContainerClassName={`gap-5 px-5 py-4 ${contentClassName ?? ''}`}>{children}</ScrollView>
+      ) : (
+        content
+      )}
     </SafeAreaView>
   );
 }
