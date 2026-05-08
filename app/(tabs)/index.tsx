@@ -1,11 +1,5 @@
-import React from 'react';
-import { Tabs } from 'expo-router';
+import { Redirect } from 'expo-router';
 
-export default function TabsLayout() {
-  return (
-    <Tabs>
-      <Tabs.Screen name="home" options={{ title: 'Home' }} />
-      <Tabs.Screen name="profile" options={{ title: 'Profile' }} />
-    </Tabs>
-  );
+export default function TabsIndexRoute() {
+  return <Redirect href="/(tabs)/home" />;
 }
