@@ -1,6 +1,6 @@
 export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[];
 
-export type KennelRole = 'owner' | 'admin' | 'member';
+export type KennelRole = 'owner' | 'member';
 
 export interface Database {
   public: {
@@ -33,34 +33,34 @@ export interface Database {
         Row: {
           id: string;
           name: string;
-          owner_id: string;
+          created_by: string;
           created_at: string;
           updated_at: string;
         };
         Insert: {
           id?: string;
           name: string;
-          owner_id: string;
+          created_by: string;
           created_at?: string;
           updated_at?: string;
         };
         Update: {
           id?: string;
           name?: string;
-          owner_id?: string;
+          created_by?: string;
           created_at?: string;
           updated_at?: string;
         };
         Relationships: [
           {
-            foreignKeyName: 'kennels_owner_id_fkey';
-            columns: ['owner_id'];
+            foreignKeyName: 'kennels_created_by_fkey';
+            columns: ['created_by'];
             referencedRelation: 'profiles';
             referencedColumns: ['id'];
           },
         ];
       };
-      kennel_memberships: {
+      kennel_members: {
         Row: {
           id: string;
           kennel_id: string;
@@ -84,13 +84,13 @@ export interface Database {
         };
         Relationships: [
           {
-            foreignKeyName: 'kennel_memberships_kennel_id_fkey';
+            foreignKeyName: 'kennel_members_kennel_id_fkey';
             columns: ['kennel_id'];
             referencedRelation: 'kennels';
             referencedColumns: ['id'];
           },
           {
-            foreignKeyName: 'kennel_memberships_profile_id_fkey';
+            foreignKeyName: 'kennel_members_profile_id_fkey';
             columns: ['profile_id'];
             referencedRelation: 'profiles';
             referencedColumns: ['id'];
@@ -99,7 +99,14 @@ export interface Database {
       };
     };
     Views: Record<string, never>;
-    Functions: Record<string, never>;
+    Functions: {
+      create_kennel: {
+        Args: {
+          kennel_name: string;
+        };
+        Returns: string;
+      };
+    };
     Enums: Record<string, never>;
     CompositeTypes: Record<string, never>;
   };

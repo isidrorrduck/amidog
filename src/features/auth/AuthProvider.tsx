@@ -3,11 +3,10 @@ import { createContext, ReactNode, useCallback, useContext, useEffect, useMemo, 
 
 import { env } from '../../lib/env';
 import { getSupabaseClient } from '../../lib/supabase';
-import { useAppStore } from '../../stores';
+import { ensureInitialKennel } from '../kennels/kennelService';
 import {
   AuthProfile,
-  ensureAuthenticatedWorkspace,
-  Kennel,
+  ensureAuthenticatedProfile,
   signInWithPassword,
   signOut as signOutOfSupabase,
   signUpWithPassword,
@@ -27,15 +26,14 @@ interface AuthContextValue {
   session: Session | null;
   user: User | null;
   profile: AuthProfile | null;
-  kennel: Kennel | null;
   isLoading: boolean;
-  isWorkspaceLoading: boolean;
+  isProfileLoading: boolean;
   isSupabaseConfigured: boolean;
-  workspaceError: string | null;
+  profileError: string | null;
   signIn: (email: string, password: string) => Promise<void>;
   register: (input: RegisterInput) => Promise<{ needsEmailConfirmation: boolean }>;
   signOut: () => Promise<void>;
-  refreshWorkspace: (kennelName?: string) => Promise<void>;
+  refreshProfile: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
@@ -44,46 +42,40 @@ const isSupabaseReady = env.isSupabaseConfigured && env.validationErrors.length 
 export function AuthProvider({ children }: AuthProviderProps) {
   const [session, setSession] = useState<Session | null>(null);
   const [profile, setProfile] = useState<AuthProfile | null>(null);
-  const [kennel, setKennel] = useState<Kennel | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [isWorkspaceLoading, setIsWorkspaceLoading] = useState(false);
-  const [workspaceError, setWorkspaceError] = useState<string | null>(null);
-  const setActiveKennelId = useAppStore((state) => state.setActiveKennelId);
+  const [isProfileLoading, setIsProfileLoading] = useState(false);
+  const [profileError, setProfileError] = useState<string | null>(null);
 
-  const clearWorkspace = useCallback(() => {
+  const clearProfile = useCallback(() => {
     setProfile(null);
-    setKennel(null);
-    setActiveKennelId(null);
-  }, [setActiveKennelId]);
+  }, []);
 
-  const loadWorkspace = useCallback(
-    async (user: User | null, kennelName?: string) => {
+  const loadProfile = useCallback(
+    async (user: User | null) => {
       if (!user || !isSupabaseReady) {
-        clearWorkspace();
+        clearProfile();
         return;
       }
 
-      setIsWorkspaceLoading(true);
+      setIsProfileLoading(true);
 
       try {
-        const workspace = await ensureAuthenticatedWorkspace(user, { kennelName });
-        setProfile(workspace.profile);
-        setKennel(workspace.kennel);
-        setActiveKennelId(workspace.kennel?.id ?? null);
-        setWorkspaceError(null);
+        const nextProfile = await ensureAuthenticatedProfile(user);
+        setProfile(nextProfile);
+        setProfileError(null);
       } catch (error) {
-        setWorkspaceError(getErrorMessage(error));
+        setProfileError(getErrorMessage(error));
       } finally {
-        setIsWorkspaceLoading(false);
+        setIsProfileLoading(false);
       }
     },
-    [clearWorkspace, setActiveKennelId],
+    [clearProfile],
   );
 
   useEffect(() => {
     if (!isSupabaseReady) {
       setIsLoading(false);
-      clearWorkspace();
+      clearProfile();
       return;
     }
 
@@ -98,12 +90,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
         }
 
         if (error) {
-          setWorkspaceError(error.message);
+          setProfileError(error.message);
           return;
         }
 
         setSession(data.session);
-        await loadWorkspace(data.session?.user ?? null);
+        await loadProfile(data.session?.user ?? null);
       })
       .finally(() => {
         if (isMounted) {
@@ -115,22 +107,22 @@ export function AuthProvider({ children }: AuthProviderProps) {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, nextSession) => {
       setSession(nextSession);
-      void loadWorkspace(nextSession?.user ?? null);
+      void loadProfile(nextSession?.user ?? null);
     });
 
     return () => {
       isMounted = false;
       subscription.unsubscribe();
     };
-  }, [clearWorkspace, loadWorkspace]);
+  }, [clearProfile, loadProfile]);
 
   const signIn = useCallback(
     async (email: string, password: string) => {
       const data = await signInWithPassword({ email, password });
       setSession(data.session);
-      await loadWorkspace(data.session?.user ?? null);
+      await loadProfile(data.session?.user ?? null);
     },
-    [loadWorkspace],
+    [loadProfile],
   );
 
   const register = useCallback(
@@ -138,25 +130,30 @@ export function AuthProvider({ children }: AuthProviderProps) {
       const result = await signUpWithPassword(input);
       const supabase = getSupabaseClient();
       const { data } = await supabase.auth.getSession();
+
+      if (data.session?.user) {
+        await ensureInitialKennel(data.session.user, input.kennelName);
+      }
+
       setSession(data.session);
-      await loadWorkspace(data.session?.user ?? null, input.kennelName);
+      await loadProfile(data.session?.user ?? null);
 
       return result;
     },
-    [loadWorkspace],
+    [loadProfile],
   );
 
   const signOut = useCallback(async () => {
     await signOutOfSupabase();
     setSession(null);
-    clearWorkspace();
-  }, [clearWorkspace]);
+    clearProfile();
+  }, [clearProfile]);
 
-  const refreshWorkspace = useCallback(
-    async (kennelName?: string) => {
-      await loadWorkspace(session?.user ?? null, kennelName);
+  const refreshProfile = useCallback(
+    async () => {
+      await loadProfile(session?.user ?? null);
     },
-    [loadWorkspace, session?.user],
+    [loadProfile, session?.user],
   );
 
   const value = useMemo<AuthContextValue>(
@@ -164,27 +161,25 @@ export function AuthProvider({ children }: AuthProviderProps) {
       session,
       user: session?.user ?? null,
       profile,
-      kennel,
       isLoading,
-      isWorkspaceLoading,
+      isProfileLoading,
       isSupabaseConfigured: isSupabaseReady,
-      workspaceError,
+      profileError,
       signIn,
       register,
       signOut,
-      refreshWorkspace,
+      refreshProfile,
     }),
     [
       session,
       profile,
-      kennel,
       isLoading,
-      isWorkspaceLoading,
-      workspaceError,
+      isProfileLoading,
+      profileError,
       signIn,
       register,
       signOut,
-      refreshWorkspace,
+      refreshProfile,
     ],
   );
 

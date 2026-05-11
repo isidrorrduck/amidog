@@ -3,6 +3,7 @@ import { Text, View } from 'react-native';
 
 import { Button, Card, Screen } from '../../src/components';
 import { useAuth } from '../../src/features/auth';
+import { useCurrentKennel } from '../../src/features/kennels';
 
 const sections = [
   { title: 'Breeders', body: 'Manage kennels and breeder profiles.', href: '/breeders' },
@@ -12,8 +13,9 @@ const sections = [
 ] as const;
 
 export default function HomeScreen() {
-  const { kennel, profile, workspaceError } = useAuth();
-  const workspaceName = kennel?.name ?? 'Kennel workspace';
+  const { profile, profileError } = useAuth();
+  const { currentKennel, kennelError } = useCurrentKennel();
+  const workspaceName = currentKennel?.name ?? 'Kennel workspace';
 
   return (
     <Screen scrollable>
@@ -24,9 +26,9 @@ export default function HomeScreen() {
         </Text>
       </View>
 
-      {workspaceError ? (
+      {profileError || kennelError ? (
         <Card title="Workspace setup">
-          <Text className="text-sm leading-5 text-red-600">{workspaceError}</Text>
+          <Text className="text-sm leading-5 text-red-600">{profileError ?? kennelError}</Text>
         </Card>
       ) : null}
 
