@@ -1,11 +1,9 @@
 import type { User } from '@supabase/supabase-js';
 
 import { getSupabaseClient } from '../../lib/supabase';
-import type { Database, KennelRole } from '../../types/database';
+import type { Database } from '../../types/database';
 
 export type AuthProfile = Database['public']['Tables']['profiles']['Row'];
-export type Kennel = Database['public']['Tables']['kennels']['Row'];
-type KennelMembership = Database['public']['Tables']['kennel_memberships']['Row'];
 
 interface SignInInput {
   email: string;
@@ -16,13 +14,8 @@ interface SignUpInput extends SignInInput {
   kennelName: string;
 }
 
-interface EnsureWorkspaceOptions {
-  kennelName?: string;
-}
-
-export interface AuthWorkspace {
+export interface AuthAccount {
   profile: AuthProfile;
-  kennel: Kennel | null;
 }
 
 export interface SignUpResult {
@@ -43,7 +36,7 @@ export async function signInWithPassword({ email, password }: SignInInput) {
   }
 
   if (data.session) {
-    await ensureAuthenticatedWorkspace(data.session.user);
+    await ensureAuthenticatedProfile(data.session.user);
   }
 
   return data;
@@ -69,9 +62,7 @@ export async function signUpWithPassword({ email, password, kennelName }: SignUp
   }
 
   if (data.session) {
-    await ensureAuthenticatedWorkspace(data.session.user, {
-      kennelName: normalizedKennelName,
-    });
+    await ensureAuthenticatedProfile(data.session.user);
   }
 
   return {
@@ -88,17 +79,16 @@ export async function signOut() {
   }
 }
 
-export async function ensureAuthenticatedWorkspace(
-  user: User,
-  options: EnsureWorkspaceOptions = {},
-): Promise<AuthWorkspace> {
+export async function ensureAuthenticatedAccount(user: User): Promise<AuthAccount> {
   const profile = await ensureProfile(user);
-  const kennel = await ensureStarterKennel(user, options.kennelName);
 
   return {
     profile,
-    kennel,
   };
+}
+
+export async function ensureAuthenticatedProfile(user: User): Promise<AuthProfile> {
+  return ensureProfile(user);
 }
 
 async function ensureProfile(user: User): Promise<AuthProfile> {
@@ -126,73 +116,6 @@ async function ensureProfile(user: User): Promise<AuthProfile> {
   }
 
   return data;
-}
-
-async function ensureStarterKennel(user: User, kennelName?: string): Promise<Kennel | null> {
-  const supabase = getSupabaseClient();
-
-  const { data: membership, error: membershipError } = await supabase
-    .from('kennel_memberships')
-    .select('kennel_id, role')
-    .eq('profile_id', user.id)
-    .order('created_at', { ascending: true })
-    .limit(1)
-    .maybeSingle<Pick<KennelMembership, 'kennel_id' | 'role'>>();
-
-  if (membershipError) {
-    throw membershipError;
-  }
-
-  if (membership) {
-    return getKennelById(membership.kennel_id);
-  }
-
-  const { data: kennel, error: kennelError } = await supabase
-    .from('kennels')
-    .insert({
-      name: normalizeKennelName(kennelName, user.email),
-      owner_id: user.id,
-    })
-    .select()
-    .single();
-
-  if (kennelError) {
-    throw kennelError;
-  }
-
-  await ensureOwnerMembership(kennel.id, user.id);
-
-  return kennel;
-}
-
-async function getKennelById(kennelId: string): Promise<Kennel | null> {
-  const supabase = getSupabaseClient();
-  const { data, error } = await supabase.from('kennels').select().eq('id', kennelId).maybeSingle();
-
-  if (error) {
-    throw error;
-  }
-
-  return data;
-}
-
-async function ensureOwnerMembership(kennelId: string, profileId: string) {
-  const supabase = getSupabaseClient();
-  const role: KennelRole = 'owner';
-  const { error } = await supabase.from('kennel_memberships').upsert(
-    {
-      kennel_id: kennelId,
-      profile_id: profileId,
-      role,
-    },
-    {
-      onConflict: 'kennel_id,profile_id',
-    },
-  );
-
-  if (error) {
-    throw error;
-  }
 }
 
 function normalizeEmail(email: string) {
