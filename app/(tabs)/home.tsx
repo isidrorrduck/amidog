@@ -2,6 +2,7 @@ import { router } from 'expo-router';
 import { Text, View } from 'react-native';
 
 import { Button, Card, Screen } from '../../src/components';
+import { useAuth } from '../../src/features/auth';
 
 const sections = [
   { title: 'Breeders', body: 'Manage kennels and breeder profiles.', href: '/breeders' },
@@ -11,14 +12,23 @@ const sections = [
 ] as const;
 
 export default function HomeScreen() {
+  const { kennel, profile, workspaceError } = useAuth();
+  const workspaceName = kennel?.name ?? 'Kennel workspace';
+
   return (
     <Screen scrollable>
       <View className="gap-2 pb-4">
-        <Text className="text-3xl font-bold text-slate-950">Amidog</Text>
+        <Text className="text-3xl font-bold text-slate-950">{workspaceName}</Text>
         <Text className="text-base leading-6 text-slate-600">
-          A clean starting point for multi-tenant kennel management.
+          {profile?.email ? `Signed in as ${profile.email}` : 'A clean starting point for multi-tenant kennel management.'}
         </Text>
       </View>
+
+      {workspaceError ? (
+        <Card title="Workspace setup">
+          <Text className="text-sm leading-5 text-red-600">{workspaceError}</Text>
+        </Card>
+      ) : null}
 
       <View className="gap-3">
         {sections.map((section) => (

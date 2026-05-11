@@ -1,1 +1,1 @@
-// types index placeholder
+export type { Database, Json, KennelRole } from './database';
