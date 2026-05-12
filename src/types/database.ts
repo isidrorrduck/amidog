@@ -5,6 +5,7 @@ export type DogSex = 'unknown' | 'male' | 'female';
 export type LitterStatus = 'planned' | 'expected' | 'born' | 'archived';
 export type PuppySex = 'unknown' | 'male' | 'female';
 export type PuppyStatus = 'available' | 'reserved' | 'placed' | 'kept' | 'deceased';
+export type ReservationStatus = 'pending' | 'reserved' | 'paid' | 'cancelled' | 'completed';
 
 export interface Database {
   public: {
@@ -312,6 +313,79 @@ export interface Database {
           },
           {
             foreignKeyName: 'puppies_litter_id_fkey';
+            columns: ['litter_id'];
+            referencedRelation: 'litters';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      reservations: {
+        Row: {
+          id: string;
+          kennel_id: string;
+          puppy_id: string;
+          client_id: string;
+          litter_id: string | null;
+          status: ReservationStatus;
+          reserved_price: number | null;
+          deposit_amount: number | null;
+          deposit_paid: boolean;
+          reservation_date: string;
+          notes: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          kennel_id: string;
+          puppy_id: string;
+          client_id: string;
+          litter_id?: string | null;
+          status?: ReservationStatus;
+          reserved_price?: number | null;
+          deposit_amount?: number | null;
+          deposit_paid?: boolean;
+          reservation_date?: string;
+          notes?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          kennel_id?: string;
+          puppy_id?: string;
+          client_id?: string;
+          litter_id?: string | null;
+          status?: ReservationStatus;
+          reserved_price?: number | null;
+          deposit_amount?: number | null;
+          deposit_paid?: boolean;
+          reservation_date?: string;
+          notes?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'reservations_kennel_id_fkey';
+            columns: ['kennel_id'];
+            referencedRelation: 'kennels';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'reservations_puppy_id_fkey';
+            columns: ['puppy_id'];
+            referencedRelation: 'puppies';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'reservations_client_id_fkey';
+            columns: ['client_id'];
+            referencedRelation: 'clients';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'reservations_litter_id_fkey';
             columns: ['litter_id'];
             referencedRelation: 'litters';
             referencedColumns: ['id'];

@@ -11,7 +11,7 @@ const sections = [
   { title: 'Clients', body: 'Manage client contacts and placement notes.', href: '/clients' },
   { title: 'Litters', body: 'Prepare the workspace for litters and puppies.', href: '/litters' },
   { title: 'Puppies', body: 'Manage puppies by litter, status and placement notes.', href: '/puppies' },
-  { title: 'Bookings', body: 'Track reservations once the domain is connected.', href: '/bookings' },
+  { title: 'Reservations', body: 'Track puppy bookings, deposits and placement status.', href: '/reservations' },
 ] as const;
 
 export default function HomeScreen() {
