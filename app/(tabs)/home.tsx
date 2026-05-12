@@ -9,6 +9,7 @@ const sections = [
   { title: 'Breeders', body: 'Manage kennels and breeder profiles.', href: '/breeders' },
   { title: 'Dogs', body: 'Keep the dog registry ready for future data.', href: '/dogs' },
   { title: 'Litters', body: 'Prepare the workspace for litters and puppies.', href: '/litters' },
+  { title: 'Puppies', body: 'Manage puppies by litter, status and placement notes.', href: '/puppies' },
   { title: 'Bookings', body: 'Track reservations once the domain is connected.', href: '/bookings' },
 ] as const;
 
@@ -36,7 +37,7 @@ export default function HomeScreen() {
         {sections.map((section) => (
           <Card key={section.href} title={section.title}>
             <Text className="mb-4 text-sm leading-5 text-slate-600">{section.body}</Text>
-            <Button title={`Open ${section.title}`} onPress={() => router.push(section.href)} />
+            <Button title={`Open ${section.title}`} onPress={() => router.push(section.href as never)} />
           </Card>
         ))}
       </View>

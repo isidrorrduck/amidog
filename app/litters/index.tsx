@@ -1,3 +1,4 @@
+import { router } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { ActivityIndicator, Alert, Text, View } from 'react-native';
 
@@ -167,6 +168,7 @@ function LittersContent() {
               litter={litter}
               onDelete={() => handleDeleteLitter(litter)}
               onEdit={() => openEditForm(litter)}
+              onPuppies={() => router.push(`/puppies?litterId=${litter.id}` as never)}
             />
           ))}
         </View>
@@ -182,9 +184,10 @@ interface LitterCardProps {
   litter: Litter;
   onDelete: () => void;
   onEdit: () => void;
+  onPuppies: () => void;
 }
 
-function LitterCard({ dogsById, isDeleting, isOwner, litter, onDelete, onEdit }: LitterCardProps) {
+function LitterCard({ dogsById, isDeleting, isOwner, litter, onDelete, onEdit, onPuppies }: LitterCardProps) {
   const motherName = getDogName(litter.mother_id, dogsById);
   const fatherName = getDogName(litter.father_id, dogsById);
   const details = [
@@ -205,18 +208,21 @@ function LitterCard({ dogsById, isDeleting, isOwner, litter, onDelete, onEdit }:
 
         {litter.notes ? <Text className="text-sm leading-5 text-slate-600">{litter.notes}</Text> : null}
 
-        <View className="flex-row gap-3">
-          <Button title="Edit" variant="secondary" className="flex-1" onPress={onEdit} />
-          {isOwner ? (
-            <Button
-              title="Delete"
-              variant="ghost"
-              loading={isDeleting}
-              className="flex-1"
-              textClassName="text-red-600"
-              onPress={onDelete}
-            />
-          ) : null}
+        <View className="gap-3">
+          <Button title="Puppies" variant="secondary" onPress={onPuppies} />
+          <View className="flex-row gap-3">
+            <Button title="Edit" variant="secondary" className="flex-1" onPress={onEdit} />
+            {isOwner ? (
+              <Button
+                title="Delete"
+                variant="ghost"
+                loading={isDeleting}
+                className="flex-1"
+                textClassName="text-red-600"
+                onPress={onDelete}
+              />
+            ) : null}
+          </View>
         </View>
       </View>
     </Card>
