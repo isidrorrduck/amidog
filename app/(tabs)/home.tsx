@@ -8,6 +8,7 @@ import { useCurrentKennel } from '../../src/features/kennels';
 const sections = [
   { title: 'Breeders', body: 'Manage kennels and breeder profiles.', href: '/breeders' },
   { title: 'Dogs', body: 'Keep the dog registry ready for future data.', href: '/dogs' },
+  { title: 'Clients', body: 'Manage client contacts and placement notes.', href: '/clients' },
   { title: 'Litters', body: 'Prepare the workspace for litters and puppies.', href: '/litters' },
   { title: 'Puppies', body: 'Manage puppies by litter, status and placement notes.', href: '/puppies' },
   { title: 'Bookings', body: 'Track reservations once the domain is connected.', href: '/bookings' },
