@@ -3,6 +3,8 @@ export type Json = string | number | boolean | null | { [key: string]: Json | un
 export type KennelRole = 'owner' | 'member';
 export type DogSex = 'unknown' | 'male' | 'female';
 export type LitterStatus = 'planned' | 'expected' | 'born' | 'archived';
+export type PuppySex = 'unknown' | 'male' | 'female';
+export type PuppyStatus = 'available' | 'reserved' | 'placed' | 'kept' | 'deceased';
 
 export interface Database {
   public: {
@@ -205,6 +207,61 @@ export interface Database {
             foreignKeyName: 'litters_father_id_fkey';
             columns: ['father_id'];
             referencedRelation: 'dogs';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      puppies: {
+        Row: {
+          id: string;
+          kennel_id: string;
+          litter_id: string;
+          name: string;
+          sex: PuppySex;
+          color: string | null;
+          birth_weight: number | null;
+          status: PuppyStatus;
+          notes: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          kennel_id: string;
+          litter_id: string;
+          name: string;
+          sex?: PuppySex;
+          color?: string | null;
+          birth_weight?: number | null;
+          status?: PuppyStatus;
+          notes?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          kennel_id?: string;
+          litter_id?: string;
+          name?: string;
+          sex?: PuppySex;
+          color?: string | null;
+          birth_weight?: number | null;
+          status?: PuppyStatus;
+          notes?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'puppies_kennel_id_fkey';
+            columns: ['kennel_id'];
+            referencedRelation: 'kennels';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'puppies_litter_id_fkey';
+            columns: ['litter_id'];
+            referencedRelation: 'litters';
             referencedColumns: ['id'];
           },
         ];
