@@ -150,6 +150,58 @@ export interface Database {
           },
         ];
       };
+      clients: {
+        Row: {
+          id: string;
+          kennel_id: string;
+          first_name: string;
+          last_name: string | null;
+          email: string | null;
+          phone: string | null;
+          address: string | null;
+          city: string | null;
+          country: string | null;
+          notes: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          kennel_id: string;
+          first_name: string;
+          last_name?: string | null;
+          email?: string | null;
+          phone?: string | null;
+          address?: string | null;
+          city?: string | null;
+          country?: string | null;
+          notes?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          kennel_id?: string;
+          first_name?: string;
+          last_name?: string | null;
+          email?: string | null;
+          phone?: string | null;
+          address?: string | null;
+          city?: string | null;
+          country?: string | null;
+          notes?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'clients_kennel_id_fkey';
+            columns: ['kennel_id'];
+            referencedRelation: 'kennels';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       litters: {
         Row: {
           id: string;
