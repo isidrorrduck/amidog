@@ -25,6 +25,8 @@ export default function RootLayout() {
         <Stack.Screen name="puppies" options={{ title: 'Puppies' }} />
         <Stack.Screen name="reservations" options={{ title: 'Reservations' }} />
         <Stack.Screen name="documents" options={{ title: 'Documents' }} />
+        <Stack.Screen name="promotions" options={{ title: 'Promotions' }} />
+        <Stack.Screen name="notifications" options={{ title: 'Notifications' }} />
         <Stack.Screen name="bookings" options={{ title: 'Bookings' }} />
       </Stack>
       <StatusBar style="dark" />
