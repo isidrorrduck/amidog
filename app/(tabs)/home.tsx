@@ -12,6 +12,7 @@ const sections = [
   { title: 'Litters', body: 'Prepare the workspace for litters and puppies.', href: '/litters' },
   { title: 'Puppies', body: 'Manage puppies by litter, status and placement notes.', href: '/puppies' },
   { title: 'Reservations', body: 'Track puppy bookings, deposits and placement status.', href: '/reservations' },
+  { title: 'Documents', body: 'Store contracts, pedigrees, vaccines and veterinary files.', href: '/documents' },
 ] as const;
 
 export default function HomeScreen() {

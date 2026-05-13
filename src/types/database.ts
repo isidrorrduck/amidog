@@ -5,6 +5,15 @@ export type DogSex = 'unknown' | 'male' | 'female';
 export type LitterStatus = 'planned' | 'expected' | 'born' | 'archived';
 export type PuppySex = 'unknown' | 'male' | 'female';
 export type PuppyStatus = 'available' | 'reserved' | 'placed' | 'kept' | 'deceased';
+export type DocumentEntityType = 'dog' | 'puppy' | 'litter' | 'client';
+export type DocumentType =
+  | 'genetic_analysis'
+  | 'pedigree'
+  | 'contract'
+  | 'vaccine_record'
+  | 'veterinary_report'
+  | 'recommendation'
+  | 'other';
 export type ReservationStatus = 'pending' | 'reserved' | 'paid' | 'cancelled' | 'completed';
 
 export interface Database {
@@ -197,6 +206,61 @@ export interface Database {
         Relationships: [
           {
             foreignKeyName: 'clients_kennel_id_fkey';
+            columns: ['kennel_id'];
+            referencedRelation: 'kennels';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      documents: {
+        Row: {
+          id: string;
+          kennel_id: string;
+          entity_type: DocumentEntityType;
+          entity_id: string;
+          title: string;
+          document_type: DocumentType;
+          file_path: string;
+          file_name: string;
+          mime_type: string;
+          size_bytes: number;
+          notes: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          kennel_id: string;
+          entity_type: DocumentEntityType;
+          entity_id: string;
+          title: string;
+          document_type?: DocumentType;
+          file_path: string;
+          file_name: string;
+          mime_type: string;
+          size_bytes: number;
+          notes?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          kennel_id?: string;
+          entity_type?: DocumentEntityType;
+          entity_id?: string;
+          title?: string;
+          document_type?: DocumentType;
+          file_path?: string;
+          file_name?: string;
+          mime_type?: string;
+          size_bytes?: number;
+          notes?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'documents_kennel_id_fkey';
             columns: ['kennel_id'];
             referencedRelation: 'kennels';
             referencedColumns: ['id'];

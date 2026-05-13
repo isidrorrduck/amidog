@@ -1,3 +1,4 @@
+import { router } from 'expo-router';
 import { useState } from 'react';
 import { ActivityIndicator, Alert, Text, View } from 'react-native';
 
@@ -153,6 +154,7 @@ function DogsContent() {
               isDeleting={deleteDogMutation.isPending}
               key={dog.id}
               onDelete={() => handleDeleteDog(dog)}
+              onDocuments={() => router.push(`/documents?entityType=dog&entityId=${dog.id}` as never)}
               onEdit={() => openEditForm(dog)}
             />
           ))}
@@ -167,10 +169,11 @@ interface DogCardProps {
   isDeleting: boolean;
   isOwner: boolean;
   onDelete: () => void;
+  onDocuments: () => void;
   onEdit: () => void;
 }
 
-function DogCard({ dog, isDeleting, isOwner, onDelete, onEdit }: DogCardProps) {
+function DogCard({ dog, isDeleting, isOwner, onDelete, onDocuments, onEdit }: DogCardProps) {
   const details = [
     dog.breed,
     getDogSexLabel(dog.sex),
@@ -189,18 +192,21 @@ function DogCard({ dog, isDeleting, isOwner, onDelete, onEdit }: DogCardProps) {
 
         {dog.notes ? <Text className="text-sm leading-5 text-slate-600">{dog.notes}</Text> : null}
 
-        <View className="flex-row gap-3">
-          <Button title="Edit" variant="secondary" className="flex-1" onPress={onEdit} />
-          {isOwner ? (
-            <Button
-              title="Delete"
-              variant="ghost"
-              loading={isDeleting}
-              className="flex-1"
-              textClassName="text-red-600"
-              onPress={onDelete}
-            />
-          ) : null}
+        <View className="gap-3">
+          <Button title="Documents" variant="secondary" onPress={onDocuments} />
+          <View className="flex-row gap-3">
+            <Button title="Edit" variant="secondary" className="flex-1" onPress={onEdit} />
+            {isOwner ? (
+              <Button
+                title="Delete"
+                variant="ghost"
+                loading={isDeleting}
+                className="flex-1"
+                textClassName="text-red-600"
+                onPress={onDelete}
+              />
+            ) : null}
+          </View>
         </View>
       </View>
     </Card>

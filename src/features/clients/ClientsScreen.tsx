@@ -187,6 +187,7 @@ function ClientsContent({ initialMode, initialClientId }: ClientsScreenProps) {
               isOwner={isOwner}
               key={client.id}
               onDelete={() => handleDeleteClient(client)}
+              onDocuments={() => router.push(`/documents?entityType=client&entityId=${client.id}` as never)}
               onEdit={() => router.push(`/clients/${client.id}` as never)}
             />
           ))}
@@ -201,10 +202,11 @@ interface ClientCardProps {
   isDeleting: boolean;
   isOwner: boolean;
   onDelete: () => void;
+  onDocuments: () => void;
   onEdit: () => void;
 }
 
-function ClientCard({ client, isDeleting, isOwner, onDelete, onEdit }: ClientCardProps) {
+function ClientCard({ client, isDeleting, isOwner, onDelete, onDocuments, onEdit }: ClientCardProps) {
   const location = [client.city, client.country].filter(Boolean).join(', ');
   const details = [client.email, client.phone, client.address, location].filter(Boolean);
 
@@ -218,18 +220,21 @@ function ClientCard({ client, isDeleting, isOwner, onDelete, onEdit }: ClientCar
 
         {client.notes ? <Text className="text-sm leading-5 text-slate-600">{client.notes}</Text> : null}
 
-        <View className="flex-row gap-3">
-          <Button title="Edit" variant="secondary" className="flex-1" onPress={onEdit} />
-          {isOwner ? (
-            <Button
-              title="Delete"
-              variant="ghost"
-              loading={isDeleting}
-              className="flex-1"
-              textClassName="text-red-600"
-              onPress={onDelete}
-            />
-          ) : null}
+        <View className="gap-3">
+          <Button title="Documents" variant="secondary" onPress={onDocuments} />
+          <View className="flex-row gap-3">
+            <Button title="Edit" variant="secondary" className="flex-1" onPress={onEdit} />
+            {isOwner ? (
+              <Button
+                title="Delete"
+                variant="ghost"
+                loading={isDeleting}
+                className="flex-1"
+                textClassName="text-red-600"
+                onPress={onDelete}
+              />
+            ) : null}
+          </View>
         </View>
       </View>
     </Card>
