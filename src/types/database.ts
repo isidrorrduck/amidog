@@ -14,6 +14,16 @@ export type DocumentType =
   | 'veterinary_report'
   | 'recommendation'
   | 'other';
+export type PromotionType =
+  | 'veterinary'
+  | 'nutrition'
+  | 'genetics'
+  | 'supplements'
+  | 'grooming'
+  | 'kennel'
+  | 'puppies'
+  | 'other';
+export type PushTokenPlatform = 'ios' | 'android' | 'web' | 'windows' | 'macos' | 'unknown';
 export type ReservationStatus = 'pending' | 'reserved' | 'paid' | 'cancelled' | 'completed';
 
 export interface Database {
@@ -261,6 +271,153 @@ export interface Database {
         Relationships: [
           {
             foreignKeyName: 'documents_kennel_id_fkey';
+            columns: ['kennel_id'];
+            referencedRelation: 'kennels';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      promotions: {
+        Row: {
+          id: string;
+          kennel_id: string | null;
+          title: string;
+          message: string;
+          image_url: string | null;
+          action_url: string | null;
+          promotion_type: PromotionType;
+          is_global: boolean;
+          created_by: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          kennel_id?: string | null;
+          title: string;
+          message: string;
+          image_url?: string | null;
+          action_url?: string | null;
+          promotion_type?: PromotionType;
+          is_global?: boolean;
+          created_by?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          kennel_id?: string | null;
+          title?: string;
+          message?: string;
+          image_url?: string | null;
+          action_url?: string | null;
+          promotion_type?: PromotionType;
+          is_global?: boolean;
+          created_by?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'promotions_kennel_id_fkey';
+            columns: ['kennel_id'];
+            referencedRelation: 'kennels';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'promotions_created_by_fkey';
+            columns: ['created_by'];
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      notifications: {
+        Row: {
+          id: string;
+          kennel_id: string;
+          client_id: string | null;
+          promotion_id: string | null;
+          title: string;
+          body: string;
+          read_at: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          kennel_id: string;
+          client_id?: string | null;
+          promotion_id?: string | null;
+          title: string;
+          body: string;
+          read_at?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          kennel_id?: string;
+          client_id?: string | null;
+          promotion_id?: string | null;
+          title?: string;
+          body?: string;
+          read_at?: string | null;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'notifications_kennel_id_fkey';
+            columns: ['kennel_id'];
+            referencedRelation: 'kennels';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'notifications_client_id_fkey';
+            columns: ['client_id'];
+            referencedRelation: 'clients';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'notifications_promotion_id_fkey';
+            columns: ['promotion_id'];
+            referencedRelation: 'promotions';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      push_tokens: {
+        Row: {
+          id: string;
+          user_id: string;
+          kennel_id: string;
+          expo_push_token: string;
+          platform: PushTokenPlatform;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          kennel_id: string;
+          expo_push_token: string;
+          platform?: PushTokenPlatform;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          kennel_id?: string;
+          expo_push_token?: string;
+          platform?: PushTokenPlatform;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'push_tokens_user_id_fkey';
+            columns: ['user_id'];
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'push_tokens_kennel_id_fkey';
             columns: ['kennel_id'];
             referencedRelation: 'kennels';
             referencedColumns: ['id'];
