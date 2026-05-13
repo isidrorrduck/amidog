@@ -214,6 +214,7 @@ function PuppiesContent({ initialMode, initialLitterId, initialPuppyId }: Puppie
               littersById={littersById}
               puppy={puppy}
               onDelete={() => handleDeletePuppy(puppy)}
+              onDocuments={() => router.push(`/documents?entityType=puppy&entityId=${puppy.id}` as never)}
               onEdit={() => openEditForm(puppy)}
             />
           ))}
@@ -278,10 +279,11 @@ interface PuppyCardProps {
   littersById: Map<string, Litter>;
   puppy: Puppy;
   onDelete: () => void;
+  onDocuments: () => void;
   onEdit: () => void;
 }
 
-function PuppyCard({ isDeleting, isOwner, littersById, puppy, onDelete, onEdit }: PuppyCardProps) {
+function PuppyCard({ isDeleting, isOwner, littersById, puppy, onDelete, onDocuments, onEdit }: PuppyCardProps) {
   const litterName = littersById.get(puppy.litter_id)?.name ?? 'Unknown litter';
   const details = [
     `Litter ${litterName}`,
@@ -301,18 +303,21 @@ function PuppyCard({ isDeleting, isOwner, littersById, puppy, onDelete, onEdit }
 
         {puppy.notes ? <Text className="text-sm leading-5 text-slate-600">{puppy.notes}</Text> : null}
 
-        <View className="flex-row gap-3">
-          <Button title="Edit" variant="secondary" className="flex-1" onPress={onEdit} />
-          {isOwner ? (
-            <Button
-              title="Delete"
-              variant="ghost"
-              loading={isDeleting}
-              className="flex-1"
-              textClassName="text-red-600"
-              onPress={onDelete}
-            />
-          ) : null}
+        <View className="gap-3">
+          <Button title="Documents" variant="secondary" onPress={onDocuments} />
+          <View className="flex-row gap-3">
+            <Button title="Edit" variant="secondary" className="flex-1" onPress={onEdit} />
+            {isOwner ? (
+              <Button
+                title="Delete"
+                variant="ghost"
+                loading={isDeleting}
+                className="flex-1"
+                textClassName="text-red-600"
+                onPress={onDelete}
+              />
+            ) : null}
+          </View>
         </View>
       </View>
     </Card>

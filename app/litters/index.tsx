@@ -167,6 +167,7 @@ function LittersContent() {
               key={litter.id}
               litter={litter}
               onDelete={() => handleDeleteLitter(litter)}
+              onDocuments={() => router.push(`/documents?entityType=litter&entityId=${litter.id}` as never)}
               onEdit={() => openEditForm(litter)}
               onPuppies={() => router.push(`/puppies?litterId=${litter.id}` as never)}
             />
@@ -183,11 +184,21 @@ interface LitterCardProps {
   isOwner: boolean;
   litter: Litter;
   onDelete: () => void;
+  onDocuments: () => void;
   onEdit: () => void;
   onPuppies: () => void;
 }
 
-function LitterCard({ dogsById, isDeleting, isOwner, litter, onDelete, onEdit, onPuppies }: LitterCardProps) {
+function LitterCard({
+  dogsById,
+  isDeleting,
+  isOwner,
+  litter,
+  onDelete,
+  onDocuments,
+  onEdit,
+  onPuppies,
+}: LitterCardProps) {
   const motherName = getDogName(litter.mother_id, dogsById);
   const fatherName = getDogName(litter.father_id, dogsById);
   const details = [
@@ -210,6 +221,7 @@ function LitterCard({ dogsById, isDeleting, isOwner, litter, onDelete, onEdit, o
 
         <View className="gap-3">
           <Button title="Puppies" variant="secondary" onPress={onPuppies} />
+          <Button title="Documents" variant="secondary" onPress={onDocuments} />
           <View className="flex-row gap-3">
             <Button title="Edit" variant="secondary" className="flex-1" onPress={onEdit} />
             {isOwner ? (
