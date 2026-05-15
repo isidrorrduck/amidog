@@ -44,6 +44,12 @@
     "web": {
       "bundler": "metro",
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "0b1d7766-7107-46c4-9c09-66ba16d3f271"
+      }
     }
   }
 }
