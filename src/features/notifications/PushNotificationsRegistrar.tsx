@@ -96,7 +96,10 @@ async function getExpoPushToken() {
 }
 
 function hasNotificationPermission(settings: Notifications.NotificationPermissionsStatus) {
-  return settings.granted || settings.ios?.status === Notifications.IosAuthorizationStatus.PROVISIONAL;
+  return (
+    settings.status === Notifications.PermissionStatus.GRANTED ||
+    settings.ios?.status === Notifications.IosAuthorizationStatus.PROVISIONAL
+  );
 }
 
 function getPushTokenPlatform(): PushTokenPlatform {
