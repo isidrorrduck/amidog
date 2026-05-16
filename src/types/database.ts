@@ -39,7 +39,7 @@ export interface Database {
         };
         Insert: {
           id: string;
-          email: string;
+          email?: string | null;
           display_name?: string | null;
           created_at?: string;
           updated_at?: string;
@@ -88,14 +88,16 @@ export interface Database {
         Row: {
           id: string;
           kennel_id: string;
-          profile_id: string;
+          profile_id?: string;
+          user_id?: string;
           role: KennelRole;
           created_at: string;
         };
         Insert: {
           id?: string;
           kennel_id: string;
-          profile_id: string;
+          profile_id?: string;
+          user_id?: string;
           role?: KennelRole;
           created_at?: string;
         };
@@ -103,6 +105,7 @@ export interface Database {
           id?: string;
           kennel_id?: string;
           profile_id?: string;
+          user_id?: string;
           role?: KennelRole;
           created_at?: string;
         };
