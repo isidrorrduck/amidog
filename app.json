@@ -21,7 +21,8 @@
           "defaultChannel": "default"
         }
       ],
-      "expo-document-picker"
+      "expo-document-picker",
+      "./plugins/with-gradle-8-13"
     ],
     "experiments": {
       "typedRoutes": true
@@ -33,7 +34,7 @@
       "package": "com.sgservice.amidog",
       "versionCode": 1,
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
+        "foregroundImage": "./assets/icon.png",
         "backgroundColor": "#F8FAFC"
       },
       "permissions": [
@@ -44,6 +45,12 @@
     "web": {
       "bundler": "metro",
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "0b1d7766-7107-46c4-9c09-66ba16d3f271"
+      }
     }
   }
 }
