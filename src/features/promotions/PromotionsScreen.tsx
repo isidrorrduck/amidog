@@ -3,7 +3,7 @@ import type { ReactNode } from 'react';
 import { useMemo, useState } from 'react';
 import { ActivityIndicator, Alert, Image, Linking, Pressable, Text, View } from 'react-native';
 
-import { Button, Card, Screen } from '../../components';
+import { Button, AppCard, AppScreen } from '../../components';
 import { ProtectedRoute } from '../auth';
 import { useCurrentKennel } from '../kennels';
 import { PromotionForm } from './PromotionForm';
@@ -120,7 +120,7 @@ function PromotionsContent({ initialMode, initialPromotionId }: PromotionsScreen
   };
 
   return (
-    <Screen scrollable>
+    <AppScreen scrollable>
       <View className="gap-2">
         <Text className="text-3xl font-bold text-slate-950">Promotions</Text>
         <Text className="text-base leading-6 text-slate-600">
@@ -135,9 +135,9 @@ function PromotionsContent({ initialMode, initialPromotionId }: PromotionsScreen
       />
 
       {screenError ? (
-        <Card>
+        <AppCard>
           <Text className="text-sm leading-5 text-red-600">{screenError}</Text>
-        </Card>
+        </AppCard>
       ) : null}
 
       {!initialPromotionId ? (
@@ -160,30 +160,30 @@ function PromotionsContent({ initialMode, initialPromotionId }: PromotionsScreen
       ) : null}
 
       {isFormOpen && initialPromotionId && promotionQuery.data?.is_global ? (
-        <Card title="Global promotion">
+        <AppCard title="Global promotion">
           <View className="gap-4">
             <Text className="text-sm leading-5 text-slate-600">Global promotions are managed by SG Service.</Text>
             <Button title="Back to promotions" variant="secondary" onPress={closeForm} />
           </View>
-        </Card>
+        </AppCard>
       ) : null}
 
       {activePromotionsQuery.isLoading ? (
-        <Card title="Loading promotions">
+        <AppCard title="Loading promotions">
           <View className="items-start">
             <ActivityIndicator color="#1d4ed8" />
           </View>
-        </Card>
+        </AppCard>
       ) : null}
 
       {activePromotionsQuery.error ? (
-        <Card title="Unable to load promotions">
+        <AppCard title="Unable to load promotions">
           <Text className="text-sm leading-5 text-red-600">{getErrorMessage(activePromotionsQuery.error)}</Text>
-        </Card>
+        </AppCard>
       ) : null}
 
       {!activePromotionsQuery.isLoading && !activePromotionsQuery.error && promotions.length === 0 ? (
-        <Card title={initialPromotionId ? 'Promotion not found' : hasActiveFilters ? 'No matching promotions' : 'No promotions yet'}>
+        <AppCard title={initialPromotionId ? 'Promotion not found' : hasActiveFilters ? 'No matching promotions' : 'No promotions yet'}>
           <View className="gap-4">
             <Text className="text-sm leading-5 text-slate-600">
               {initialPromotionId
@@ -196,7 +196,7 @@ function PromotionsContent({ initialMode, initialPromotionId }: PromotionsScreen
               <Button title="Create promotion" onPress={() => router.push('/promotions/new' as never)} />
             ) : null}
           </View>
-        </Card>
+        </AppCard>
       ) : null}
 
       {promotions.length > 0 ? (
@@ -215,7 +215,7 @@ function PromotionsContent({ initialMode, initialPromotionId }: PromotionsScreen
           ))}
         </View>
       ) : null}
-    </Screen>
+    </AppScreen>
   );
 }
 
@@ -233,7 +233,7 @@ function PromotionFiltersCard({
   onChangeScope,
 }: PromotionFiltersCardProps) {
   return (
-    <Card title="Filters">
+    <AppCard title="Filters">
       <View className="gap-4">
         <FilterSection label="Scope">
           {promotionScopeOptions.map((scope) => (
@@ -258,7 +258,7 @@ function PromotionFiltersCard({
           ))}
         </FilterSection>
       </View>
-    </Card>
+    </AppCard>
   );
 }
 
@@ -329,7 +329,7 @@ function PromotionCard({
   const canDelete = canManage && isOwner;
 
   return (
-    <Card>
+    <AppCard>
       <View className="gap-3">
         {promotion.image_url ? (
           <Image
@@ -368,7 +368,7 @@ function PromotionCard({
           </View>
         ) : null}
       </View>
-    </Card>
+    </AppCard>
   );
 }
 

@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { Pressable, Text, View } from 'react-native';
 
-import { Button, Card, Input } from '../../components';
+import { Button, AppCard, Input } from '../../components';
 import { getClientFullName, type Client } from '../clients';
 import { type Puppy } from '../puppies';
 import {
@@ -84,7 +84,7 @@ export function ReservationForm({
   };
 
   return (
-    <Card title={reservation ? 'Edit reservation' : 'Create reservation'}>
+    <AppCard title={reservation ? 'Edit reservation' : 'Create reservation'}>
       <View className="gap-4">
         <Controller
           control={control}
@@ -228,7 +228,7 @@ export function ReservationForm({
           />
         </View>
       </View>
-    </Card>
+    </AppCard>
   );
 }
 

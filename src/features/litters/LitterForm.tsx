@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { Pressable, Text, View } from 'react-native';
 
-import { Button, Card, Input } from '../../components';
+import { Button, AppCard, Input } from '../../components';
 import { getDogSexLabel, type Dog } from '../dogs';
 import {
   getLitterFormDefaultValues,
@@ -67,7 +67,7 @@ export function LitterForm({
   };
 
   return (
-    <Card title={litter ? 'Edit litter' : 'Create litter'}>
+    <AppCard title={litter ? 'Edit litter' : 'Create litter'}>
       <View className="gap-4">
         <Controller
           control={control}
@@ -207,7 +207,7 @@ export function LitterForm({
           />
         </View>
       </View>
-    </Card>
+    </AppCard>
   );
 }
 

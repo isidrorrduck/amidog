@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Text, View } from 'react-native';
 
-import { Button, Card, Input, Screen } from '../../components';
+import { Button, AppCard, Input, AppScreen } from '../../components';
 import { useAuth } from '../auth/AuthProvider';
 import { useKennels } from './KennelProvider';
 import { normalizeKennelName } from './kennelService';
@@ -25,7 +25,7 @@ export function NoKennelOnboarding() {
   };
 
   return (
-    <Screen contentClassName="justify-center">
+    <AppScreen contentClassName="justify-center">
       <View className="gap-2">
         <Text className="text-3xl font-bold text-slate-950">Create your kennel</Text>
         <Text className="text-base leading-6 text-slate-600">
@@ -33,7 +33,7 @@ export function NoKennelOnboarding() {
         </Text>
       </View>
 
-      <Card>
+      <AppCard>
         <View className="gap-4">
           <Input
             label="Kennel name"
@@ -46,8 +46,8 @@ export function NoKennelOnboarding() {
           <Button title="Create kennel" loading={isKennelMutating} onPress={handleCreateKennel} />
           <Button title="Log out" variant="secondary" onPress={signOut} />
         </View>
-      </Card>
-    </Screen>
+      </AppCard>
+    </AppScreen>
   );
 }
 

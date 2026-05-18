@@ -1,6 +1,6 @@
 import { Text, View } from 'react-native';
 
-import { Button, Card, Screen } from '../../src/components';
+import { Button, AppCard, AppScreen } from '../../src/components';
 import { useAuth } from '../../src/features/auth';
 import { KennelSelector, useCurrentKennel } from '../../src/features/kennels';
 
@@ -9,7 +9,7 @@ export default function ProfileScreen() {
   const { currentKennel, currentMembership } = useCurrentKennel();
 
   return (
-    <Screen>
+    <AppScreen>
       <View className="gap-2">
         <Text className="text-3xl font-bold text-slate-950">Profile</Text>
         <Text className="text-base leading-6 text-slate-600">
@@ -17,7 +17,7 @@ export default function ProfileScreen() {
         </Text>
       </View>
 
-      <Card title="Session">
+      <AppCard title="Session">
         <View className="mb-4 gap-2">
           <Text className="text-sm leading-5 text-slate-600">Email: {profile?.email ?? user?.email ?? 'Unknown'}</Text>
           <Text className="text-sm leading-5 text-slate-600">
@@ -28,9 +28,9 @@ export default function ProfileScreen() {
           </Text>
         </View>
         <Button title="Log out" variant="secondary" onPress={signOut} />
-      </Card>
+      </AppCard>
 
       <KennelSelector allowCreate />
-    </Screen>
+    </AppScreen>
   );
 }

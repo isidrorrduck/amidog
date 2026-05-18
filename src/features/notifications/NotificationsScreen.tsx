@@ -1,7 +1,7 @@
 import { router } from 'expo-router';
 import { ActivityIndicator, Text, View } from 'react-native';
 
-import { Button, Card, Screen } from '../../components';
+import { Button, AppCard, AppScreen } from '../../components';
 import { ProtectedRoute } from '../auth';
 import { useCurrentKennel } from '../kennels';
 import type { KennelNotification } from './types';
@@ -25,7 +25,7 @@ function NotificationsContent() {
   const unreadCount = unreadCountQuery.data ?? notifications.filter((notification) => !notification.read_at).length;
 
   return (
-    <Screen scrollable>
+    <AppScreen scrollable>
       <View className="gap-2">
         <Text className="text-3xl font-bold text-slate-950">Notifications</Text>
         <Text className="text-base leading-6 text-slate-600">
@@ -34,23 +34,23 @@ function NotificationsContent() {
       </View>
 
       {notificationsQuery.isLoading ? (
-        <Card title="Loading notifications">
+        <AppCard title="Loading notifications">
           <View className="items-start">
             <ActivityIndicator color="#1d4ed8" />
           </View>
-        </Card>
+        </AppCard>
       ) : null}
 
       {notificationsQuery.error ? (
-        <Card title="Unable to load notifications">
+        <AppCard title="Unable to load notifications">
           <Text className="text-sm leading-5 text-red-600">{getErrorMessage(notificationsQuery.error)}</Text>
-        </Card>
+        </AppCard>
       ) : null}
 
       {!notificationsQuery.isLoading && !notificationsQuery.error && notifications.length === 0 ? (
-        <Card title="No notifications yet">
+        <AppCard title="No notifications yet">
           <Text className="text-sm leading-5 text-slate-600">New promotions and reminders will appear here.</Text>
-        </Card>
+        </AppCard>
       ) : null}
 
       {notifications.length > 0 ? (
@@ -70,7 +70,7 @@ function NotificationsContent() {
           ))}
         </View>
       ) : null}
-    </Screen>
+    </AppScreen>
   );
 }
 
@@ -85,7 +85,7 @@ function NotificationCard({ isMarkingRead, notification, onMarkRead, onOpenPromo
   const isUnread = !notification.read_at;
 
   return (
-    <Card>
+    <AppCard>
       <View className="gap-3">
         <View className="gap-1">
           <View className="flex-row flex-wrap items-center gap-2">
@@ -118,7 +118,7 @@ function NotificationCard({ isMarkingRead, notification, onMarkRead, onOpenPromo
           </View>
         ) : null}
       </View>
-    </Card>
+    </AppCard>
   );
 }
 

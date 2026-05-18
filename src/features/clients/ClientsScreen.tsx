@@ -2,7 +2,7 @@ import { router } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, Alert, Text, View } from 'react-native';
 
-import { Button, Card, Input, Screen } from '../../components';
+import { Button, AppCard, Input, AppScreen } from '../../components';
 import { ProtectedRoute } from '../auth';
 import { useCurrentKennel } from '../kennels';
 import { ClientForm } from './ClientForm';
@@ -109,7 +109,7 @@ function ClientsContent({ initialMode, initialClientId }: ClientsScreenProps) {
   };
 
   return (
-    <Screen scrollable>
+    <AppScreen scrollable>
       <View className="gap-2">
         <Text className="text-3xl font-bold text-slate-950">Clients</Text>
         <Text className="text-base leading-6 text-slate-600">{currentKennel?.name ?? 'Kennel'} client registry</Text>
@@ -122,9 +122,9 @@ function ClientsContent({ initialMode, initialClientId }: ClientsScreenProps) {
       />
 
       {screenError ? (
-        <Card>
+        <AppCard>
           <Text className="text-sm leading-5 text-red-600">{screenError}</Text>
-        </Card>
+        </AppCard>
       ) : null}
 
       {isFormOpen ? (
@@ -138,7 +138,7 @@ function ClientsContent({ initialMode, initialClientId }: ClientsScreenProps) {
       ) : null}
 
       {clients.length > 0 || searchTerm.length > 0 ? (
-        <Card title="Search clients">
+        <AppCard title="Search clients">
           <Input
             placeholder="Name, email or phone"
             autoCapitalize="none"
@@ -146,36 +146,36 @@ function ClientsContent({ initialMode, initialClientId }: ClientsScreenProps) {
             value={searchTerm}
             onChangeText={setSearchTerm}
           />
-        </Card>
+        </AppCard>
       ) : null}
 
       {clientsQuery.isLoading ? (
-        <Card title="Loading clients">
+        <AppCard title="Loading clients">
           <View className="items-start">
             <ActivityIndicator color="#1d4ed8" />
           </View>
-        </Card>
+        </AppCard>
       ) : null}
 
       {clientsQuery.error ? (
-        <Card title="Unable to load clients">
+        <AppCard title="Unable to load clients">
           <Text className="text-sm leading-5 text-red-600">{getErrorMessage(clientsQuery.error)}</Text>
-        </Card>
+        </AppCard>
       ) : null}
 
       {!clientsQuery.isLoading && !clientsQuery.error && clients.length === 0 ? (
-        <Card title="No clients yet">
+        <AppCard title="No clients yet">
           <View className="gap-4">
             <Text className="text-sm leading-5 text-slate-600">Create the first client for this kennel.</Text>
             {!isFormOpen ? <Button title="Create client" onPress={() => router.push('/clients/new' as never)} /> : null}
           </View>
-        </Card>
+        </AppCard>
       ) : null}
 
       {!clientsQuery.isLoading && !clientsQuery.error && clients.length > 0 && filteredClients.length === 0 ? (
-        <Card title="No matching clients">
+        <AppCard title="No matching clients">
           <Text className="text-sm leading-5 text-slate-600">Try another name, email or phone.</Text>
-        </Card>
+        </AppCard>
       ) : null}
 
       {filteredClients.length > 0 ? (
@@ -193,7 +193,7 @@ function ClientsContent({ initialMode, initialClientId }: ClientsScreenProps) {
           ))}
         </View>
       ) : null}
-    </Screen>
+    </AppScreen>
   );
 }
 
@@ -211,7 +211,7 @@ function ClientCard({ client, isDeleting, isOwner, onDelete, onDocuments, onEdit
   const details = [client.email, client.phone, client.address, location].filter(Boolean);
 
   return (
-    <Card>
+    <AppCard>
       <View className="gap-3">
         <View className="gap-1">
           <Text className="text-xl font-semibold text-slate-950">{getClientFullName(client)}</Text>
@@ -237,7 +237,7 @@ function ClientCard({ client, isDeleting, isOwner, onDelete, onDocuments, onEdit
           </View>
         </View>
       </View>
-    </Card>
+    </AppCard>
   );
 }
 

@@ -3,7 +3,7 @@ import type { ReactNode } from 'react';
 import { useMemo, useState } from 'react';
 import { ActivityIndicator, Alert, Linking, Pressable, Text, View } from 'react-native';
 
-import { Button, Card, Screen } from '../../components';
+import { Button, AppCard, AppScreen } from '../../components';
 import { ProtectedRoute } from '../auth';
 import { getClientFullName, useClients, type Client } from '../clients';
 import { useDogs, type Dog } from '../dogs';
@@ -156,7 +156,7 @@ function DocumentsContent({
   };
 
   return (
-    <Screen scrollable>
+    <AppScreen scrollable>
       <View className="gap-2">
         <Text className="text-3xl font-bold text-slate-950">Documents</Text>
         <Text className="text-base leading-6 text-slate-600">
@@ -171,15 +171,15 @@ function DocumentsContent({
       />
 
       {screenError ? (
-        <Card>
+        <AppCard>
           <Text className="text-sm leading-5 text-red-600">{screenError}</Text>
-        </Card>
+        </AppCard>
       ) : null}
 
       {relationError ? (
-        <Card title="Unable to load linked records">
+        <AppCard title="Unable to load linked records">
           <Text className="text-sm leading-5 text-red-600">{getErrorMessage(relationError)}</Text>
-        </Card>
+        </AppCard>
       ) : null}
 
       {!initialDocumentId ? (
@@ -208,21 +208,21 @@ function DocumentsContent({
       ) : null}
 
       {activeDocumentsQuery.isLoading || isRelationLoading ? (
-        <Card title="Loading documents">
+        <AppCard title="Loading documents">
           <View className="items-start">
             <ActivityIndicator color="#1d4ed8" />
           </View>
-        </Card>
+        </AppCard>
       ) : null}
 
       {activeDocumentsQuery.error ? (
-        <Card title="Unable to load documents">
+        <AppCard title="Unable to load documents">
           <Text className="text-sm leading-5 text-red-600">{getErrorMessage(activeDocumentsQuery.error)}</Text>
-        </Card>
+        </AppCard>
       ) : null}
 
       {!activeDocumentsQuery.isLoading && !activeDocumentsQuery.error && documents.length === 0 ? (
-        <Card title={initialDocumentId ? 'Document not found' : hasActiveFilters ? 'No matching documents' : 'No documents yet'}>
+        <AppCard title={initialDocumentId ? 'Document not found' : hasActiveFilters ? 'No matching documents' : 'No documents yet'}>
           <View className="gap-4">
             <Text className="text-sm leading-5 text-slate-600">
               {initialDocumentId
@@ -235,7 +235,7 @@ function DocumentsContent({
               <Button title="Upload document" onPress={openCreateForm} />
             ) : null}
           </View>
-        </Card>
+        </AppCard>
       ) : null}
 
       {documents.length > 0 ? (
@@ -256,7 +256,7 @@ function DocumentsContent({
           ))}
         </View>
       ) : null}
-    </Screen>
+    </AppScreen>
   );
 }
 
@@ -284,7 +284,7 @@ function DocumentFiltersCard({
     : [];
 
   return (
-    <Card title="Filters">
+    <AppCard title="Filters">
       <View className="gap-4">
         <FilterSection label="Document type">
           <FilterOption label="All types" isSelected={!selectedDocumentType} onPress={() => onChangeDocumentType('')} />
@@ -327,7 +327,7 @@ function DocumentFiltersCard({
           </FilterSection>
         ) : null}
       </View>
-    </Card>
+    </AppCard>
   );
 }
 
@@ -402,7 +402,7 @@ function DocumentCard({
   ];
 
   return (
-    <Card>
+    <AppCard>
       <View className="gap-3">
         <View className="gap-1">
           <Text className="text-xl font-semibold text-slate-950">{document.title}</Text>
@@ -432,7 +432,7 @@ function DocumentCard({
           ) : null}
         </View>
       </View>
-    </Card>
+    </AppCard>
   );
 }
 

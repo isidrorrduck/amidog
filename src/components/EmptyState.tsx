@@ -1,7 +1,7 @@
 import { Text, View } from 'react-native';
 
 import AppCard from './AppCard';
-import PrimaryButton from './PrimaryButton';
+import Button from './Button';
 
 interface EmptyStateProps {
   actionLabel?: string;
@@ -19,7 +19,7 @@ export default function EmptyState({ actionLabel, className, message, onAction, 
           <Text className="text-lg font-semibold text-ink">{title}</Text>
           <Text className="text-sm leading-5 text-muted">{message}</Text>
         </View>
-        {actionLabel && onAction ? <PrimaryButton title={actionLabel} onPress={onAction} /> : null}
+        {actionLabel && onAction ? <Button title={actionLabel} onPress={onAction} /> : null}
       </View>
     </AppCard>
   );

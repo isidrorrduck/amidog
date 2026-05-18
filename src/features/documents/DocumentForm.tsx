@@ -4,7 +4,7 @@ import { useEffect, useMemo } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { Pressable, Text, View } from 'react-native';
 
-import { Button, Card, Input } from '../../components';
+import { Button, AppCard, Input } from '../../components';
 import {
   documentEntityTypeOptions,
   documentFormSchema,
@@ -140,7 +140,7 @@ export function DocumentForm({
   };
 
   return (
-    <Card title="Upload document">
+    <AppCard title="Upload document">
       <View className="gap-4">
         <Controller
           control={control}
@@ -261,7 +261,7 @@ export function DocumentForm({
           />
         </View>
       </View>
-    </Card>
+    </AppCard>
   );
 }
 

@@ -2,7 +2,7 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { ActivityIndicator, Alert, Text, View } from 'react-native';
 
-import { Button, Card, Screen } from '../../src/components';
+import { Button, AppCard, AppScreen } from '../../src/components';
 import { ProtectedRoute } from '../../src/features/auth';
 import { useDogs } from '../../src/features/dogs';
 import type { Dog } from '../../src/features/dogs';
@@ -100,7 +100,7 @@ function LittersContent() {
   };
 
   return (
-    <Screen scrollable>
+    <AppScreen scrollable>
       <View className="gap-2">
         <Text className="text-3xl font-bold text-slate-950">Litters</Text>
         <Text className="text-base leading-6 text-slate-600">{currentKennel?.name ?? 'Kennel'} litter registry</Text>
@@ -113,15 +113,15 @@ function LittersContent() {
       />
 
       {screenError ? (
-        <Card>
+        <AppCard>
           <Text className="text-sm leading-5 text-red-600">{screenError}</Text>
-        </Card>
+        </AppCard>
       ) : null}
 
       {dogsQuery.error ? (
-        <Card title="Unable to load parent dogs">
+        <AppCard title="Unable to load parent dogs">
           <Text className="text-sm leading-5 text-red-600">{getErrorMessage(dogsQuery.error)}</Text>
-        </Card>
+        </AppCard>
       ) : null}
 
       {isFormOpen ? (
@@ -136,26 +136,26 @@ function LittersContent() {
       ) : null}
 
       {littersQuery.isLoading || dogsQuery.isLoading ? (
-        <Card title="Loading litters">
+        <AppCard title="Loading litters">
           <View className="items-start">
             <ActivityIndicator color="#1d4ed8" />
           </View>
-        </Card>
+        </AppCard>
       ) : null}
 
       {littersQuery.error ? (
-        <Card title="Unable to load litters">
+        <AppCard title="Unable to load litters">
           <Text className="text-sm leading-5 text-red-600">{getErrorMessage(littersQuery.error)}</Text>
-        </Card>
+        </AppCard>
       ) : null}
 
       {!littersQuery.isLoading && !dogsQuery.isLoading && !littersQuery.error && litters.length === 0 ? (
-        <Card title="No litters yet">
+        <AppCard title="No litters yet">
           <View className="gap-4">
             <Text className="text-sm leading-5 text-slate-600">Create the first litter for this kennel.</Text>
             {!isFormOpen ? <Button title="Create litter" onPress={openCreateForm} /> : null}
           </View>
-        </Card>
+        </AppCard>
       ) : null}
 
       {litters.length > 0 ? (
@@ -175,7 +175,7 @@ function LittersContent() {
           ))}
         </View>
       ) : null}
-    </Screen>
+    </AppScreen>
   );
 }
 
@@ -211,7 +211,7 @@ function LitterCard({
   ].filter(Boolean);
 
   return (
-    <Card>
+    <AppCard>
       <View className="gap-3">
         <View className="gap-1">
           <Text className="text-xl font-semibold text-slate-950">{litter.name}</Text>
@@ -238,7 +238,7 @@ function LitterCard({
           </View>
         </View>
       </View>
-    </Card>
+    </AppCard>
   );
 }
 
