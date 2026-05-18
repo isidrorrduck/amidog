@@ -18,13 +18,13 @@ export interface DogMutationInput {
 }
 
 export const dogFormSchema = z.object({
-  name: z.string().trim().min(1, 'Enter the dog name.').max(120, 'Use 120 characters or fewer.'),
-  breed: optionalText(120, 'Use 120 characters or fewer.'),
+  name: z.string().trim().min(1, 'Introduce el nombre del perro.').max(120, 'Usa 120 caracteres o menos.'),
+  breed: optionalText(120, 'Usa 120 caracteres o menos.'),
   sex: z.enum(dogSexOptions),
-  birthDate: z.string().trim().refine(isEmptyOrIsoDate, 'Use YYYY-MM-DD.'),
-  color: optionalText(80, 'Use 80 characters or fewer.'),
-  microchipNumber: optionalText(64, 'Use 64 characters or fewer.'),
-  notes: optionalText(1000, 'Use 1000 characters or fewer.'),
+  birthDate: z.string().trim().refine(isEmptyOrIsoDate, 'Usa el formato AAAA-MM-DD.'),
+  color: optionalText(80, 'Usa 80 caracteres o menos.'),
+  microchipNumber: optionalText(64, 'Usa 64 caracteres o menos.'),
+  notes: optionalText(1000, 'Usa 1000 caracteres o menos.'),
 });
 
 export type DogFormValues = z.input<typeof dogFormSchema>;
@@ -56,9 +56,9 @@ export function toDogMutationInput(values: ValidDogFormValues): DogMutationInput
 
 export function getDogSexLabel(sex: DogSex) {
   const labels: Record<DogSex, string> = {
-    unknown: 'Unknown',
-    male: 'Male',
-    female: 'Female',
+    unknown: 'Sin especificar',
+    male: 'Macho',
+    female: 'Hembra',
   };
 
   return labels[sex];

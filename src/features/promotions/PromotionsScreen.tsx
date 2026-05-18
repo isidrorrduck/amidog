@@ -95,10 +95,10 @@ function PromotionsContent({ initialMode, initialPromotionId }: PromotionsScreen
   };
 
   const handleDeletePromotion = (promotion: Promotion) => {
-    Alert.alert('Delete promotion?', `${promotion.title} will be removed from ${currentKennel?.name ?? 'this kennel'}.`, [
-      { text: 'Cancel', style: 'cancel' },
+    Alert.alert('¿Eliminar promoción?', `Se eliminará ${promotion.title} de ${currentKennel?.name ?? 'este criadero'}.`, [
+      { text: 'Cancelar', style: 'cancel' },
       {
-        text: 'Delete',
+        text: 'Eliminar',
         style: 'destructive',
         onPress: () => {
           void deletePromotionMutation.mutateAsync(promotion.id).catch((error) => {
@@ -122,14 +122,14 @@ function PromotionsContent({ initialMode, initialPromotionId }: PromotionsScreen
   return (
     <AppScreen scrollable>
       <View className="gap-2">
-        <Text className="text-3xl font-bold text-slate-950">Promotions</Text>
+        <Text className="text-3xl font-bold text-slate-950">Promociones</Text>
         <Text className="text-base leading-6 text-slate-600">
-          {currentKennel?.name ?? 'Kennel'} recommendations, campaigns and commercial messages
+          Recomendaciones, campañas y mensajes comerciales de {currentKennel?.name ?? 'criadero'}
         </Text>
       </View>
 
       <Button
-        title={isFormOpen ? 'Close form' : 'Create promotion'}
+        title={isFormOpen ? 'Cerrar formulario' : 'Crear promoción'}
         variant={isFormOpen ? 'secondary' : 'primary'}
         onPress={isFormOpen ? closeForm : () => router.push('/promotions/new' as never)}
       />
@@ -160,16 +160,16 @@ function PromotionsContent({ initialMode, initialPromotionId }: PromotionsScreen
       ) : null}
 
       {isFormOpen && initialPromotionId && promotionQuery.data?.is_global ? (
-        <AppCard title="Global promotion">
+        <AppCard title="Promoción global">
           <View className="gap-4">
-            <Text className="text-sm leading-5 text-slate-600">Global promotions are managed by SG Service.</Text>
-            <Button title="Back to promotions" variant="secondary" onPress={closeForm} />
+            <Text className="text-sm leading-5 text-slate-600">Las promociones globales las gestiona SG Service.</Text>
+            <Button title="Volver a promociones" variant="secondary" onPress={closeForm} />
           </View>
         </AppCard>
       ) : null}
 
       {activePromotionsQuery.isLoading ? (
-        <AppCard title="Loading promotions">
+        <AppCard title="Cargando promociones">
           <View className="items-start">
             <ActivityIndicator color="#1d4ed8" />
           </View>
@@ -177,23 +177,23 @@ function PromotionsContent({ initialMode, initialPromotionId }: PromotionsScreen
       ) : null}
 
       {activePromotionsQuery.error ? (
-        <AppCard title="Unable to load promotions">
+        <AppCard title="No se han podido cargar las promociones">
           <Text className="text-sm leading-5 text-red-600">{getErrorMessage(activePromotionsQuery.error)}</Text>
         </AppCard>
       ) : null}
 
       {!activePromotionsQuery.isLoading && !activePromotionsQuery.error && promotions.length === 0 ? (
-        <AppCard title={initialPromotionId ? 'Promotion not found' : hasActiveFilters ? 'No matching promotions' : 'No promotions yet'}>
+        <AppCard title={initialPromotionId ? 'Promoción no encontrada' : hasActiveFilters ? 'No hay promociones que coincidan' : 'Todavía no hay promociones'}>
           <View className="gap-4">
             <Text className="text-sm leading-5 text-slate-600">
               {initialPromotionId
-                ? 'This promotion is not available in the current kennel.'
+                ? 'Esta promoción no está disponible en el criadero actual.'
                 : hasActiveFilters
-                  ? 'Change the filters to see more promotions.'
-                  : 'Create the first kennel promotion.'}
+                  ? 'Cambia los filtros para ver más promociones.'
+                  : 'Crea la primera promoción del criadero.'}
             </Text>
             {!initialPromotionId && !isFormOpen && !hasActiveFilters ? (
-              <Button title="Create promotion" onPress={() => router.push('/promotions/new' as never)} />
+              <Button title="Crear promoción" onPress={() => router.push('/promotions/new' as never)} />
             ) : null}
           </View>
         </AppCard>
@@ -233,9 +233,9 @@ function PromotionFiltersCard({
   onChangeScope,
 }: PromotionFiltersCardProps) {
   return (
-    <AppCard title="Filters">
+    <AppCard title="Filtros">
       <View className="gap-4">
-        <FilterSection label="Scope">
+        <FilterSection label="Alcance">
           {promotionScopeOptions.map((scope) => (
             <FilterOption
               key={scope}
@@ -246,8 +246,8 @@ function PromotionFiltersCard({
           ))}
         </FilterSection>
 
-        <FilterSection label="Type">
-          <FilterOption label="All types" isSelected={!selectedPromotionType} onPress={() => onChangePromotionType('')} />
+        <FilterSection label="Tipo">
+          <FilterOption label="Todos los tipos" isSelected={!selectedPromotionType} onPress={() => onChangePromotionType('')} />
           {promotionTypeOptions.map((promotionType) => (
             <FilterOption
               key={promotionType}
@@ -321,9 +321,9 @@ function PromotionCard({
   onOpenLink,
 }: PromotionCardProps) {
   const details = [
-    promotion.is_global ? 'Global' : 'Kennel',
+    promotion.is_global ? 'Global' : 'Criadero',
     getPromotionTypeLabel(promotion.promotion_type),
-    `Created ${formatDate(promotion.created_at)}`,
+    `Creada ${formatDate(promotion.created_at)}`,
   ];
   const canManage = !promotion.is_global;
   const canDelete = canManage && isOwner;
@@ -347,17 +347,17 @@ function PromotionCard({
         <Text className="text-sm leading-5 text-slate-600">{promotion.message}</Text>
 
         {promotion.action_url ? (
-          <Button title="Open link" variant="secondary" onPress={() => onOpenLink(promotion.action_url!)} />
+          <Button title="Abrir enlace" variant="secondary" onPress={() => onOpenLink(promotion.action_url!)} />
         ) : null}
 
         {(showDetails && canManage) || canDelete ? (
           <View className="flex-row gap-3">
             {showDetails && canManage ? (
-              <Button title="Edit" variant="secondary" className="flex-1" onPress={onEdit} />
+              <Button title="Editar" variant="secondary" className="flex-1" onPress={onEdit} />
             ) : null}
             {canDelete ? (
               <Button
-                title="Delete"
+                title="Eliminar"
                 variant="ghost"
                 loading={isDeleting}
                 className="flex-1"
@@ -376,13 +376,6 @@ function formatDate(value: string) {
   return value.slice(0, 10);
 }
 
-function getErrorMessage(error: unknown) {
-  const message =
-    error instanceof Error
-      ? error.message
-      : typeof error === 'object' && error !== null && typeof (error as { message?: unknown }).message === 'string'
-        ? (error as { message: string }).message
-        : null;
-
-  return message ?? 'Something went wrong while managing promotions.';
+function getErrorMessage(_error: unknown) {
+  return 'Algo ha ido mal al gestionar las promociones.';
 }

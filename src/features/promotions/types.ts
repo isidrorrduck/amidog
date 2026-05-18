@@ -33,10 +33,10 @@ export interface PromotionMutationInput {
 }
 
 export const promotionFormSchema = z.object({
-  title: z.string().trim().min(1, 'Enter a promotion title.').max(160, 'Use 160 characters or fewer.'),
-  message: z.string().trim().min(1, 'Enter a promotion message.').max(2000, 'Use 2000 characters or fewer.'),
-  imageUrl: optionalUrl('Enter a valid image URL.'),
-  actionUrl: optionalUrl('Enter a valid action URL.'),
+  title: z.string().trim().min(1, 'Introduce un título para la promoción.').max(160, 'Usa 160 caracteres o menos.'),
+  message: z.string().trim().min(1, 'Introduce un mensaje para la promoción.').max(2000, 'Usa 2000 caracteres o menos.'),
+  imageUrl: optionalUrl('Introduce una URL de imagen válida.'),
+  actionUrl: optionalUrl('Introduce una URL de acción válida.'),
   promotionType: z.enum(promotionTypeOptions),
 });
 
@@ -66,14 +66,14 @@ export function toPromotionMutationInput(values: ValidPromotionFormValues): Prom
 
 export function getPromotionTypeLabel(promotionType: PromotionType) {
   const labels: Record<PromotionType, string> = {
-    veterinary: 'Veterinary',
-    nutrition: 'Nutrition',
-    genetics: 'Genetics',
-    supplements: 'Supplements',
-    grooming: 'Grooming',
-    kennel: 'Kennel',
-    puppies: 'Puppies',
-    other: 'Other',
+    veterinary: 'Veterinaria',
+    nutrition: 'Nutrición',
+    genetics: 'Genética',
+    supplements: 'Suplementos',
+    grooming: 'Peluquería',
+    kennel: 'Criadero',
+    puppies: 'Cachorros',
+    other: 'Otro',
   };
 
   return labels[promotionType];
@@ -81,8 +81,8 @@ export function getPromotionTypeLabel(promotionType: PromotionType) {
 
 export function getPromotionScopeLabel(scope: PromotionScope) {
   const labels: Record<PromotionScope, string> = {
-    all: 'All',
-    kennel: 'Kennel',
+    all: 'Todas',
+    kennel: 'Del criadero',
     global: 'Global',
   };
 
@@ -90,7 +90,7 @@ export function getPromotionScopeLabel(scope: PromotionScope) {
 }
 
 function optionalUrl(message: string) {
-  return z.string().trim().max(500, 'Use 500 characters or fewer.').refine(isEmptyOrUrl, message);
+  return z.string().trim().max(500, 'Usa 500 caracteres o menos.').refine(isEmptyOrUrl, message);
 }
 
 function emptyToNull(value: string) {

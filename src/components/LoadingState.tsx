@@ -9,7 +9,7 @@ interface LoadingStateProps {
   title?: string;
 }
 
-export default function LoadingState({ className, message, title = 'Loading' }: LoadingStateProps) {
+export default function LoadingState({ className, message, title = 'Cargando' }: LoadingStateProps) {
   return (
     <AppCard className={className}>
       <View className="flex-row items-center gap-3">

@@ -11,26 +11,30 @@ export default function ProfileScreen() {
   return (
     <AppScreen>
       <View className="gap-2">
-        <Text className="text-3xl font-bold text-slate-950">Profile</Text>
+        <Text className="text-3xl font-bold text-slate-950">Perfil</Text>
         <Text className="text-base leading-6 text-slate-600">
-          Account and workspace basics from Supabase Auth.
+          Datos básicos de tu cuenta y del espacio de trabajo.
         </Text>
       </View>
 
-      <AppCard title="Session">
+      <AppCard title="Sesión">
         <View className="mb-4 gap-2">
-          <Text className="text-sm leading-5 text-slate-600">Email: {profile?.email ?? user?.email ?? 'Unknown'}</Text>
+          <Text className="text-sm leading-5 text-slate-600">Correo: {profile?.email ?? user?.email ?? 'Desconocido'}</Text>
           <Text className="text-sm leading-5 text-slate-600">
-            Kennel: {currentKennel?.name ?? 'Preparing workspace'}
+            Criadero: {currentKennel?.name ?? 'Preparando espacio'}
           </Text>
           <Text className="text-sm capitalize leading-5 text-slate-600">
-            Role: {currentMembership?.role ?? 'member'}
+            Rol: {getRoleLabel(currentMembership?.role)}
           </Text>
         </View>
-        <Button title="Log out" variant="secondary" onPress={signOut} />
+        <Button title="Cerrar sesión" variant="secondary" onPress={signOut} />
       </AppCard>
 
       <KennelSelector allowCreate />
     </AppScreen>
   );
+}
+
+function getRoleLabel(role: string | null | undefined) {
+  return role === 'owner' ? 'Propietario' : 'Miembro';
 }

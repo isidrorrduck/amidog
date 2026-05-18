@@ -16,18 +16,18 @@ export interface ClientMutationInput {
 }
 
 export const clientFormSchema = z.object({
-  firstName: z.string().trim().min(1, 'Enter the client first name.').max(120, 'Use 120 characters or fewer.'),
-  lastName: optionalText(120, 'Use 120 characters or fewer.'),
+  firstName: z.string().trim().min(1, 'Introduce el nombre del cliente.').max(120, 'Usa 120 caracteres o menos.'),
+  lastName: optionalText(120, 'Usa 120 caracteres o menos.'),
   email: z
     .string()
     .trim()
-    .max(254, 'Use 254 characters or fewer.')
-    .refine(isEmptyOrEmail, 'Enter a valid email address.'),
-  phone: optionalText(40, 'Use 40 characters or fewer.'),
-  address: optionalText(240, 'Use 240 characters or fewer.'),
-  city: optionalText(120, 'Use 120 characters or fewer.'),
-  country: optionalText(120, 'Use 120 characters or fewer.'),
-  notes: optionalText(1000, 'Use 1000 characters or fewer.'),
+    .max(254, 'Usa 254 caracteres o menos.')
+    .refine(isEmptyOrEmail, 'Introduce un correo electrónico válido.'),
+  phone: optionalText(40, 'Usa 40 caracteres o menos.'),
+  address: optionalText(240, 'Usa 240 caracteres o menos.'),
+  city: optionalText(120, 'Usa 120 caracteres o menos.'),
+  country: optionalText(120, 'Usa 120 caracteres o menos.'),
+  notes: optionalText(1000, 'Usa 1000 caracteres o menos.'),
 });
 
 export type ClientFormValues = z.input<typeof clientFormSchema>;

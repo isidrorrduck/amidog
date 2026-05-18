@@ -12,7 +12,7 @@ export interface KennelWorkspace {
   role: KennelRole;
 }
 
-const fallbackKennelName = 'My Kennel';
+const fallbackKennelName = 'Mi criadero';
 const membershipAccountColumns = ['profile_id', 'user_id'] as const;
 
 export async function listKennelWorkspaces(profileId: string): Promise<KennelWorkspace[]> {
@@ -63,7 +63,7 @@ export async function createKennelForProfile(profileId: string, kennelName: stri
   const workspace = workspaces.find((item) => item.kennel.id === kennelId);
 
   if (!workspace) {
-    throw new Error('The kennel was created, but it could not be loaded for this account.');
+    throw new Error('El criadero se ha creado, pero no se ha podido cargar para esta cuenta.');
   }
 
   return workspace;
@@ -92,7 +92,7 @@ export function normalizeKennelName(kennelName: string | undefined, email: strin
 
   const emailPrefix = email?.split('@')[0]?.trim();
 
-  return emailPrefix ? `${emailPrefix} Kennel` : fallbackKennelName;
+  return emailPrefix ? `Criadero ${emailPrefix}` : fallbackKennelName;
 }
 
 async function listMembershipsForProfile(profileId: string): Promise<KennelMember[]> {
@@ -112,7 +112,7 @@ async function listMembershipsForProfile(profileId: string): Promise<KennelMembe
     lastMissingColumnError = error;
   }
 
-  throw lastMissingColumnError ?? new Error('Unable to load kennel memberships for this account.');
+  throw lastMissingColumnError ?? new Error('No se han podido cargar los miembros del criadero para esta cuenta.');
 }
 
 async function fetchMembershipsByAccountColumn(

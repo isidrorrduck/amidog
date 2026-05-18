@@ -18,35 +18,35 @@ import { useUnreadNotificationsCount } from '../../src/features/notifications';
 
 const quickActions = [
   {
-    body: 'Open the dog form for the active kennel.',
+    body: 'Abre el formulario de perros del criadero activo.',
     href: '/dogs?action=create',
     label: 'D',
-    title: 'Add Dog',
+    title: 'Añadir perro',
   },
   {
-    body: 'Create a planned, expected or born litter.',
+    body: 'Crea una camada planificada, esperada o nacida.',
     href: '/litters?action=create',
     label: 'L',
-    title: 'Add Litter',
+    title: 'Añadir camada',
   },
   {
-    body: 'Review and update registered dogs.',
+    body: 'Revisa y actualiza los perros registrados.',
     href: '/dogs',
     label: 'DR',
-    title: 'Dogs',
+    title: 'Perros',
   },
   {
-    body: 'Manage litters and parent links.',
+    body: 'Gestiona camadas y enlaces de progenitores.',
     href: '/litters',
     label: 'LR',
-    title: 'Litters',
+    title: 'Camadas',
   },
 ] as const;
 
 const nextSteps = [
-  { description: 'Puppy pipeline, litter status and placement notes.', status: 'Coming soon', title: 'Puppies' },
-  { description: 'Client contact history and placement preferences.', status: 'Next', title: 'Clients' },
-  { description: 'Bookings, deposits and reservation follow-up.', status: 'Next', title: 'Reservations' },
+  { description: 'Seguimiento de cachorros, estado de camada y notas de entrega.', status: 'Próximamente', title: 'Cachorros' },
+  { description: 'Historial de contacto y preferencias de familias.', status: 'Siguiente', title: 'Clientes' },
+  { description: 'Reservas, señales y seguimiento de entregas.', status: 'Siguiente', title: 'Reservas' },
 ] as const;
 
 export default function HomeScreen() {
@@ -72,27 +72,27 @@ export default function HomeScreen() {
     <AppScreen scrollable>
       <ScreenHeader
         eyebrow="Amidog"
-        title="Home"
+        title="Inicio"
         subtitle={
           profile?.email
-            ? `Signed in as ${profile.email}`
-            : 'A focused workspace for managing kennel records and daily operations.'
+            ? `Sesión iniciada como ${profile.email}`
+            : 'Un espacio claro para gestionar registros y tareas diarias del criadero.'
         }
       />
 
-      {isKennelLoading ? <LoadingState title="Loading kennel" message="Preparing your active workspace." /> : null}
+      {isKennelLoading ? <LoadingState title="Cargando criadero" message="Preparando tu espacio de trabajo activo." /> : null}
 
       {!isKennelLoading && !hasKennel ? (
         <EmptyState
-          title="No active kennel"
-          message="Create or select a kennel before managing dogs, litters and documents."
-          actionLabel="Open profile"
+          title="No hay criadero activo"
+          message="Crea o selecciona un criadero antes de gestionar perros, camadas y documentos."
+          actionLabel="Abrir perfil"
           onAction={() => router.push('/(tabs)/profile' as never)}
         />
       ) : null}
 
       {firstError ? (
-        <AppCard title="Needs attention" className="border-red-100 bg-red-50">
+        <AppCard title="Requiere atención" className="border-red-100 bg-red-50">
           <Text className="text-sm leading-5 text-red-600">{firstError}</Text>
         </AppCard>
       ) : null}
@@ -102,42 +102,42 @@ export default function HomeScreen() {
           <AppCard className="border-brand-700 bg-brand-700">
             <View className="gap-4">
               <View className="gap-1">
-                <Text className="text-xs font-semibold uppercase text-brand-100">Active kennel</Text>
+                <Text className="text-xs font-semibold uppercase text-brand-100">Criadero activo</Text>
                 <Text className="text-2xl font-bold text-white">{currentKennel?.name}</Text>
                 <Text className="text-sm capitalize text-brand-100">
-                  {currentMembership?.role ?? 'member'} workspace
+                  Espacio de {getRoleLabel(currentMembership?.role)}
                 </Text>
               </View>
               <View className="flex-row flex-wrap gap-2">
-                <StatusPill label={`${unreadCount} unread`} />
-                <StatusPill label={isRegistryLoading ? 'Syncing' : 'Up to date'} />
+                <StatusPill label={`${unreadCount} sin leer`} />
+                <StatusPill label={isRegistryLoading ? 'Sincronizando' : 'Al día'} />
               </View>
             </View>
           </AppCard>
 
           <View className="gap-3">
-            <SectionTitle title="Quick stats" />
+            <SectionTitle title="Resumen" />
             <View className="flex-row flex-wrap gap-3">
               <StatCard
-                label="Dogs"
+                label="Perros"
                 value={dogs.length}
-                helper={dogs.length === 0 ? 'No dogs yet' : 'Registered dogs'}
+                helper={dogs.length === 0 ? 'Todavía no hay perros' : 'Perros registrados'}
                 loading={dogsQuery.isLoading}
                 tone="brand"
               />
               <StatCard
-                label="Litters"
+                label="Camadas"
                 value={litters.length}
-                helper={litters.length === 0 ? 'No litters yet' : 'Active registry'}
+                helper={litters.length === 0 ? 'Todavía no hay camadas' : 'Registro activo'}
                 loading={littersQuery.isLoading}
                 tone="accent"
               />
-              <StatCard label="Puppies" value="Soon" helper="Coming soon" tone="neutral" />
+              <StatCard label="Cachorros" value="Pronto" helper="Próximamente" tone="neutral" />
             </View>
           </View>
 
           <View className="gap-3">
-            <SectionTitle title="Quick actions" />
+            <SectionTitle title="Acciones rápidas" />
             <View className="flex-row flex-wrap gap-3">
               {quickActions.map((action) => (
                 <QuickActionCard
@@ -154,14 +154,14 @@ export default function HomeScreen() {
 
           {!isRegistryLoading && !dogsQuery.error && !littersQuery.error && dogs.length === 0 && litters.length === 0 ? (
             <EmptyState
-              title="Start the kennel registry"
-              message="Add the first dog or litter to turn this workspace into a daily dashboard."
-              actionLabel="Add dog"
+              title="Empieza el registro del criadero"
+              message="Añade el primer perro o la primera camada para convertir este espacio en un panel diario."
+              actionLabel="Añadir perro"
               onAction={() => router.push('/dogs?action=create' as never)}
             />
           ) : null}
 
-          <AppCard title="Next steps" subtitle="Upcoming workflows for a complete breeder operation.">
+          <AppCard title="Próximos pasos" subtitle="Flujos previstos para una gestión completa del criadero.">
             <View className="gap-4">
               {nextSteps.map((step, index) => (
                 <View
@@ -205,10 +205,14 @@ function StatusPill({ label }: StatusPillProps) {
   );
 }
 
-function getErrorMessage(error: unknown) {
-  if (!error) {
+function getErrorMessage(_error: unknown) {
+  if (!_error) {
     return null;
   }
 
-  return error instanceof Error ? error.message : 'Something went wrong while loading dashboard data.';
+  return 'Algo ha ido mal al cargar los datos del panel.';
+}
+
+function getRoleLabel(role: string | null | undefined) {
+  return role === 'owner' ? 'propietario' : 'miembro';
 }

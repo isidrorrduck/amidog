@@ -55,7 +55,7 @@ export function useDeleteDocument(kennelId: string | null | undefined) {
 
 async function requireKennelId(kennelId: string | null | undefined) {
   if (!kennelId) {
-    throw new Error('Select a kennel before managing documents.');
+    throw new Error('Selecciona un criadero antes de gestionar documentos.');
   }
 
   return kennelId;
@@ -63,7 +63,7 @@ async function requireKennelId(kennelId: string | null | undefined) {
 
 function requireDocumentId(documentId: string | null | undefined) {
   if (!documentId) {
-    throw new Error('Choose a document first.');
+    throw new Error('Elige primero un documento.');
   }
 
   return documentId;

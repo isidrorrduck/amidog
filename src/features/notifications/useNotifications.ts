@@ -51,7 +51,7 @@ export function useRegisterPushToken() {
 
 async function requireKennelId(kennelId: string | null | undefined) {
   if (!kennelId) {
-    throw new Error('Select a kennel before managing notifications.');
+    throw new Error('Selecciona un criadero antes de gestionar notificaciones.');
   }
 
   return kennelId;

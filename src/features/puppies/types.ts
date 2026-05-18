@@ -20,13 +20,13 @@ export interface PuppyMutationInput {
 }
 
 export const puppyFormSchema = z.object({
-  litterId: requiredUuid('Choose a litter for this puppy.'),
-  name: z.string().trim().min(1, 'Enter the puppy name.').max(120, 'Use 120 characters or fewer.'),
+  litterId: requiredUuid('Elige una camada para este cachorro.'),
+  name: z.string().trim().min(1, 'Introduce el nombre del cachorro.').max(120, 'Usa 120 caracteres o menos.'),
   sex: z.enum(puppySexOptions),
-  color: optionalText(80, 'Use 80 characters or fewer.'),
-  birthWeight: z.string().trim().refine(isEmptyOrWeight, 'Use a valid birth weight.'),
+  color: optionalText(80, 'Usa 80 caracteres o menos.'),
+  birthWeight: z.string().trim().refine(isEmptyOrWeight, 'Introduce un peso al nacer válido.'),
   status: z.enum(puppyStatusOptions),
-  notes: optionalText(1000, 'Use 1000 characters or fewer.'),
+  notes: optionalText(1000, 'Usa 1000 caracteres o menos.'),
 });
 
 export type PuppyFormValues = z.input<typeof puppyFormSchema>;
@@ -58,9 +58,9 @@ export function toPuppyMutationInput(values: ValidPuppyFormValues): PuppyMutatio
 
 export function getPuppySexLabel(sex: PuppySex) {
   const labels: Record<PuppySex, string> = {
-    unknown: 'Unknown',
-    male: 'Male',
-    female: 'Female',
+    unknown: 'Sin especificar',
+    male: 'Macho',
+    female: 'Hembra',
   };
 
   return labels[sex];
@@ -68,11 +68,11 @@ export function getPuppySexLabel(sex: PuppySex) {
 
 export function getPuppyStatusLabel(status: PuppyStatus) {
   const labels: Record<PuppyStatus, string> = {
-    available: 'Available',
-    reserved: 'Reserved',
-    placed: 'Placed',
-    kept: 'Kept',
-    deceased: 'Deceased',
+    available: 'Disponible',
+    reserved: 'Reservado',
+    placed: 'Entregado',
+    kept: 'Se queda en casa',
+    deceased: 'Fallecido',
   };
 
   return labels[status];

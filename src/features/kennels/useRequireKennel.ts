@@ -6,8 +6,8 @@ export function useRequireKennel() {
   if (!currentWorkspace) {
     throw new Error(
       isKennelLoading
-        ? 'The current kennel is still loading.'
-        : 'A current kennel is required before using this feature.',
+        ? 'El criadero actual todavía se está cargando.'
+        : 'Necesitas un criadero activo antes de usar esta función.',
     );
   }
 
