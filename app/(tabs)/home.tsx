@@ -15,6 +15,7 @@ import { useDogs } from '../../src/features/dogs';
 import { useCurrentKennel } from '../../src/features/kennels';
 import { useLitters } from '../../src/features/litters';
 import { useUnreadNotificationsCount } from '../../src/features/notifications';
+import { usePuppies } from '../../src/features/puppies';
 
 const quickActions = [
   {
@@ -30,6 +31,12 @@ const quickActions = [
     title: 'Añadir camada',
   },
   {
+    body: 'Registra cachorros dentro de una camada.',
+    href: '/puppies/new',
+    label: 'C',
+    title: 'Añadir cachorro',
+  },
+  {
     body: 'Revisa y actualiza los perros registrados.',
     href: '/dogs',
     label: 'DR',
@@ -41,10 +48,15 @@ const quickActions = [
     label: 'LR',
     title: 'Camadas',
   },
+  {
+    body: 'Revisa estados, clientes asignados y notas.',
+    href: '/puppies',
+    label: 'CR',
+    title: 'Cachorros',
+  },
 ] as const;
 
 const nextSteps = [
-  { description: 'Seguimiento de cachorros, estado de camada y notas de entrega.', status: 'Próximamente', title: 'Cachorros' },
   { description: 'Historial de contacto y preferencias de familias.', status: 'Siguiente', title: 'Clientes' },
   { description: 'Reservas, señales y seguimiento de entregas.', status: 'Siguiente', title: 'Reservas' },
 ] as const;
@@ -55,17 +67,20 @@ export default function HomeScreen() {
   const kennelId = currentKennel?.id ?? null;
   const dogsQuery = useDogs(kennelId);
   const littersQuery = useLitters(kennelId);
+  const puppiesQuery = usePuppies(kennelId);
   const unreadNotificationsQuery = useUnreadNotificationsCount(kennelId);
   const dogs = dogsQuery.data ?? [];
   const litters = littersQuery.data ?? [];
+  const puppies = puppiesQuery.data ?? [];
   const unreadCount = unreadNotificationsQuery.data ?? 0;
   const hasKennel = Boolean(currentKennel);
-  const isRegistryLoading = isKennelLoading || dogsQuery.isLoading || littersQuery.isLoading;
+  const isRegistryLoading = isKennelLoading || dogsQuery.isLoading || littersQuery.isLoading || puppiesQuery.isLoading;
   const firstError =
     profileError ??
     kennelError ??
     getErrorMessage(dogsQuery.error) ??
     getErrorMessage(littersQuery.error) ??
+    getErrorMessage(puppiesQuery.error) ??
     getErrorMessage(unreadNotificationsQuery.error);
 
   return (
@@ -132,7 +147,13 @@ export default function HomeScreen() {
                 loading={littersQuery.isLoading}
                 tone="accent"
               />
-              <StatCard label="Cachorros" value="Pronto" helper="Próximamente" tone="neutral" />
+              <StatCard
+                label="Cachorros"
+                value={puppies.length}
+                helper={puppies.length === 0 ? 'Todavía no hay cachorros' : 'Cachorros registrados'}
+                loading={puppiesQuery.isLoading}
+                tone="neutral"
+              />
             </View>
           </View>
 
@@ -152,7 +173,13 @@ export default function HomeScreen() {
             </View>
           </View>
 
-          {!isRegistryLoading && !dogsQuery.error && !littersQuery.error && dogs.length === 0 && litters.length === 0 ? (
+          {!isRegistryLoading &&
+          !dogsQuery.error &&
+          !littersQuery.error &&
+          !puppiesQuery.error &&
+          dogs.length === 0 &&
+          litters.length === 0 &&
+          puppies.length === 0 ? (
             <EmptyState
               title="Empieza el registro del criadero"
               message="Añade el primer perro o la primera camada para convertir este espacio en un panel diario."

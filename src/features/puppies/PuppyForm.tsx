@@ -2,7 +2,8 @@ import { useEffect } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { Pressable, Text, View } from 'react-native';
 
-import { Button, AppCard, Input } from '../../components';
+import { AppCard, Button, Input } from '../../components';
+import { getClientFullName, type Client } from '../clients';
 import { type Litter } from '../litters';
 import {
   getPuppyFormDefaultValues,
@@ -18,6 +19,7 @@ import {
 } from './types';
 
 interface PuppyFormProps {
+  clients: Client[];
   defaultLitterId?: string;
   litters: Litter[];
   puppy?: Puppy | null;
@@ -27,10 +29,11 @@ interface PuppyFormProps {
   onSubmit: (input: PuppyMutationInput) => Promise<void>;
 }
 
-const puppyFormFields = ['litterId', 'name', 'sex', 'color', 'birthWeight', 'status', 'notes'] as const;
+const puppyFormFields = ['litterId', 'clientId', 'name', 'sex', 'birthDate', 'color', 'status', 'notes'] as const;
 type PuppyFormField = (typeof puppyFormFields)[number];
 
 export function PuppyForm({
+  clients,
   defaultLitterId = '',
   litters,
   puppy,
@@ -71,8 +74,8 @@ export function PuppyForm({
   };
 
   return (
-    <AppCard title={puppy ? 'Editar cachorro' : 'Añadir cachorro'}>
-      <View className="gap-4">
+    <AppCard title={puppy ? 'Editar cachorro' : 'Añadir cachorro'} subtitle="Ficha del cachorro">
+      <View className="gap-5">
         <Controller
           control={control}
           name="litterId"
@@ -108,7 +111,7 @@ export function PuppyForm({
           render={({ field: { onChange, value } }) => (
             <View className="gap-2">
               <Text className="text-sm font-semibold text-slate-700">Sexo</Text>
-              <View className="flex-row gap-2">
+              <View className="flex-row flex-wrap gap-2">
                 {puppySexOptions.map((option) => {
                   const isSelected = value === option;
 
@@ -117,7 +120,7 @@ export function PuppyForm({
                       accessibilityRole="button"
                       key={option}
                       onPress={() => onChange(option)}
-                      className={`min-h-11 flex-1 items-center justify-center rounded-lg border px-3 ${
+                      className={`min-h-11 min-w-28 flex-1 items-center justify-center rounded-lg border px-3 ${
                         isSelected ? 'border-brand-600 bg-brand-50' : 'border-slate-300 bg-white'
                       }`}
                     >
@@ -148,7 +151,7 @@ export function PuppyForm({
                       accessibilityRole="button"
                       key={option}
                       onPress={() => onChange(option)}
-                      className={`min-h-11 min-w-24 items-center justify-center rounded-lg border px-3 ${
+                      className={`min-h-11 min-w-28 flex-1 items-center justify-center rounded-lg border px-3 ${
                         isSelected ? 'border-brand-600 bg-brand-50' : 'border-slate-300 bg-white'
                       }`}
                     >
@@ -161,6 +164,35 @@ export function PuppyForm({
               </View>
               {errors.status?.message ? <Text className="text-sm text-red-600">{errors.status.message}</Text> : null}
             </View>
+          )}
+        />
+
+        <Controller
+          control={control}
+          name="clientId"
+          render={({ field: { onChange, value } }) => (
+            <ClientSelector
+              clients={clients}
+              value={value}
+              error={errors.clientId?.message}
+              onChange={onChange}
+            />
+          )}
+        />
+
+        <Controller
+          control={control}
+          name="birthDate"
+          render={({ field: { onBlur, onChange, value } }) => (
+            <Input
+              label="Fecha de nacimiento"
+              placeholder="2026-06-22"
+              keyboardType="numbers-and-punctuation"
+              value={value}
+              onBlur={onBlur}
+              onChangeText={onChange}
+              error={errors.birthDate?.message}
+            />
           )}
         />
 
@@ -182,27 +214,11 @@ export function PuppyForm({
 
         <Controller
           control={control}
-          name="birthWeight"
-          render={({ field: { onBlur, onChange, value } }) => (
-            <Input
-              label="Peso al nacer"
-              placeholder="0.45"
-              keyboardType="decimal-pad"
-              value={value}
-              onBlur={onBlur}
-              onChangeText={onChange}
-              error={errors.birthWeight?.message}
-            />
-          )}
-        />
-
-        <Controller
-          control={control}
           name="notes"
           render={({ field: { onBlur, onChange, value } }) => (
             <Input
               label="Notas"
-              placeholder="Revisiones de salud, notas de entrega y observaciones"
+              placeholder="Revisiones de salud, carácter y observaciones de entrega"
               multiline
               numberOfLines={4}
               textAlignVertical="top"
@@ -216,12 +232,16 @@ export function PuppyForm({
         />
 
         {litters.length === 0 ? (
-          <Text className="text-sm leading-5 text-slate-600">Crea una camada antes de añadir cachorros.</Text>
+          <Text className="text-sm leading-5 text-muted">Crea una camada antes de añadir cachorros.</Text>
         ) : null}
 
-        {errorMessage ? <Text className="text-sm leading-5 text-red-600">{errorMessage}</Text> : null}
+        {errorMessage ? (
+          <View className="rounded-lg bg-red-50 px-3 py-2">
+            <Text className="text-sm leading-5 text-red-600">{errorMessage}</Text>
+          </View>
+        ) : null}
 
-        <View className="flex-row gap-3">
+        <View className="flex-row gap-3 pt-1">
           <Button title="Cancelar" variant="secondary" className="flex-1" onPress={onCancel} />
           <Button
             title={puppy ? 'Guardar cachorro' : 'Añadir cachorro'}
@@ -249,7 +269,7 @@ function LitterSelector({ litters, error, value, onChange }: LitterSelectorProps
       <Text className="text-sm font-semibold text-slate-700">Camada</Text>
       <View className="flex-row flex-wrap gap-2">
         {litters.map((litter) => (
-          <LitterOption
+          <SelectOption
             key={litter.id}
             label={litter.name}
             isSelected={value === litter.id}
@@ -262,13 +282,43 @@ function LitterSelector({ litters, error, value, onChange }: LitterSelectorProps
   );
 }
 
-interface LitterOptionProps {
+interface ClientSelectorProps {
+  clients: Client[];
+  error?: string;
+  value: string;
+  onChange: (value: string) => void;
+}
+
+function ClientSelector({ clients, error, value, onChange }: ClientSelectorProps) {
+  return (
+    <View className="gap-2">
+      <Text className="text-sm font-semibold text-slate-700">Cliente asignado</Text>
+      <View className="flex-row flex-wrap gap-2">
+        <SelectOption label="Sin cliente" isSelected={!value} onPress={() => onChange('')} />
+        {clients.map((client) => (
+          <SelectOption
+            key={client.id}
+            label={getClientFullName(client)}
+            isSelected={value === client.id}
+            onPress={() => onChange(client.id)}
+          />
+        ))}
+      </View>
+      {clients.length === 0 ? (
+        <Text className="text-sm leading-5 text-muted">Puedes asignar un cliente más adelante.</Text>
+      ) : null}
+      {error ? <Text className="text-sm text-red-600">{error}</Text> : null}
+    </View>
+  );
+}
+
+interface SelectOptionProps {
   isSelected: boolean;
   label: string;
   onPress: () => void;
 }
 
-function LitterOption({ isSelected, label, onPress }: LitterOptionProps) {
+function SelectOption({ isSelected, label, onPress }: SelectOptionProps) {
   return (
     <Pressable
       accessibilityRole="button"
