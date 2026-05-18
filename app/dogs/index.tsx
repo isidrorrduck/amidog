@@ -1,8 +1,8 @@
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { ActivityIndicator, Alert, Text, View } from 'react-native';
 
-import { Button, Card, Screen } from '../../src/components';
+import { Button, AppCard, AppScreen } from '../../src/components';
 import { ProtectedRoute } from '../../src/features/auth';
 import {
   DogForm,
@@ -24,6 +24,7 @@ export default function DogsScreen() {
 }
 
 function DogsContent() {
+  const { action } = useLocalSearchParams<{ action?: string }>();
   const { currentKennel, currentMembership } = useCurrentKennel();
   const kennelId = currentKennel?.id ?? null;
   const dogsQuery = useDogs(kennelId);
@@ -31,7 +32,7 @@ function DogsContent() {
   const updateDogMutation = useUpdateDog(kennelId);
   const deleteDogMutation = useDeleteDog(kennelId);
   const [editingDog, setEditingDog] = useState<Dog | null>(null);
-  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [isFormOpen, setIsFormOpen] = useState(action === 'create');
   const [formError, setFormError] = useState<string | null>(null);
   const [screenError, setScreenError] = useState<string | null>(null);
   const dogs = dogsQuery.data ?? [];
@@ -94,7 +95,7 @@ function DogsContent() {
   };
 
   return (
-    <Screen scrollable>
+    <AppScreen scrollable>
       <View className="gap-2">
         <Text className="text-3xl font-bold text-slate-950">Dogs</Text>
         <Text className="text-base leading-6 text-slate-600">{currentKennel?.name ?? 'Kennel'} registry</Text>
@@ -107,9 +108,9 @@ function DogsContent() {
       />
 
       {screenError ? (
-        <Card>
+        <AppCard>
           <Text className="text-sm leading-5 text-red-600">{screenError}</Text>
-        </Card>
+        </AppCard>
       ) : null}
 
       {isFormOpen ? (
@@ -123,26 +124,26 @@ function DogsContent() {
       ) : null}
 
       {dogsQuery.isLoading ? (
-        <Card title="Loading dogs">
+        <AppCard title="Loading dogs">
           <View className="items-start">
             <ActivityIndicator color="#1d4ed8" />
           </View>
-        </Card>
+        </AppCard>
       ) : null}
 
       {dogsQuery.error ? (
-        <Card title="Unable to load dogs">
+        <AppCard title="Unable to load dogs">
           <Text className="text-sm leading-5 text-red-600">{getErrorMessage(dogsQuery.error)}</Text>
-        </Card>
+        </AppCard>
       ) : null}
 
       {!dogsQuery.isLoading && !dogsQuery.error && dogs.length === 0 ? (
-        <Card title="No dogs yet">
+        <AppCard title="No dogs yet">
           <View className="gap-4">
             <Text className="text-sm leading-5 text-slate-600">Create the first dog for this kennel.</Text>
             {!isFormOpen ? <Button title="Create dog" onPress={openCreateForm} /> : null}
           </View>
-        </Card>
+        </AppCard>
       ) : null}
 
       {dogs.length > 0 ? (
@@ -160,7 +161,7 @@ function DogsContent() {
           ))}
         </View>
       ) : null}
-    </Screen>
+    </AppScreen>
   );
 }
 
@@ -183,7 +184,7 @@ function DogCard({ dog, isDeleting, isOwner, onDelete, onDocuments, onEdit }: Do
   ].filter(Boolean);
 
   return (
-    <Card>
+    <AppCard>
       <View className="gap-3">
         <View className="gap-1">
           <Text className="text-xl font-semibold text-slate-950">{dog.name}</Text>
@@ -209,7 +210,7 @@ function DogCard({ dog, isDeleting, isOwner, onDelete, onDocuments, onEdit }: Do
           </View>
         </View>
       </View>
-    </Card>
+    </AppCard>
   );
 }
 

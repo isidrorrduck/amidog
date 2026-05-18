@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { Pressable, Text, View } from 'react-native';
 
-import { Button, Card, Input } from '../../components';
+import { Button, AppCard, Input } from '../../components';
 import {
   dogFormSchema,
   dogSexOptions,
@@ -58,7 +58,7 @@ export function DogForm({ dog, errorMessage, isSubmitting = false, onCancel, onS
   };
 
   return (
-    <Card title={dog ? 'Edit dog' : 'Create dog'}>
+    <AppCard title={dog ? 'Edit dog' : 'Create dog'}>
       <View className="gap-4">
         <Controller
           control={control}
@@ -202,7 +202,7 @@ export function DogForm({ dog, errorMessage, isSubmitting = false, onCancel, onS
           />
         </View>
       </View>
-    </Card>
+    </AppCard>
   );
 }
 

@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { Text, View } from 'react-native';
 
-import { Button, Card, Input } from '../../components';
+import { Button, AppCard, Input } from '../../components';
 import {
   clientFormSchema,
   getClientFormDefaultValues,
@@ -56,7 +56,7 @@ export function ClientForm({ client, errorMessage, isSubmitting = false, onCance
   };
 
   return (
-    <Card title={client ? 'Edit client' : 'Create client'}>
+    <AppCard title={client ? 'Edit client' : 'Create client'}>
       <View className="gap-4">
         <Controller
           control={control}
@@ -203,7 +203,7 @@ export function ClientForm({ client, errorMessage, isSubmitting = false, onCance
           />
         </View>
       </View>
-    </Card>
+    </AppCard>
   );
 }
 

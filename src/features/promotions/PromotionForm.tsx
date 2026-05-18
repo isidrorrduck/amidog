@@ -3,7 +3,7 @@ import { useEffect } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { Pressable, Text, View } from 'react-native';
 
-import { Button, Card, Input } from '../../components';
+import { Button, AppCard, Input } from '../../components';
 import {
   getPromotionFormDefaultValues,
   getPromotionTypeLabel,
@@ -65,7 +65,7 @@ export function PromotionForm({
   };
 
   return (
-    <Card title={promotion ? 'Edit promotion' : 'Create promotion'}>
+    <AppCard title={promotion ? 'Edit promotion' : 'Create promotion'}>
       <View className="gap-4">
         <Controller
           control={control}
@@ -165,7 +165,7 @@ export function PromotionForm({
           />
         </View>
       </View>
-    </Card>
+    </AppCard>
   );
 }
 

@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { Pressable, Text, View } from 'react-native';
 
-import { Button, Card, Input } from '../../components';
+import { Button, AppCard, Input } from '../../components';
 import { type Litter } from '../litters';
 import {
   getPuppyFormDefaultValues,
@@ -71,7 +71,7 @@ export function PuppyForm({
   };
 
   return (
-    <Card title={puppy ? 'Edit puppy' : 'Create puppy'}>
+    <AppCard title={puppy ? 'Edit puppy' : 'Create puppy'}>
       <View className="gap-4">
         <Controller
           control={control}
@@ -232,7 +232,7 @@ export function PuppyForm({
           />
         </View>
       </View>
-    </Card>
+    </AppCard>
   );
 }
 

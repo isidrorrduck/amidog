@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { Text, View } from 'react-native';
 import { z } from 'zod';
 
-import { Button, Card, Input, Screen } from '../../src/components';
+import { Button, AppCard, Input, AppScreen } from '../../src/components';
 import { AuthLoadingScreen, useAuth } from '../../src/features/auth';
 import { env } from '../../src/lib/env';
 
@@ -49,7 +49,7 @@ export default function LoginScreen() {
   };
 
   return (
-    <Screen contentClassName="justify-center">
+    <AppScreen contentClassName="justify-center">
       <View className="mb-8 gap-2">
         <Text className="text-4xl font-bold text-slate-950">Welcome back</Text>
         <Text className="text-base leading-6 text-slate-600">
@@ -57,7 +57,7 @@ export default function LoginScreen() {
         </Text>
       </View>
 
-      <Card>
+      <AppCard>
         <View className="gap-4">
           <Input
             label="Email"
@@ -83,8 +83,8 @@ export default function LoginScreen() {
           <Button title="Log in" loading={isSubmitting} disabled={!isSupabaseConfigured} onPress={handleSubmit} />
           <Button title="Create account" variant="secondary" onPress={() => router.push('/auth/register')} />
         </View>
-      </Card>
-    </Screen>
+      </AppCard>
+    </AppScreen>
   );
 }
 

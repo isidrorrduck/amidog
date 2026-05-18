@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 
-import { Button, Card, Input } from '../../components';
+import { Button, AppCard, Input } from '../../components';
 import { useAuth } from '../auth/AuthProvider';
 import { useKennels } from './KennelProvider';
 import { normalizeKennelName } from './kennelService';
@@ -45,7 +45,7 @@ export function KennelSelector({ allowCreate = false }: KennelSelectorProps) {
   };
 
   return (
-    <Card title="Kennels">
+    <AppCard title="Kennels">
       <View className="gap-3">
         {availableKennels.map((workspace) => {
           const isActive = workspace.kennel.id === currentKennel?.id;
@@ -88,7 +88,7 @@ export function KennelSelector({ allowCreate = false }: KennelSelectorProps) {
         {kennelError ? <Text className="text-sm leading-5 text-red-600">{kennelError}</Text> : null}
         {selectorError ? <Text className="text-sm leading-5 text-red-600">{selectorError}</Text> : null}
       </View>
-    </Card>
+    </AppCard>
   );
 }
 

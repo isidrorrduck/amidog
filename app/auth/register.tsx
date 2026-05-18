@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { Text, View } from 'react-native';
 import { z } from 'zod';
 
-import { Button, Card, Input, Screen } from '../../src/components';
+import { Button, AppCard, Input, AppScreen } from '../../src/components';
 import { AuthLoadingScreen, useAuth } from '../../src/features/auth';
 import { env } from '../../src/lib/env';
 
@@ -75,7 +75,7 @@ export default function RegisterScreen() {
   };
 
   return (
-    <Screen contentClassName="justify-center">
+    <AppScreen contentClassName="justify-center">
       <View className="mb-8 gap-2">
         <Text className="text-4xl font-bold text-slate-950">Create kennel</Text>
         <Text className="text-base leading-6 text-slate-600">
@@ -83,7 +83,7 @@ export default function RegisterScreen() {
         </Text>
       </View>
 
-      <Card>
+      <AppCard>
         <View className="gap-4">
           <Input label="Kennel name" placeholder="Oak Valley Kennels" value={kennelName} onChangeText={setKennelName} />
           <Input
@@ -119,8 +119,8 @@ export default function RegisterScreen() {
           <Button title="Register" loading={isSubmitting} disabled={!isSupabaseConfigured} onPress={handleSubmit} />
           <Button title="I already have an account" variant="secondary" onPress={() => router.replace('/auth/login')} />
         </View>
-      </Card>
-    </Screen>
+      </AppCard>
+    </AppScreen>
   );
 }
 

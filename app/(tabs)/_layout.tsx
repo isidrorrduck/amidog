@@ -1,6 +1,7 @@
 import { Tabs } from 'expo-router';
 
 import { ProtectedRoute } from '../../src/features/auth';
+import { tokens } from '../../src/theme';
 
 export default function TabsLayout() {
   return (
@@ -8,8 +9,8 @@ export default function TabsLayout() {
       <Tabs
         screenOptions={{
           headerShown: false,
-          tabBarActiveTintColor: '#2563eb',
-          tabBarInactiveTintColor: '#64748b',
+          tabBarActiveTintColor: tokens.colors.brand[600],
+          tabBarInactiveTintColor: tokens.colors.textMuted,
         }}
       >
         <Tabs.Screen name="index" options={{ href: null }} />

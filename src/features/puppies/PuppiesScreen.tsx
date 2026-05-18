@@ -2,7 +2,7 @@ import { router } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, Alert, Pressable, Text, View } from 'react-native';
 
-import { Button, Card, Screen } from '../../components';
+import { Button, AppCard, AppScreen } from '../../components';
 import { ProtectedRoute } from '../auth';
 import { useCurrentKennel } from '../kennels';
 import { useLitters, type Litter } from '../litters';
@@ -130,7 +130,7 @@ function PuppiesContent({ initialMode, initialLitterId, initialPuppyId }: Puppie
   };
 
   return (
-    <Screen scrollable>
+    <AppScreen scrollable>
       <View className="gap-2">
         <Text className="text-3xl font-bold text-slate-950">Puppies</Text>
         <Text className="text-base leading-6 text-slate-600">{currentKennel?.name ?? 'Kennel'} puppy registry</Text>
@@ -143,15 +143,15 @@ function PuppiesContent({ initialMode, initialLitterId, initialPuppyId }: Puppie
       />
 
       {screenError ? (
-        <Card>
+        <AppCard>
           <Text className="text-sm leading-5 text-red-600">{screenError}</Text>
-        </Card>
+        </AppCard>
       ) : null}
 
       {littersQuery.error ? (
-        <Card title="Unable to load litters">
+        <AppCard title="Unable to load litters">
           <Text className="text-sm leading-5 text-red-600">{getErrorMessage(littersQuery.error)}</Text>
-        </Card>
+        </AppCard>
       ) : null}
 
       {litters.length > 0 ? (
@@ -171,37 +171,37 @@ function PuppiesContent({ initialMode, initialLitterId, initialPuppyId }: Puppie
       ) : null}
 
       {puppiesQuery.isLoading || littersQuery.isLoading ? (
-        <Card title="Loading puppies">
+        <AppCard title="Loading puppies">
           <View className="items-start">
             <ActivityIndicator color="#1d4ed8" />
           </View>
-        </Card>
+        </AppCard>
       ) : null}
 
       {puppiesQuery.error ? (
-        <Card title="Unable to load puppies">
+        <AppCard title="Unable to load puppies">
           <Text className="text-sm leading-5 text-red-600">{getErrorMessage(puppiesQuery.error)}</Text>
-        </Card>
+        </AppCard>
       ) : null}
 
       {!littersQuery.isLoading && !littersQuery.error && litters.length === 0 ? (
-        <Card title="No litters yet">
+        <AppCard title="No litters yet">
           <View className="gap-4">
             <Text className="text-sm leading-5 text-slate-600">Create a litter before adding puppies.</Text>
             <Button title="Open litters" onPress={() => router.push('/litters')} />
           </View>
-        </Card>
+        </AppCard>
       ) : null}
 
       {!puppiesQuery.isLoading && !puppiesQuery.error && litters.length > 0 && puppies.length === 0 ? (
-        <Card title="No puppies yet">
+        <AppCard title="No puppies yet">
           <View className="gap-4">
             <Text className="text-sm leading-5 text-slate-600">
               {selectedLitterId ? 'Create the first puppy for this litter.' : 'Create the first puppy for this kennel.'}
             </Text>
             {!isFormOpen ? <Button title="Create puppy" onPress={() => openCreateForm()} /> : null}
           </View>
-        </Card>
+        </AppCard>
       ) : null}
 
       {puppies.length > 0 ? (
@@ -220,7 +220,7 @@ function PuppiesContent({ initialMode, initialLitterId, initialPuppyId }: Puppie
           ))}
         </View>
       ) : null}
-    </Screen>
+    </AppScreen>
   );
 }
 
@@ -232,7 +232,7 @@ interface LitterFilterProps {
 
 function LitterFilter({ litters, selectedLitterId, onChange }: LitterFilterProps) {
   return (
-    <Card title="Litter filter">
+    <AppCard title="Litter filter">
       <View className="flex-row flex-wrap gap-2">
         <FilterOption label="All litters" isSelected={!selectedLitterId} onPress={() => onChange('')} />
         {litters.map((litter) => (
@@ -244,7 +244,7 @@ function LitterFilter({ litters, selectedLitterId, onChange }: LitterFilterProps
           />
         ))}
       </View>
-    </Card>
+    </AppCard>
   );
 }
 
@@ -294,7 +294,7 @@ function PuppyCard({ isDeleting, isOwner, littersById, puppy, onDelete, onDocume
   ].filter(Boolean);
 
   return (
-    <Card>
+    <AppCard>
       <View className="gap-3">
         <View className="gap-1">
           <Text className="text-xl font-semibold text-slate-950">{puppy.name}</Text>
@@ -320,7 +320,7 @@ function PuppyCard({ isDeleting, isOwner, littersById, puppy, onDelete, onDocume
           </View>
         </View>
       </View>
-    </Card>
+    </AppCard>
   );
 }
 
