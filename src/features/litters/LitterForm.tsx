@@ -67,8 +67,8 @@ export function LitterForm({
   };
 
   return (
-    <AppCard title={litter ? 'Editar camada' : 'Añadir camada'}>
-      <View className="gap-4">
+    <AppCard title={litter ? 'Editar camada' : 'Añadir camada'} subtitle="Ficha de la camada">
+      <View className="gap-5">
         <Controller
           control={control}
           name="name"
@@ -100,7 +100,7 @@ export function LitterForm({
                       accessibilityRole="button"
                       key={option}
                       onPress={() => onChange(option)}
-                      className={`min-h-11 min-w-24 items-center justify-center rounded-lg border px-3 ${
+                      className={`min-h-11 min-w-28 flex-1 items-center justify-center rounded-lg border px-3 ${
                         isSelected ? 'border-brand-600 bg-brand-50' : 'border-slate-300 bg-white'
                       }`}
                     >
@@ -195,9 +195,13 @@ export function LitterForm({
           )}
         />
 
-        {errorMessage ? <Text className="text-sm leading-5 text-red-600">{errorMessage}</Text> : null}
+        {errorMessage ? (
+          <View className="rounded-lg bg-red-50 px-3 py-2">
+            <Text className="text-sm leading-5 text-red-600">{errorMessage}</Text>
+          </View>
+        ) : null}
 
-        <View className="flex-row gap-3">
+        <View className="flex-row gap-3 pt-1">
           <Button title="Cancelar" variant="secondary" className="flex-1" onPress={onCancel} />
           <Button
             title={litter ? 'Guardar camada' : 'Añadir camada'}
@@ -235,7 +239,7 @@ function DogSelector({ dogs, error, label, value, onChange }: DogSelectorProps) 
         ))}
       </View>
       {dogs.length === 0 ? (
-        <Text className="text-sm leading-5 text-slate-600">Añade perros primero para vincular progenitores.</Text>
+        <Text className="text-sm leading-5 text-muted">Añade perros primero para vincular progenitores.</Text>
       ) : null}
       {error ? <Text className="text-sm text-red-600">{error}</Text> : null}
     </View>

@@ -58,8 +58,8 @@ export function DogForm({ dog, errorMessage, isSubmitting = false, onCancel, onS
   };
 
   return (
-    <AppCard title={dog ? 'Editar perro' : 'Añadir perro'}>
-      <View className="gap-4">
+    <AppCard title={dog ? 'Editar perro' : 'Añadir perro'} subtitle="Ficha del perro">
+      <View className="gap-5">
         <Controller
           control={control}
           name="name"
@@ -98,7 +98,7 @@ export function DogForm({ dog, errorMessage, isSubmitting = false, onCancel, onS
           render={({ field: { onChange, value } }) => (
             <View className="gap-2">
               <Text className="text-sm font-semibold text-slate-700">Sexo</Text>
-              <View className="flex-row gap-2">
+              <View className="flex-row flex-wrap gap-2">
                 {dogSexOptions.map((option) => {
                   const isSelected = value === option;
 
@@ -107,7 +107,7 @@ export function DogForm({ dog, errorMessage, isSubmitting = false, onCancel, onS
                       accessibilityRole="button"
                       key={option}
                       onPress={() => onChange(option)}
-                      className={`min-h-11 flex-1 items-center justify-center rounded-lg border px-3 ${
+                      className={`min-h-11 min-w-28 flex-1 items-center justify-center rounded-lg border px-3 ${
                         isSelected ? 'border-brand-600 bg-brand-50' : 'border-slate-300 bg-white'
                       }`}
                     >
@@ -190,9 +190,13 @@ export function DogForm({ dog, errorMessage, isSubmitting = false, onCancel, onS
           )}
         />
 
-        {errorMessage ? <Text className="text-sm leading-5 text-red-600">{errorMessage}</Text> : null}
+        {errorMessage ? (
+          <View className="rounded-lg bg-red-50 px-3 py-2">
+            <Text className="text-sm leading-5 text-red-600">{errorMessage}</Text>
+          </View>
+        ) : null}
 
-        <View className="flex-row gap-3">
+        <View className="flex-row gap-3 pt-1">
           <Button title="Cancelar" variant="secondary" className="flex-1" onPress={onCancel} />
           <Button
             title={dog ? 'Guardar perro' : 'Añadir perro'}
