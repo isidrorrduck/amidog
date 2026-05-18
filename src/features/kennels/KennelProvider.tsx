@@ -104,13 +104,13 @@ export function KennelProvider({ children }: KennelProviderProps) {
   const switchKennel = useCallback(
     async (kennelId: string) => {
       if (!profile) {
-        throw new Error('Sign in before switching kennels.');
+        throw new Error('Inicia sesión antes de cambiar de criadero.');
       }
 
       const nextWorkspace = availableKennels.find((workspace) => workspace.kennel.id === kennelId);
 
       if (!nextWorkspace) {
-        throw new Error('You do not have access to that kennel.');
+        throw new Error('No tienes acceso a ese criadero.');
       }
 
       setCurrentWorkspace(nextWorkspace);
@@ -122,7 +122,7 @@ export function KennelProvider({ children }: KennelProviderProps) {
   const createKennel = useCallback(
     async (kennelName: string) => {
       if (!profile) {
-        throw new Error('Sign in before creating a kennel.');
+        throw new Error('Inicia sesión antes de crear un criadero.');
       }
 
       setIsKennelMutating(true);
@@ -187,6 +187,6 @@ function getActiveKennelStorageKey(profileId: string) {
   return `${activeKennelStoragePrefix}.${profileId}`;
 }
 
-function getErrorMessage(error: unknown) {
-  return error instanceof Error ? error.message : 'Something went wrong while loading kennels.';
+function getErrorMessage(_error: unknown) {
+  return 'Algo ha ido mal al cargar los criaderos.';
 }

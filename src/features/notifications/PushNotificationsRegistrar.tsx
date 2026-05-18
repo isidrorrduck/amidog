@@ -73,7 +73,7 @@ async function getExpoPushToken() {
 
   if (Platform.OS === 'android') {
     await Notifications.setNotificationChannelAsync('default', {
-      name: 'Default',
+      name: 'General',
       importance: Notifications.AndroidImportance.DEFAULT,
     });
   }

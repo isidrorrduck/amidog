@@ -46,14 +46,14 @@ export interface DocumentEntityOption {
 }
 
 export const documentFormSchema = z.object({
-  title: z.string().trim().min(1, 'Enter a document title.').max(160, 'Use 160 characters or fewer.'),
+  title: z.string().trim().min(1, 'Introduce un título para el documento.').max(160, 'Usa 160 caracteres o menos.'),
   entityType: z.enum(documentEntityTypeOptions),
-  entityId: requiredUuid('Choose the dog, puppy, litter or client for this document.'),
+  entityId: requiredUuid('Elige el perro, cachorro, camada o cliente de este documento.'),
   documentType: z.enum(documentTypeOptions),
-  notes: optionalText(1000, 'Use 1000 characters or fewer.'),
+  notes: optionalText(1000, 'Usa 1000 caracteres o menos.'),
   file: z
     .custom<DocumentFileAsset | null>((value) => isDocumentFileAsset(value))
-    .refine((value): value is DocumentFileAsset => Boolean(value), 'Choose a file to upload.'),
+    .refine((value): value is DocumentFileAsset => Boolean(value), 'Elige un archivo para subir.'),
 });
 
 export type DocumentFormValues = z.input<typeof documentFormSchema>;
@@ -89,10 +89,10 @@ export function toDocumentMutationInput(values: ValidDocumentFormValues): Docume
 
 export function getDocumentEntityTypeLabel(entityType: DocumentEntityType) {
   const labels: Record<DocumentEntityType, string> = {
-    dog: 'Dog',
-    puppy: 'Puppy',
-    litter: 'Litter',
-    client: 'Client',
+    dog: 'Perro',
+    puppy: 'Cachorro',
+    litter: 'Camada',
+    client: 'Cliente',
   };
 
   return labels[entityType];
@@ -100,13 +100,13 @@ export function getDocumentEntityTypeLabel(entityType: DocumentEntityType) {
 
 export function getDocumentTypeLabel(documentType: DocumentType) {
   const labels: Record<DocumentType, string> = {
-    genetic_analysis: 'Genetic analysis',
-    pedigree: 'Pedigree',
-    contract: 'Contract',
-    vaccine_record: 'Vaccine record',
-    veterinary_report: 'Veterinary report',
-    recommendation: 'Recommendation',
-    other: 'Other',
+    genetic_analysis: 'Análisis genético',
+    pedigree: 'Pedigrí',
+    contract: 'Contrato',
+    vaccine_record: 'Cartilla de vacunas',
+    veterinary_report: 'Informe veterinario',
+    recommendation: 'Recomendación',
+    other: 'Otro',
   };
 
   return labels[documentType];

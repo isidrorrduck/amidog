@@ -65,15 +65,15 @@ export function PromotionForm({
   };
 
   return (
-    <AppCard title={promotion ? 'Edit promotion' : 'Create promotion'}>
+    <AppCard title={promotion ? 'Editar promoción' : 'Crear promoción'}>
       <View className="gap-4">
         <Controller
           control={control}
           name="title"
           render={({ field: { onBlur, onChange, value } }) => (
             <Input
-              label="Title"
-              placeholder="Spring veterinary checkup"
+              label="Título"
+              placeholder="Revisión veterinaria de primavera"
               autoCapitalize="sentences"
               value={value}
               onBlur={onBlur}
@@ -87,7 +87,7 @@ export function PromotionForm({
           control={control}
           name="promotionType"
           render={({ field: { onChange, value } }) => (
-            <SelectorSection label="Type" error={errors.promotionType?.message}>
+            <SelectorSection label="Tipo" error={errors.promotionType?.message}>
               {promotionTypeOptions.map((option) => (
                 <SelectorOption
                   key={option}
@@ -105,8 +105,8 @@ export function PromotionForm({
           name="message"
           render={({ field: { onBlur, onChange, value } }) => (
             <Input
-              label="Message"
-              placeholder="Offer details, recommendation or reminder"
+              label="Mensaje"
+              placeholder="Detalles de la oferta, recomendación o recordatorio"
               multiline
               numberOfLines={5}
               textAlignVertical="top"
@@ -124,7 +124,7 @@ export function PromotionForm({
           name="imageUrl"
           render={({ field: { onBlur, onChange, value } }) => (
             <Input
-              label="Image URL"
+              label="URL de imagen"
               placeholder="https://example.com/promo.jpg"
               autoCapitalize="none"
               keyboardType="url"
@@ -141,7 +141,7 @@ export function PromotionForm({
           name="actionUrl"
           render={({ field: { onBlur, onChange, value } }) => (
             <Input
-              label="Action URL"
+              label="URL de acción"
               placeholder="https://example.com/book"
               autoCapitalize="none"
               keyboardType="url"
@@ -156,9 +156,9 @@ export function PromotionForm({
         {errorMessage ? <Text className="text-sm leading-5 text-red-600">{errorMessage}</Text> : null}
 
         <View className="flex-row gap-3">
-          <Button title="Cancel" variant="secondary" className="flex-1" onPress={onCancel} />
+          <Button title="Cancelar" variant="secondary" className="flex-1" onPress={onCancel} />
           <Button
-            title={promotion ? 'Save promotion' : 'Create promotion'}
+            title={promotion ? 'Guardar promoción' : 'Crear promoción'}
             loading={isSubmitting}
             className="flex-1"
             onPress={() => void handleSubmit(handleValidSubmit)()}

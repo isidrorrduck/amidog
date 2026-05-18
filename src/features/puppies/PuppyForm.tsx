@@ -71,7 +71,7 @@ export function PuppyForm({
   };
 
   return (
-    <AppCard title={puppy ? 'Edit puppy' : 'Create puppy'}>
+    <AppCard title={puppy ? 'Editar cachorro' : 'Añadir cachorro'}>
       <View className="gap-4">
         <Controller
           control={control}
@@ -91,8 +91,8 @@ export function PuppyForm({
           name="name"
           render={({ field: { onBlur, onChange, value } }) => (
             <Input
-              label="Name"
-              placeholder="Blue collar"
+              label="Nombre"
+              placeholder="Collar azul"
               autoCapitalize="words"
               value={value}
               onBlur={onBlur}
@@ -107,7 +107,7 @@ export function PuppyForm({
           name="sex"
           render={({ field: { onChange, value } }) => (
             <View className="gap-2">
-              <Text className="text-sm font-semibold text-slate-700">Sex</Text>
+              <Text className="text-sm font-semibold text-slate-700">Sexo</Text>
               <View className="flex-row gap-2">
                 {puppySexOptions.map((option) => {
                   const isSelected = value === option;
@@ -138,7 +138,7 @@ export function PuppyForm({
           name="status"
           render={({ field: { onChange, value } }) => (
             <View className="gap-2">
-              <Text className="text-sm font-semibold text-slate-700">Status</Text>
+              <Text className="text-sm font-semibold text-slate-700">Estado</Text>
               <View className="flex-row flex-wrap gap-2">
                 {puppyStatusOptions.map((option) => {
                   const isSelected = value === option;
@@ -170,7 +170,7 @@ export function PuppyForm({
           render={({ field: { onBlur, onChange, value } }) => (
             <Input
               label="Color"
-              placeholder="Black tricolor"
+              placeholder="Tricolor negro"
               autoCapitalize="words"
               value={value}
               onBlur={onBlur}
@@ -185,7 +185,7 @@ export function PuppyForm({
           name="birthWeight"
           render={({ field: { onBlur, onChange, value } }) => (
             <Input
-              label="Birth weight"
+              label="Peso al nacer"
               placeholder="0.45"
               keyboardType="decimal-pad"
               value={value}
@@ -201,8 +201,8 @@ export function PuppyForm({
           name="notes"
           render={({ field: { onBlur, onChange, value } }) => (
             <Input
-              label="Notes"
-              placeholder="Health checks, placement notes and observations"
+              label="Notas"
+              placeholder="Revisiones de salud, notas de entrega y observaciones"
               multiline
               numberOfLines={4}
               textAlignVertical="top"
@@ -216,15 +216,15 @@ export function PuppyForm({
         />
 
         {litters.length === 0 ? (
-          <Text className="text-sm leading-5 text-slate-600">Create a litter before adding puppies.</Text>
+          <Text className="text-sm leading-5 text-slate-600">Crea una camada antes de añadir cachorros.</Text>
         ) : null}
 
         {errorMessage ? <Text className="text-sm leading-5 text-red-600">{errorMessage}</Text> : null}
 
         <View className="flex-row gap-3">
-          <Button title="Cancel" variant="secondary" className="flex-1" onPress={onCancel} />
+          <Button title="Cancelar" variant="secondary" className="flex-1" onPress={onCancel} />
           <Button
-            title={puppy ? 'Save puppy' : 'Create puppy'}
+            title={puppy ? 'Guardar cachorro' : 'Añadir cachorro'}
             loading={isSubmitting}
             disabled={litters.length === 0}
             className="flex-1"
@@ -246,7 +246,7 @@ interface LitterSelectorProps {
 function LitterSelector({ litters, error, value, onChange }: LitterSelectorProps) {
   return (
     <View className="gap-2">
-      <Text className="text-sm font-semibold text-slate-700">Litter</Text>
+      <Text className="text-sm font-semibold text-slate-700">Camada</Text>
       <View className="flex-row flex-wrap gap-2">
         {litters.map((litter) => (
           <LitterOption

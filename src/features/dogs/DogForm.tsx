@@ -58,14 +58,14 @@ export function DogForm({ dog, errorMessage, isSubmitting = false, onCancel, onS
   };
 
   return (
-    <AppCard title={dog ? 'Edit dog' : 'Create dog'}>
+    <AppCard title={dog ? 'Editar perro' : 'Añadir perro'}>
       <View className="gap-4">
         <Controller
           control={control}
           name="name"
           render={({ field: { onBlur, onChange, value } }) => (
             <Input
-              label="Name"
+              label="Nombre"
               placeholder="Mora"
               autoCapitalize="words"
               value={value}
@@ -81,7 +81,7 @@ export function DogForm({ dog, errorMessage, isSubmitting = false, onCancel, onS
           name="breed"
           render={({ field: { onBlur, onChange, value } }) => (
             <Input
-              label="Breed"
+              label="Raza"
               placeholder="Border Collie"
               autoCapitalize="words"
               value={value}
@@ -97,7 +97,7 @@ export function DogForm({ dog, errorMessage, isSubmitting = false, onCancel, onS
           name="sex"
           render={({ field: { onChange, value } }) => (
             <View className="gap-2">
-              <Text className="text-sm font-semibold text-slate-700">Sex</Text>
+              <Text className="text-sm font-semibold text-slate-700">Sexo</Text>
               <View className="flex-row gap-2">
                 {dogSexOptions.map((option) => {
                   const isSelected = value === option;
@@ -128,7 +128,7 @@ export function DogForm({ dog, errorMessage, isSubmitting = false, onCancel, onS
           name="birthDate"
           render={({ field: { onBlur, onChange, value } }) => (
             <Input
-              label="Birth date"
+              label="Fecha de nacimiento"
               placeholder="2024-05-10"
               keyboardType="numbers-and-punctuation"
               value={value}
@@ -145,7 +145,7 @@ export function DogForm({ dog, errorMessage, isSubmitting = false, onCancel, onS
           render={({ field: { onBlur, onChange, value } }) => (
             <Input
               label="Color"
-              placeholder="Black tricolor"
+              placeholder="Tricolor negro"
               autoCapitalize="words"
               value={value}
               onBlur={onBlur}
@@ -176,8 +176,8 @@ export function DogForm({ dog, errorMessage, isSubmitting = false, onCancel, onS
           name="notes"
           render={({ field: { onBlur, onChange, value } }) => (
             <Input
-              label="Notes"
-              placeholder="Temperament, health notes, registration details"
+              label="Notas"
+              placeholder="Temperamento, salud y datos de registro"
               multiline
               numberOfLines={4}
               textAlignVertical="top"
@@ -193,9 +193,9 @@ export function DogForm({ dog, errorMessage, isSubmitting = false, onCancel, onS
         {errorMessage ? <Text className="text-sm leading-5 text-red-600">{errorMessage}</Text> : null}
 
         <View className="flex-row gap-3">
-          <Button title="Cancel" variant="secondary" className="flex-1" onPress={onCancel} />
+          <Button title="Cancelar" variant="secondary" className="flex-1" onPress={onCancel} />
           <Button
-            title={dog ? 'Save dog' : 'Create dog'}
+            title={dog ? 'Guardar perro' : 'Añadir perro'}
             loading={isSubmitting}
             className="flex-1"
             onPress={() => void handleSubmit(handleValidSubmit)()}

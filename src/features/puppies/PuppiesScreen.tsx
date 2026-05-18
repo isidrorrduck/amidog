@@ -64,7 +64,7 @@ function PuppiesContent({ initialMode, initialLitterId, initialPuppyId }: Puppie
       setSelectedLitterId(puppy.litter_id);
       openEditForm(puppy);
     } else if (!puppiesQuery.error) {
-      setScreenError('Unable to find this puppy in the current kennel.');
+      setScreenError('No se ha encontrado este cachorro en el criadero actual.');
     }
   }, [editingPuppy, initialPuppyId, puppies, puppiesQuery.error, puppiesQuery.isLoading]);
 
@@ -115,10 +115,10 @@ function PuppiesContent({ initialMode, initialLitterId, initialPuppyId }: Puppie
   };
 
   const handleDeletePuppy = (puppy: Puppy) => {
-    Alert.alert('Delete puppy?', `${puppy.name} will be removed from ${currentKennel?.name ?? 'this kennel'}.`, [
-      { text: 'Cancel', style: 'cancel' },
+    Alert.alert('¿Eliminar cachorro?', `Se eliminará a ${puppy.name} de ${currentKennel?.name ?? 'este criadero'}.`, [
+      { text: 'Cancelar', style: 'cancel' },
       {
-        text: 'Delete',
+        text: 'Eliminar',
         style: 'destructive',
         onPress: () => {
           void deletePuppyMutation.mutateAsync(puppy.id).catch((error) => {
@@ -132,12 +132,12 @@ function PuppiesContent({ initialMode, initialLitterId, initialPuppyId }: Puppie
   return (
     <AppScreen scrollable>
       <View className="gap-2">
-        <Text className="text-3xl font-bold text-slate-950">Puppies</Text>
-        <Text className="text-base leading-6 text-slate-600">{currentKennel?.name ?? 'Kennel'} puppy registry</Text>
+        <Text className="text-3xl font-bold text-slate-950">Cachorros</Text>
+        <Text className="text-base leading-6 text-slate-600">Registro de cachorros de {currentKennel?.name ?? 'criadero'}</Text>
       </View>
 
       <Button
-        title={isFormOpen ? 'Close form' : 'Create puppy'}
+        title={isFormOpen ? 'Cerrar formulario' : 'Añadir cachorro'}
         variant={isFormOpen ? 'secondary' : 'primary'}
         onPress={isFormOpen ? closeForm : () => openCreateForm()}
       />
@@ -149,7 +149,7 @@ function PuppiesContent({ initialMode, initialLitterId, initialPuppyId }: Puppie
       ) : null}
 
       {littersQuery.error ? (
-        <AppCard title="Unable to load litters">
+        <AppCard title="No se han podido cargar las camadas">
           <Text className="text-sm leading-5 text-red-600">{getErrorMessage(littersQuery.error)}</Text>
         </AppCard>
       ) : null}
@@ -171,7 +171,7 @@ function PuppiesContent({ initialMode, initialLitterId, initialPuppyId }: Puppie
       ) : null}
 
       {puppiesQuery.isLoading || littersQuery.isLoading ? (
-        <AppCard title="Loading puppies">
+        <AppCard title="Cargando cachorros">
           <View className="items-start">
             <ActivityIndicator color="#1d4ed8" />
           </View>
@@ -179,27 +179,27 @@ function PuppiesContent({ initialMode, initialLitterId, initialPuppyId }: Puppie
       ) : null}
 
       {puppiesQuery.error ? (
-        <AppCard title="Unable to load puppies">
+        <AppCard title="No se han podido cargar los cachorros">
           <Text className="text-sm leading-5 text-red-600">{getErrorMessage(puppiesQuery.error)}</Text>
         </AppCard>
       ) : null}
 
       {!littersQuery.isLoading && !littersQuery.error && litters.length === 0 ? (
-        <AppCard title="No litters yet">
+        <AppCard title="Todavía no hay camadas">
           <View className="gap-4">
-            <Text className="text-sm leading-5 text-slate-600">Create a litter before adding puppies.</Text>
-            <Button title="Open litters" onPress={() => router.push('/litters')} />
+            <Text className="text-sm leading-5 text-slate-600">Crea una camada antes de añadir cachorros.</Text>
+            <Button title="Abrir camadas" onPress={() => router.push('/litters')} />
           </View>
         </AppCard>
       ) : null}
 
       {!puppiesQuery.isLoading && !puppiesQuery.error && litters.length > 0 && puppies.length === 0 ? (
-        <AppCard title="No puppies yet">
+        <AppCard title="Todavía no hay cachorros">
           <View className="gap-4">
             <Text className="text-sm leading-5 text-slate-600">
-              {selectedLitterId ? 'Create the first puppy for this litter.' : 'Create the first puppy for this kennel.'}
+              {selectedLitterId ? 'Añade el primer cachorro de esta camada.' : 'Añade el primer cachorro de este criadero.'}
             </Text>
-            {!isFormOpen ? <Button title="Create puppy" onPress={() => openCreateForm()} /> : null}
+            {!isFormOpen ? <Button title="Añadir cachorro" onPress={() => openCreateForm()} /> : null}
           </View>
         </AppCard>
       ) : null}
@@ -232,9 +232,9 @@ interface LitterFilterProps {
 
 function LitterFilter({ litters, selectedLitterId, onChange }: LitterFilterProps) {
   return (
-    <AppCard title="Litter filter">
+    <AppCard title="Filtro de camada">
       <View className="flex-row flex-wrap gap-2">
-        <FilterOption label="All litters" isSelected={!selectedLitterId} onPress={() => onChange('')} />
+        <FilterOption label="Todas las camadas" isSelected={!selectedLitterId} onPress={() => onChange('')} />
         {litters.map((litter) => (
           <FilterOption
             key={litter.id}
@@ -284,13 +284,13 @@ interface PuppyCardProps {
 }
 
 function PuppyCard({ isDeleting, isOwner, littersById, puppy, onDelete, onDocuments, onEdit }: PuppyCardProps) {
-  const litterName = littersById.get(puppy.litter_id)?.name ?? 'Unknown litter';
+  const litterName = littersById.get(puppy.litter_id)?.name ?? 'Camada desconocida';
   const details = [
-    `Litter ${litterName}`,
+    `Camada ${litterName}`,
     getPuppySexLabel(puppy.sex),
     getPuppyStatusLabel(puppy.status),
     puppy.color,
-    puppy.birth_weight !== null ? `Birth weight ${puppy.birth_weight}` : null,
+    puppy.birth_weight !== null ? `Peso al nacer ${puppy.birth_weight}` : null,
   ].filter(Boolean);
 
   return (
@@ -298,18 +298,18 @@ function PuppyCard({ isDeleting, isOwner, littersById, puppy, onDelete, onDocume
       <View className="gap-3">
         <View className="gap-1">
           <Text className="text-xl font-semibold text-slate-950">{puppy.name}</Text>
-          <Text className="text-sm leading-5 text-slate-600">{details.join(' | ') || 'No details yet'}</Text>
+          <Text className="text-sm leading-5 text-slate-600">{details.join(' | ') || 'Sin detalles todavía'}</Text>
         </View>
 
         {puppy.notes ? <Text className="text-sm leading-5 text-slate-600">{puppy.notes}</Text> : null}
 
         <View className="gap-3">
-          <Button title="Documents" variant="secondary" onPress={onDocuments} />
+          <Button title="Documentos" variant="secondary" onPress={onDocuments} />
           <View className="flex-row gap-3">
-            <Button title="Edit" variant="secondary" className="flex-1" onPress={onEdit} />
+            <Button title="Editar" variant="secondary" className="flex-1" onPress={onEdit} />
             {isOwner ? (
               <Button
-                title="Delete"
+                title="Eliminar"
                 variant="ghost"
                 loading={isDeleting}
                 className="flex-1"
@@ -324,6 +324,6 @@ function PuppyCard({ isDeleting, isOwner, littersById, puppy, onDelete, onDocume
   );
 }
 
-function getErrorMessage(error: unknown) {
-  return error instanceof Error ? error.message : 'Something went wrong while managing puppies.';
+function getErrorMessage(_error: unknown) {
+  return 'Algo ha ido mal al gestionar los cachorros.';
 }

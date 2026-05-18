@@ -80,10 +80,10 @@ function DogsContent() {
   };
 
   const handleDeleteDog = (dog: Dog) => {
-    Alert.alert('Delete dog?', `${dog.name} will be removed from ${currentKennel?.name ?? 'this kennel'}.`, [
-      { text: 'Cancel', style: 'cancel' },
+    Alert.alert('¿Eliminar perro?', `Se eliminará a ${dog.name} de ${currentKennel?.name ?? 'este criadero'}.`, [
+      { text: 'Cancelar', style: 'cancel' },
       {
-        text: 'Delete',
+        text: 'Eliminar',
         style: 'destructive',
         onPress: () => {
           void deleteDogMutation.mutateAsync(dog.id).catch((error) => {
@@ -97,12 +97,12 @@ function DogsContent() {
   return (
     <AppScreen scrollable>
       <View className="gap-2">
-        <Text className="text-3xl font-bold text-slate-950">Dogs</Text>
-        <Text className="text-base leading-6 text-slate-600">{currentKennel?.name ?? 'Kennel'} registry</Text>
+        <Text className="text-3xl font-bold text-slate-950">Perros</Text>
+        <Text className="text-base leading-6 text-slate-600">Registro de {currentKennel?.name ?? 'criadero'}</Text>
       </View>
 
       <Button
-        title={isFormOpen ? 'Close form' : 'Create dog'}
+        title={isFormOpen ? 'Cerrar formulario' : 'Añadir perro'}
         variant={isFormOpen ? 'secondary' : 'primary'}
         onPress={isFormOpen ? closeForm : openCreateForm}
       />
@@ -124,7 +124,7 @@ function DogsContent() {
       ) : null}
 
       {dogsQuery.isLoading ? (
-        <AppCard title="Loading dogs">
+        <AppCard title="Cargando perros">
           <View className="items-start">
             <ActivityIndicator color="#1d4ed8" />
           </View>
@@ -132,16 +132,16 @@ function DogsContent() {
       ) : null}
 
       {dogsQuery.error ? (
-        <AppCard title="Unable to load dogs">
+        <AppCard title="No se han podido cargar los perros">
           <Text className="text-sm leading-5 text-red-600">{getErrorMessage(dogsQuery.error)}</Text>
         </AppCard>
       ) : null}
 
       {!dogsQuery.isLoading && !dogsQuery.error && dogs.length === 0 ? (
-        <AppCard title="No dogs yet">
+        <AppCard title="Todavía no hay perros">
           <View className="gap-4">
-            <Text className="text-sm leading-5 text-slate-600">Create the first dog for this kennel.</Text>
-            {!isFormOpen ? <Button title="Create dog" onPress={openCreateForm} /> : null}
+            <Text className="text-sm leading-5 text-slate-600">Añade el primer perro de este criadero.</Text>
+            {!isFormOpen ? <Button title="Añadir perro" onPress={openCreateForm} /> : null}
           </View>
         </AppCard>
       ) : null}
@@ -178,9 +178,9 @@ function DogCard({ dog, isDeleting, isOwner, onDelete, onDocuments, onEdit }: Do
   const details = [
     dog.breed,
     getDogSexLabel(dog.sex),
-    dog.birth_date ? `Born ${dog.birth_date}` : null,
+    dog.birth_date ? `Nacimiento ${dog.birth_date}` : null,
     dog.color,
-    dog.microchip_number ? `Chip ${dog.microchip_number}` : null,
+    dog.microchip_number ? `Microchip ${dog.microchip_number}` : null,
   ].filter(Boolean);
 
   return (
@@ -188,18 +188,18 @@ function DogCard({ dog, isDeleting, isOwner, onDelete, onDocuments, onEdit }: Do
       <View className="gap-3">
         <View className="gap-1">
           <Text className="text-xl font-semibold text-slate-950">{dog.name}</Text>
-          <Text className="text-sm leading-5 text-slate-600">{details.join(' | ') || 'No details yet'}</Text>
+          <Text className="text-sm leading-5 text-slate-600">{details.join(' | ') || 'Sin detalles todavía'}</Text>
         </View>
 
         {dog.notes ? <Text className="text-sm leading-5 text-slate-600">{dog.notes}</Text> : null}
 
         <View className="gap-3">
-          <Button title="Documents" variant="secondary" onPress={onDocuments} />
+          <Button title="Documentos" variant="secondary" onPress={onDocuments} />
           <View className="flex-row gap-3">
-            <Button title="Edit" variant="secondary" className="flex-1" onPress={onEdit} />
+            <Button title="Editar" variant="secondary" className="flex-1" onPress={onEdit} />
             {isOwner ? (
               <Button
-                title="Delete"
+                title="Eliminar"
                 variant="ghost"
                 loading={isDeleting}
                 className="flex-1"
@@ -214,6 +214,6 @@ function DogCard({ dog, isDeleting, isOwner, onDelete, onDocuments, onEdit }: Do
   );
 }
 
-function getErrorMessage(error: unknown) {
-  return error instanceof Error ? error.message : 'Something went wrong while managing dogs.';
+function getErrorMessage(_error: unknown) {
+  return 'Algo ha ido mal al gestionar los perros.';
 }

@@ -70,7 +70,7 @@ export function useDeletePromotion(kennelId: string | null | undefined) {
 
 async function requireKennelId(kennelId: string | null | undefined) {
   if (!kennelId) {
-    throw new Error('Select a kennel before managing promotions.');
+    throw new Error('Selecciona un criadero antes de gestionar promociones.');
   }
 
   return kennelId;
@@ -78,7 +78,7 @@ async function requireKennelId(kennelId: string | null | undefined) {
 
 function requirePromotionId(promotionId: string | null | undefined) {
   if (!promotionId) {
-    throw new Error('Choose a promotion first.');
+    throw new Error('Elige primero una promoción.');
   }
 
   return promotionId;

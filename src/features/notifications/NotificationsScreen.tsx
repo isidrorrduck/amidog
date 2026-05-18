@@ -27,14 +27,16 @@ function NotificationsContent() {
   return (
     <AppScreen scrollable>
       <View className="gap-2">
-        <Text className="text-3xl font-bold text-slate-950">Notifications</Text>
+        <Text className="text-3xl font-bold text-slate-950">Notificaciones</Text>
         <Text className="text-base leading-6 text-slate-600">
-          {unreadCount > 0 ? `${unreadCount} unread updates for ${currentKennel?.name ?? 'this kennel'}` : 'All updates are read'}
+          {unreadCount > 0
+            ? `${unreadCount} ${unreadCount === 1 ? 'actualización sin leer' : 'actualizaciones sin leer'} de ${currentKennel?.name ?? 'este criadero'}`
+            : 'Todas las actualizaciones están leídas'}
         </Text>
       </View>
 
       {notificationsQuery.isLoading ? (
-        <AppCard title="Loading notifications">
+        <AppCard title="Cargando notificaciones">
           <View className="items-start">
             <ActivityIndicator color="#1d4ed8" />
           </View>
@@ -42,14 +44,14 @@ function NotificationsContent() {
       ) : null}
 
       {notificationsQuery.error ? (
-        <AppCard title="Unable to load notifications">
+        <AppCard title="No se han podido cargar las notificaciones">
           <Text className="text-sm leading-5 text-red-600">{getErrorMessage(notificationsQuery.error)}</Text>
         </AppCard>
       ) : null}
 
       {!notificationsQuery.isLoading && !notificationsQuery.error && notifications.length === 0 ? (
-        <AppCard title="No notifications yet">
-          <Text className="text-sm leading-5 text-slate-600">New promotions and reminders will appear here.</Text>
+        <AppCard title="Todavía no hay notificaciones">
+          <Text className="text-sm leading-5 text-slate-600">Las nuevas promociones y recordatorios aparecerán aquí.</Text>
         </AppCard>
       ) : null}
 
@@ -92,7 +94,7 @@ function NotificationCard({ isMarkingRead, notification, onMarkRead, onOpenPromo
             <Text className="text-xl font-semibold text-slate-950">{notification.title}</Text>
             {isUnread ? (
               <View className="rounded-full bg-brand-50 px-2 py-1">
-                <Text className="text-xs font-semibold text-brand-700">Unread</Text>
+                <Text className="text-xs font-semibold text-brand-700">Sin leer</Text>
               </View>
             ) : null}
           </View>
@@ -104,11 +106,11 @@ function NotificationCard({ isMarkingRead, notification, onMarkRead, onOpenPromo
         {notification.promotion_id || isUnread ? (
           <View className="flex-row gap-3">
             {notification.promotion_id ? (
-              <Button title="Open promotion" variant="secondary" className="flex-1" onPress={onOpenPromotion} />
+              <Button title="Abrir promoción" variant="secondary" className="flex-1" onPress={onOpenPromotion} />
             ) : null}
             {isUnread ? (
               <Button
-                title="Mark read"
+                title="Marcar como leída"
                 variant={notification.promotion_id ? 'ghost' : 'secondary'}
                 loading={isMarkingRead}
                 className="flex-1"
@@ -126,13 +128,6 @@ function formatDate(value: string) {
   return value.slice(0, 10);
 }
 
-function getErrorMessage(error: unknown) {
-  const message =
-    error instanceof Error
-      ? error.message
-      : typeof error === 'object' && error !== null && typeof (error as { message?: unknown }).message === 'string'
-        ? (error as { message: string }).message
-        : null;
-
-  return message ?? 'Something went wrong while loading notifications.';
+function getErrorMessage(_error: unknown) {
+  return 'Algo ha ido mal al cargar las notificaciones.';
 }

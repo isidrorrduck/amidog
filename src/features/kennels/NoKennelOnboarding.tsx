@@ -27,30 +27,30 @@ export function NoKennelOnboarding() {
   return (
     <AppScreen contentClassName="justify-center">
       <View className="gap-2">
-        <Text className="text-3xl font-bold text-slate-950">Create your kennel</Text>
+        <Text className="text-3xl font-bold text-slate-950">Crea tu criadero</Text>
         <Text className="text-base leading-6 text-slate-600">
-          Your account needs an active kennel before you can use Amidog.
+          Tu cuenta necesita un criadero activo antes de usar Amidog.
         </Text>
       </View>
 
       <AppCard>
         <View className="gap-4">
           <Input
-            label="Kennel name"
-            placeholder="Oak Valley Kennels"
+            label="Nombre del criadero"
+            placeholder="Criadero Valle del Roble"
             value={kennelName}
             onChangeText={setKennelName}
           />
           {kennelError ? <Text className="text-sm leading-5 text-red-600">{kennelError}</Text> : null}
           {formError ? <Text className="text-sm leading-5 text-red-600">{formError}</Text> : null}
-          <Button title="Create kennel" loading={isKennelMutating} onPress={handleCreateKennel} />
-          <Button title="Log out" variant="secondary" onPress={signOut} />
+          <Button title="Crear criadero" loading={isKennelMutating} onPress={handleCreateKennel} />
+          <Button title="Cerrar sesión" variant="secondary" onPress={signOut} />
         </View>
       </AppCard>
     </AppScreen>
   );
 }
 
-function getErrorMessage(error: unknown) {
-  return error instanceof Error ? error.message : 'Unable to create the kennel. Please try again.';
+function getErrorMessage(_error: unknown) {
+  return 'No se ha podido crear el criadero. Inténtalo de nuevo.';
 }

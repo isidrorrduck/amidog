@@ -9,13 +9,13 @@ import { env } from '../../src/lib/env';
 
 const registerSchema = z
   .object({
-    kennelName: z.string().trim().min(2, 'Enter a kennel name.'),
-    email: z.string().trim().email('Enter a valid email.'),
-    password: z.string().min(8, 'Use at least 8 characters.'),
-    confirmPassword: z.string().min(1, 'Confirm your password.'),
+    kennelName: z.string().trim().min(2, 'Introduce el nombre del criadero.'),
+    email: z.string().trim().email('Introduce un correo electrónico válido.'),
+    password: z.string().min(8, 'Usa al menos 8 caracteres.'),
+    confirmPassword: z.string().min(1, 'Confirma tu contraseña.'),
   })
   .refine((value) => value.password === value.confirmPassword, {
-    message: 'Passwords do not match.',
+    message: 'Las contraseñas no coinciden.',
     path: ['confirmPassword'],
   });
 
@@ -46,7 +46,7 @@ export default function RegisterScreen() {
     });
 
     if (!result.success) {
-      setFormError(result.error.issues[0]?.message ?? 'Check your account details.');
+      setFormError(result.error.issues[0]?.message ?? 'Revisa los datos de la cuenta.');
       return;
     }
 
@@ -62,7 +62,7 @@ export default function RegisterScreen() {
       });
 
       if (signUpResult.needsEmailConfirmation) {
-        setSuccessMessage('Check your email to confirm the account, then log in to finish workspace setup.');
+        setSuccessMessage('Revisa tu correo para confirmar la cuenta y luego inicia sesión para terminar la configuración.');
         return;
       }
 
@@ -77,18 +77,18 @@ export default function RegisterScreen() {
   return (
     <AppScreen contentClassName="justify-center">
       <View className="mb-8 gap-2">
-        <Text className="text-4xl font-bold text-slate-950">Create kennel</Text>
+        <Text className="text-4xl font-bold text-slate-950">Crear criadero</Text>
         <Text className="text-base leading-6 text-slate-600">
-          Set up the first account shell for Amidog.
+          Configura la primera cuenta de Amidog.
         </Text>
       </View>
 
       <AppCard>
         <View className="gap-4">
-          <Input label="Kennel name" placeholder="Oak Valley Kennels" value={kennelName} onChangeText={setKennelName} />
+          <Input label="Nombre del criadero" placeholder="Criadero Valle del Roble" value={kennelName} onChangeText={setKennelName} />
           <Input
-            label="Email"
-            placeholder="you@example.com"
+            label="Correo electrónico"
+            placeholder="tu@email.com"
             autoCapitalize="none"
             autoComplete="email"
             keyboardType="email-address"
@@ -96,16 +96,16 @@ export default function RegisterScreen() {
             onChangeText={setEmail}
           />
           <Input
-            label="Password"
-            placeholder="Password"
+            label="Contraseña"
+            placeholder="Contraseña"
             autoComplete="new-password"
             secureTextEntry
             value={password}
             onChangeText={setPassword}
           />
           <Input
-            label="Confirm password"
-            placeholder="Password"
+            label="Confirmar contraseña"
+            placeholder="Contraseña"
             autoComplete="new-password"
             secureTextEntry
             value={confirmPassword}
@@ -116,8 +116,8 @@ export default function RegisterScreen() {
           ) : null}
           {formError ? <Text className="text-sm leading-5 text-red-600">{formError}</Text> : null}
           {successMessage ? <Text className="text-sm leading-5 text-brand-700">{successMessage}</Text> : null}
-          <Button title="Register" loading={isSubmitting} disabled={!isSupabaseConfigured} onPress={handleSubmit} />
-          <Button title="I already have an account" variant="secondary" onPress={() => router.replace('/auth/login')} />
+          <Button title="Registrarse" loading={isSubmitting} disabled={!isSupabaseConfigured} onPress={handleSubmit} />
+          <Button title="Ya tengo cuenta" variant="secondary" onPress={() => router.replace('/auth/login')} />
         </View>
       </AppCard>
     </AppScreen>
@@ -125,9 +125,9 @@ export default function RegisterScreen() {
 }
 
 function getSupabaseConfigMessage() {
-  return env.validationErrors[0] ?? 'Add Supabase URL and anon key to your .env file before registering.';
+  return env.validationErrors[0] ?? 'Añade la URL de Supabase y la clave anon al archivo .env antes de registrarte.';
 }
 
-function getErrorMessage(error: unknown) {
-  return error instanceof Error ? error.message : 'Unable to create the account. Please try again.';
+function getErrorMessage(_error: unknown) {
+  return 'No se ha podido crear la cuenta. Revisa los datos e inténtalo de nuevo.';
 }

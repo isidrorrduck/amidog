@@ -14,8 +14,8 @@ export default function TabsLayout() {
         }}
       >
         <Tabs.Screen name="index" options={{ href: null }} />
-        <Tabs.Screen name="home" options={{ title: 'Home' }} />
-        <Tabs.Screen name="profile" options={{ title: 'Profile' }} />
+        <Tabs.Screen name="home" options={{ title: 'Inicio' }} />
+        <Tabs.Screen name="profile" options={{ title: 'Perfil' }} />
       </Tabs>
     </ProtectedRoute>
   );

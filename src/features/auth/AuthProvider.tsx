@@ -90,7 +90,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         }
 
         if (error) {
-          setProfileError(error.message);
+          setProfileError(getErrorMessage(error));
           return;
         }
 
@@ -196,6 +196,6 @@ export function useAuth() {
   return context;
 }
 
-function getErrorMessage(error: unknown) {
-  return error instanceof Error ? error.message : 'Something went wrong while preparing the account workspace.';
+function getErrorMessage(_error: unknown) {
+  return 'Algo ha ido mal al preparar el espacio de la cuenta.';
 }

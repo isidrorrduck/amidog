@@ -26,18 +26,18 @@ export interface ReservationMutationInput {
 
 export const reservationFormSchema = z
   .object({
-    puppyId: requiredUuid('Choose a puppy for this reservation.'),
-    clientId: requiredUuid('Choose a client for this reservation.'),
+    puppyId: requiredUuid('Elige un cachorro para esta reserva.'),
+    clientId: requiredUuid('Elige un cliente para esta reserva.'),
     status: z.enum(reservationStatusOptions),
-    reservedPrice: moneyText('Use a valid reserved price.'),
-    depositAmount: moneyText('Use a valid deposit amount.'),
+    reservedPrice: moneyText('Introduce un precio reservado válido.'),
+    depositAmount: moneyText('Introduce una señal válida.'),
     depositPaid: z.boolean(),
     reservationDate: z
       .string()
       .trim()
-      .min(1, 'Enter the reservation date.')
-      .refine(isIsoDate, 'Use YYYY-MM-DD.'),
-    notes: optionalText(1000, 'Use 1000 characters or fewer.'),
+      .min(1, 'Introduce la fecha de reserva.')
+      .refine(isIsoDate, 'Usa el formato AAAA-MM-DD.'),
+    notes: optionalText(1000, 'Usa 1000 caracteres o menos.'),
   })
   .superRefine((values, context) => {
     const reservedPrice = emptyToNumber(values.reservedPrice);
@@ -46,7 +46,7 @@ export const reservationFormSchema = z
     if (reservedPrice !== null && depositAmount !== null && depositAmount > reservedPrice) {
       context.addIssue({
         code: 'custom',
-        message: 'Deposit cannot be greater than the reserved price.',
+        message: 'La señal no puede ser mayor que el precio reservado.',
         path: ['depositAmount'],
       });
     }
@@ -92,11 +92,11 @@ export function toReservationMutationInput(values: ValidReservationFormValues): 
 
 export function getReservationStatusLabel(status: ReservationStatus) {
   const labels: Record<ReservationStatus, string> = {
-    pending: 'Pending',
-    reserved: 'Reserved',
-    paid: 'Paid',
-    cancelled: 'Cancelled',
-    completed: 'Completed',
+    pending: 'Pendiente',
+    reserved: 'Reservada',
+    paid: 'Pagada',
+    cancelled: 'Cancelada',
+    completed: 'Completada',
   };
 
   return labels[status];

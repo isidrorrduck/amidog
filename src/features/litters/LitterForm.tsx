@@ -67,15 +67,15 @@ export function LitterForm({
   };
 
   return (
-    <AppCard title={litter ? 'Edit litter' : 'Create litter'}>
+    <AppCard title={litter ? 'Editar camada' : 'Añadir camada'}>
       <View className="gap-4">
         <Controller
           control={control}
           name="name"
           render={({ field: { onBlur, onChange, value } }) => (
             <Input
-              label="Name"
-              placeholder="Spring 2026"
+              label="Nombre"
+              placeholder="Primavera 2026"
               autoCapitalize="words"
               value={value}
               onBlur={onBlur}
@@ -90,7 +90,7 @@ export function LitterForm({
           name="status"
           render={({ field: { onChange, value } }) => (
             <View className="gap-2">
-              <Text className="text-sm font-semibold text-slate-700">Status</Text>
+              <Text className="text-sm font-semibold text-slate-700">Estado</Text>
               <View className="flex-row flex-wrap gap-2">
                 {litterStatusOptions.map((option) => {
                   const isSelected = value === option;
@@ -121,7 +121,7 @@ export function LitterForm({
           name="motherId"
           render={({ field: { onChange, value } }) => (
             <DogSelector
-              label="Mother"
+              label="Madre"
               dogs={dogs}
               value={value}
               error={errors.motherId?.message}
@@ -135,7 +135,7 @@ export function LitterForm({
           name="fatherId"
           render={({ field: { onChange, value } }) => (
             <DogSelector
-              label="Father"
+              label="Padre"
               dogs={dogs}
               value={value}
               error={errors.fatherId?.message}
@@ -149,7 +149,7 @@ export function LitterForm({
           name="expectedBirthDate"
           render={({ field: { onBlur, onChange, value } }) => (
             <Input
-              label="Expected birth date"
+              label="Fecha prevista de nacimiento"
               placeholder="2026-06-20"
               keyboardType="numbers-and-punctuation"
               value={value}
@@ -165,7 +165,7 @@ export function LitterForm({
           name="birthDate"
           render={({ field: { onBlur, onChange, value } }) => (
             <Input
-              label="Birth date"
+              label="Fecha de nacimiento"
               placeholder="2026-06-22"
               keyboardType="numbers-and-punctuation"
               value={value}
@@ -181,8 +181,8 @@ export function LitterForm({
           name="notes"
           render={({ field: { onBlur, onChange, value } }) => (
             <Input
-              label="Notes"
-              placeholder="Pairing, pregnancy checks and litter notes"
+              label="Notas"
+              placeholder="Cruce, revisiones de gestación y notas de camada"
               multiline
               numberOfLines={4}
               textAlignVertical="top"
@@ -198,9 +198,9 @@ export function LitterForm({
         {errorMessage ? <Text className="text-sm leading-5 text-red-600">{errorMessage}</Text> : null}
 
         <View className="flex-row gap-3">
-          <Button title="Cancel" variant="secondary" className="flex-1" onPress={onCancel} />
+          <Button title="Cancelar" variant="secondary" className="flex-1" onPress={onCancel} />
           <Button
-            title={litter ? 'Save litter' : 'Create litter'}
+            title={litter ? 'Guardar camada' : 'Añadir camada'}
             loading={isSubmitting}
             className="flex-1"
             onPress={() => void handleSubmit(handleValidSubmit)()}
@@ -224,7 +224,7 @@ function DogSelector({ dogs, error, label, value, onChange }: DogSelectorProps) 
     <View className="gap-2">
       <Text className="text-sm font-semibold text-slate-700">{label}</Text>
       <View className="flex-row flex-wrap gap-2">
-        <DogOption label="None" isSelected={!value} onPress={() => onChange('')} />
+        <DogOption label="Ninguno" isSelected={!value} onPress={() => onChange('')} />
         {dogs.map((dog) => (
           <DogOption
             key={dog.id}
@@ -235,7 +235,7 @@ function DogSelector({ dogs, error, label, value, onChange }: DogSelectorProps) 
         ))}
       </View>
       {dogs.length === 0 ? (
-        <Text className="text-sm leading-5 text-slate-600">Add dogs first to link parents.</Text>
+        <Text className="text-sm leading-5 text-slate-600">Añade perros primero para vincular progenitores.</Text>
       ) : null}
       {error ? <Text className="text-sm text-red-600">{error}</Text> : null}
     </View>

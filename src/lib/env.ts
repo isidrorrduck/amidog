@@ -25,7 +25,7 @@ export const env = {
 
 export function assertSupabaseEnv() {
   if (!env.isSupabaseConfigured) {
-    throw new Error('Missing EXPO_PUBLIC_SUPABASE_URL or EXPO_PUBLIC_SUPABASE_ANON_KEY.');
+    throw new Error('Falta EXPO_PUBLIC_SUPABASE_URL o EXPO_PUBLIC_SUPABASE_ANON_KEY.');
   }
 
   if (env.validationErrors.length > 0) {
@@ -65,7 +65,7 @@ function getSupabaseConfigErrors(supabaseUrl: string, supabaseAnonKey: string) {
   }
 
   if (!hasHttpUrlShape(supabaseUrl)) {
-    return ['Supabase URL must start with https:// and use your Supabase project domain.'];
+    return ['La URL de Supabase debe empezar por https:// y usar el dominio de tu proyecto de Supabase.'];
   }
 
   return [];

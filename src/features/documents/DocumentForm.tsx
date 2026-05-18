@@ -140,15 +140,15 @@ export function DocumentForm({
   };
 
   return (
-    <AppCard title="Upload document">
+    <AppCard title="Subir documento">
       <View className="gap-4">
         <Controller
           control={control}
           name="title"
           render={({ field: { onBlur, onChange, value } }) => (
             <Input
-              label="Title"
-              placeholder="Pedigree, contract or veterinary report"
+              label="Título"
+              placeholder="Pedigrí, contrato o informe veterinario"
               autoCapitalize="sentences"
               value={value}
               onBlur={onBlur}
@@ -162,7 +162,7 @@ export function DocumentForm({
           control={control}
           name="documentType"
           render={({ field: { onChange, value } }) => (
-            <SelectorSection label="Document type" error={errors.documentType?.message}>
+            <SelectorSection label="Tipo de documento" error={errors.documentType?.message}>
               {documentTypeOptions.map((option) => (
                 <SelectorOption
                   key={option}
@@ -179,7 +179,7 @@ export function DocumentForm({
           control={control}
           name="entityType"
           render={({ field: { onChange, value } }) => (
-            <SelectorSection label="Linked to" error={errors.entityType?.message}>
+            <SelectorSection label="Vinculado a" error={errors.entityType?.message}>
               {documentEntityTypeOptions.map((option) => (
                 <SelectorOption
                   key={option}
@@ -210,7 +210,7 @@ export function DocumentForm({
               ))}
               {filteredEntityOptions.length === 0 ? (
                 <Text className="text-sm leading-5 text-slate-600">
-                  Create a {getDocumentEntityTypeLabel(selectedEntityType).toLowerCase()} before linking documents.
+                  Crea primero un registro para poder vincular documentos.
                 </Text>
               ) : null}
             </SelectorSection>
@@ -218,8 +218,8 @@ export function DocumentForm({
         />
 
         <View className="gap-2">
-          <Text className="text-sm font-semibold text-slate-700">File</Text>
-          <Button title={selectedFile ? 'Choose another file' : 'Choose file'} variant="secondary" onPress={pickFile} />
+          <Text className="text-sm font-semibold text-slate-700">Archivo</Text>
+          <Button title={selectedFile ? 'Elegir otro archivo' : 'Elegir archivo'} variant="secondary" onPress={pickFile} />
           {selectedFile ? (
             <Text className="text-sm leading-5 text-slate-600">
               {selectedFile.name}
@@ -234,8 +234,8 @@ export function DocumentForm({
           name="notes"
           render={({ field: { onBlur, onChange, value } }) => (
             <Input
-              label="Notes"
-              placeholder="Context, expiry, vaccine batch or sharing notes"
+              label="Notas"
+              placeholder="Contexto, caducidad, lote de vacuna o notas para compartir"
               multiline
               numberOfLines={4}
               textAlignVertical="top"
@@ -251,9 +251,9 @@ export function DocumentForm({
         {errorMessage ? <Text className="text-sm leading-5 text-red-600">{errorMessage}</Text> : null}
 
         <View className="flex-row gap-3">
-          <Button title="Cancel" variant="secondary" className="flex-1" onPress={onCancel} />
+          <Button title="Cancelar" variant="secondary" className="flex-1" onPress={onCancel} />
           <Button
-            title="Upload"
+            title="Subir"
             loading={isSubmitting}
             disabled={filteredEntityOptions.length === 0}
             className="flex-1"
@@ -322,8 +322,8 @@ function formatSize(size: number) {
   return `${(size / (1024 * 1024)).toFixed(1)} MB`;
 }
 
-function getErrorMessage(error: unknown) {
-  return error instanceof Error ? error.message : 'Unable to choose the file.';
+function getErrorMessage(_error: unknown) {
+  return 'No se ha podido elegir el archivo.';
 }
 
 function isDocumentFormField(value: unknown): value is DocumentFormField {

@@ -85,10 +85,10 @@ function LittersContent() {
   };
 
   const handleDeleteLitter = (litter: Litter) => {
-    Alert.alert('Delete litter?', `${litter.name} will be removed from ${currentKennel?.name ?? 'this kennel'}.`, [
-      { text: 'Cancel', style: 'cancel' },
+    Alert.alert('¿Eliminar camada?', `Se eliminará ${litter.name} de ${currentKennel?.name ?? 'este criadero'}.`, [
+      { text: 'Cancelar', style: 'cancel' },
       {
-        text: 'Delete',
+        text: 'Eliminar',
         style: 'destructive',
         onPress: () => {
           void deleteLitterMutation.mutateAsync(litter.id).catch((error) => {
@@ -102,12 +102,12 @@ function LittersContent() {
   return (
     <AppScreen scrollable>
       <View className="gap-2">
-        <Text className="text-3xl font-bold text-slate-950">Litters</Text>
-        <Text className="text-base leading-6 text-slate-600">{currentKennel?.name ?? 'Kennel'} litter registry</Text>
+        <Text className="text-3xl font-bold text-slate-950">Camadas</Text>
+        <Text className="text-base leading-6 text-slate-600">Registro de camadas de {currentKennel?.name ?? 'criadero'}</Text>
       </View>
 
       <Button
-        title={isFormOpen ? 'Close form' : 'Create litter'}
+        title={isFormOpen ? 'Cerrar formulario' : 'Añadir camada'}
         variant={isFormOpen ? 'secondary' : 'primary'}
         onPress={isFormOpen ? closeForm : openCreateForm}
       />
@@ -119,7 +119,7 @@ function LittersContent() {
       ) : null}
 
       {dogsQuery.error ? (
-        <AppCard title="Unable to load parent dogs">
+        <AppCard title="No se han podido cargar los progenitores">
           <Text className="text-sm leading-5 text-red-600">{getErrorMessage(dogsQuery.error)}</Text>
         </AppCard>
       ) : null}
@@ -136,7 +136,7 @@ function LittersContent() {
       ) : null}
 
       {littersQuery.isLoading || dogsQuery.isLoading ? (
-        <AppCard title="Loading litters">
+        <AppCard title="Cargando camadas">
           <View className="items-start">
             <ActivityIndicator color="#1d4ed8" />
           </View>
@@ -144,16 +144,16 @@ function LittersContent() {
       ) : null}
 
       {littersQuery.error ? (
-        <AppCard title="Unable to load litters">
+        <AppCard title="No se han podido cargar las camadas">
           <Text className="text-sm leading-5 text-red-600">{getErrorMessage(littersQuery.error)}</Text>
         </AppCard>
       ) : null}
 
       {!littersQuery.isLoading && !dogsQuery.isLoading && !littersQuery.error && litters.length === 0 ? (
-        <AppCard title="No litters yet">
+        <AppCard title="Todavía no hay camadas">
           <View className="gap-4">
-            <Text className="text-sm leading-5 text-slate-600">Create the first litter for this kennel.</Text>
-            {!isFormOpen ? <Button title="Create litter" onPress={openCreateForm} /> : null}
+            <Text className="text-sm leading-5 text-slate-600">Añade la primera camada de este criadero.</Text>
+            {!isFormOpen ? <Button title="Añadir camada" onPress={openCreateForm} /> : null}
           </View>
         </AppCard>
       ) : null}
@@ -204,10 +204,10 @@ function LitterCard({
   const fatherName = getDogName(litter.father_id, dogsById);
   const details = [
     getLitterStatusLabel(litter.status),
-    litter.expected_birth_date ? `Expected ${litter.expected_birth_date}` : null,
-    litter.birth_date ? `Born ${litter.birth_date}` : null,
-    motherName ? `Mother ${motherName}` : null,
-    fatherName ? `Father ${fatherName}` : null,
+    litter.expected_birth_date ? `Prevista ${litter.expected_birth_date}` : null,
+    litter.birth_date ? `Nacimiento ${litter.birth_date}` : null,
+    motherName ? `Madre ${motherName}` : null,
+    fatherName ? `Padre ${fatherName}` : null,
   ].filter(Boolean);
 
   return (
@@ -215,19 +215,19 @@ function LitterCard({
       <View className="gap-3">
         <View className="gap-1">
           <Text className="text-xl font-semibold text-slate-950">{litter.name}</Text>
-          <Text className="text-sm leading-5 text-slate-600">{details.join(' | ') || 'No details yet'}</Text>
+          <Text className="text-sm leading-5 text-slate-600">{details.join(' | ') || 'Sin detalles todavía'}</Text>
         </View>
 
         {litter.notes ? <Text className="text-sm leading-5 text-slate-600">{litter.notes}</Text> : null}
 
         <View className="gap-3">
-          <Button title="Puppies" variant="secondary" onPress={onPuppies} />
-          <Button title="Documents" variant="secondary" onPress={onDocuments} />
+          <Button title="Cachorros" variant="secondary" onPress={onPuppies} />
+          <Button title="Documentos" variant="secondary" onPress={onDocuments} />
           <View className="flex-row gap-3">
-            <Button title="Edit" variant="secondary" className="flex-1" onPress={onEdit} />
+            <Button title="Editar" variant="secondary" className="flex-1" onPress={onEdit} />
             {isOwner ? (
               <Button
-                title="Delete"
+                title="Eliminar"
                 variant="ghost"
                 loading={isDeleting}
                 className="flex-1"
@@ -247,9 +247,9 @@ function getDogName(dogId: string | null, dogsById: Map<string, Dog>) {
     return null;
   }
 
-  return dogsById.get(dogId)?.name ?? 'Unknown dog';
+  return dogsById.get(dogId)?.name ?? 'Perro desconocido';
 }
 
-function getErrorMessage(error: unknown) {
-  return error instanceof Error ? error.message : 'Something went wrong while managing litters.';
+function getErrorMessage(_error: unknown) {
+  return 'Algo ha ido mal al gestionar las camadas.';
 }

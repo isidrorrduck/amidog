@@ -133,7 +133,7 @@ async function readFileBody(uri: string) {
   const response = await fetch(uri);
 
   if (!response.ok) {
-    throw new Error('Unable to read the selected file.');
+    throw new Error('No se ha podido leer el archivo seleccionado.');
   }
 
   return response.arrayBuffer();
