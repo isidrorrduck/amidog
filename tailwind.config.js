@@ -5,12 +5,21 @@ module.exports = {
   theme: {
     extend: {
       colors: {
+        background: '#f6f8f6',
+        border: '#d9e2dc',
+        ink: '#17231d',
+        muted: '#607068',
         brand: {
-          50: '#eff6ff',
-          100: '#dbeafe',
-          500: '#2563eb',
-          600: '#1d4ed8',
-          700: '#1e40af',
+          50: '#edf8f2',
+          100: '#d7efe1',
+          500: '#26895f',
+          600: '#1f6f50',
+          700: '#185840',
+        },
+        accent: {
+          50: '#fff7e8',
+          500: '#d98c1f',
+          600: '#b86f16',
         },
       },
     },

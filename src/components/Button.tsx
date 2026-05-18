@@ -1,8 +1,10 @@
 import { ActivityIndicator, Pressable, PressableProps, Text } from 'react-native';
 
+import { tokens } from '../theme';
+
 type ButtonVariant = 'primary' | 'secondary' | 'ghost';
 
-interface ButtonProps extends PressableProps {
+export interface ButtonProps extends PressableProps {
   title: string;
   variant?: ButtonVariant;
   loading?: boolean;
@@ -12,13 +14,13 @@ interface ButtonProps extends PressableProps {
 
 const buttonClassByVariant: Record<ButtonVariant, string> = {
   primary: 'bg-brand-600 border-brand-600',
-  secondary: 'bg-white border-slate-300',
+  secondary: 'bg-white border-border',
   ghost: 'bg-transparent border-transparent',
 };
 
 const textClassByVariant: Record<ButtonVariant, string> = {
   primary: 'text-white',
-  secondary: 'text-slate-900',
+  secondary: 'text-ink',
   ghost: 'text-brand-700',
 };
 
@@ -43,7 +45,7 @@ export default function Button({
       {...props}
     >
       {loading ? (
-        <ActivityIndicator color={variant === 'primary' ? '#ffffff' : '#1d4ed8'} />
+        <ActivityIndicator color={variant === 'primary' ? '#ffffff' : tokens.colors.brand[600]} />
       ) : (
         <Text className={`text-center text-base font-semibold ${textClassByVariant[variant]} ${textClassName ?? ''}`}>
           {title}

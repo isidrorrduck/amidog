@@ -1,4 +1,4 @@
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { ActivityIndicator, Alert, Text, View } from 'react-native';
 
@@ -26,6 +26,7 @@ export default function LittersScreen() {
 }
 
 function LittersContent() {
+  const { action } = useLocalSearchParams<{ action?: string }>();
   const { currentKennel, currentMembership } = useCurrentKennel();
   const kennelId = currentKennel?.id ?? null;
   const littersQuery = useLitters(kennelId);
@@ -34,7 +35,7 @@ function LittersContent() {
   const updateLitterMutation = useUpdateLitter(kennelId);
   const deleteLitterMutation = useDeleteLitter(kennelId);
   const [editingLitter, setEditingLitter] = useState<Litter | null>(null);
-  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [isFormOpen, setIsFormOpen] = useState(action === 'create');
   const [formError, setFormError] = useState<string | null>(null);
   const [screenError, setScreenError] = useState<string | null>(null);
   const litters = littersQuery.data ?? [];

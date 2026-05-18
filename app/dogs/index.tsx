@@ -1,4 +1,4 @@
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { ActivityIndicator, Alert, Text, View } from 'react-native';
 
@@ -24,6 +24,7 @@ export default function DogsScreen() {
 }
 
 function DogsContent() {
+  const { action } = useLocalSearchParams<{ action?: string }>();
   const { currentKennel, currentMembership } = useCurrentKennel();
   const kennelId = currentKennel?.id ?? null;
   const dogsQuery = useDogs(kennelId);
@@ -31,7 +32,7 @@ function DogsContent() {
   const updateDogMutation = useUpdateDog(kennelId);
   const deleteDogMutation = useDeleteDog(kennelId);
   const [editingDog, setEditingDog] = useState<Dog | null>(null);
-  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [isFormOpen, setIsFormOpen] = useState(action === 'create');
   const [formError, setFormError] = useState<string | null>(null);
   const [screenError, setScreenError] = useState<string | null>(null);
   const dogs = dogsQuery.data ?? [];
