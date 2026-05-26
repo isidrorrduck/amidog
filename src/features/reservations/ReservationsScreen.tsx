@@ -7,7 +7,6 @@ import { Button, Card, Screen } from '../../components';
 import { ProtectedRoute } from '../auth';
 import { getClientFullName, useClients, type Client } from '../clients';
 import { useCurrentKennel } from '../kennels';
-import { useLitters, type Litter } from '../litters';
 import { usePuppies, type Puppy } from '../puppies';
 import { ReservationForm } from './ReservationForm';
 import {
@@ -62,7 +61,6 @@ function ReservationsContent({
   const reservationsQuery = useReservations(kennelId, filters);
   const puppiesQuery = usePuppies(kennelId);
   const clientsQuery = useClients(kennelId);
-  const littersQuery = useLitters(kennelId);
   const createReservationMutation = useCreateReservation(kennelId);
   const updateReservationMutation = useUpdateReservation(kennelId);
   const deleteReservationMutation = useDeleteReservation(kennelId);
@@ -75,14 +73,12 @@ function ReservationsContent({
   const reservations = reservationsQuery.data ?? [];
   const puppies = puppiesQuery.data ?? [];
   const clients = clientsQuery.data ?? [];
-  const litters = littersQuery.data ?? [];
   const puppiesById = useMemo(() => new Map(puppies.map((puppy) => [puppy.id, puppy])), [puppies]);
   const clientsById = useMemo(() => new Map(clients.map((client) => [client.id, client])), [clients]);
-  const littersById = useMemo(() => new Map(litters.map((litter) => [litter.id, litter])), [litters]);
   const isOwner = currentMembership?.role === 'owner';
   const isFormSubmitting = createReservationMutation.isPending || updateReservationMutation.isPending;
   const isRouteForm = initialMode === 'create' || Boolean(initialReservationId);
-  const relationError = clientsQuery.error ?? puppiesQuery.error ?? littersQuery.error ?? null;
+  const relationError = clientsQuery.error ?? puppiesQuery.error ?? null;
   const hasActiveFilters = Boolean(selectedStatus || selectedPuppyId || selectedClientId);
   const defaultPuppyId = editingReservation
     ? editingReservation.puppy_id
@@ -113,7 +109,7 @@ function ReservationsContent({
     if (reservation) {
       openEditForm(reservation);
     } else if (!reservationsQuery.error) {
-      setScreenError('Unable to find this reservation in the current kennel.');
+      setScreenError('No se ha encontrado esta reserva en el criadero actual.');
     }
   }, [editingReservation, initialReservationId, reservations, reservationsQuery.error, reservationsQuery.isLoading]);
 
@@ -153,13 +149,13 @@ function ReservationsContent({
   };
 
   const handleDeleteReservation = (reservation: Reservation) => {
-    const puppyName = puppiesById.get(reservation.puppy_id)?.name ?? 'This reservation';
+    const puppyName = puppiesById.get(reservation.puppy_id)?.name ?? 'Esta reserva';
     const clientName = getClientLabel(clientsById.get(reservation.client_id));
 
-    Alert.alert('Delete reservation?', `${puppyName} for ${clientName} will be removed.`, [
-      { text: 'Cancel', style: 'cancel' },
+    Alert.alert('¿Eliminar reserva?', `Se eliminará ${puppyName} para ${clientName}.`, [
+      { text: 'Cancelar', style: 'cancel' },
       {
-        text: 'Delete',
+        text: 'Eliminar',
         style: 'destructive',
         onPress: () => {
           void deleteReservationMutation.mutateAsync(reservation.id).catch((error) => {
@@ -173,14 +169,14 @@ function ReservationsContent({
   return (
     <Screen scrollable>
       <View className="gap-2">
-        <Text className="text-3xl font-bold text-slate-950">Reservations</Text>
+        <Text className="text-3xl font-bold text-slate-950">Reservas</Text>
         <Text className="text-base leading-6 text-slate-600">
-          {currentKennel?.name ?? 'Kennel'} puppy reservation board
+          Reservas de cachorros de {currentKennel?.name ?? 'este criadero'}
         </Text>
       </View>
 
       <Button
-        title={isFormOpen ? 'Close form' : 'Create reservation'}
+        title={isFormOpen ? 'Cerrar formulario' : 'Crear reserva'}
         variant={isFormOpen ? 'secondary' : 'primary'}
         onPress={isFormOpen ? closeForm : () => router.push('/reservations/new' as never)}
       />
@@ -192,7 +188,7 @@ function ReservationsContent({
       ) : null}
 
       {relationError ? (
-        <Card title="Unable to load reservation data">
+        <Card title="No se han podido cargar los datos de reservas">
           <Text className="text-sm leading-5 text-red-600">{getErrorMessage(relationError)}</Text>
         </Card>
       ) : null}
@@ -222,8 +218,8 @@ function ReservationsContent({
         />
       ) : null}
 
-      {reservationsQuery.isLoading || puppiesQuery.isLoading || clientsQuery.isLoading || littersQuery.isLoading ? (
-        <Card title="Loading reservations">
+      {reservationsQuery.isLoading || puppiesQuery.isLoading || clientsQuery.isLoading ? (
+        <Card title="Cargando reservas">
           <View className="items-start">
             <ActivityIndicator color="#1d4ed8" />
           </View>
@@ -231,25 +227,25 @@ function ReservationsContent({
       ) : null}
 
       {reservationsQuery.error ? (
-        <Card title="Unable to load reservations">
+        <Card title="No se han podido cargar las reservas">
           <Text className="text-sm leading-5 text-red-600">{getErrorMessage(reservationsQuery.error)}</Text>
         </Card>
       ) : null}
 
       {!puppiesQuery.isLoading && !puppiesQuery.error && puppies.length === 0 ? (
-        <Card title="No puppies yet">
+        <Card title="Todavía no hay cachorros">
           <View className="gap-4">
-            <Text className="text-sm leading-5 text-slate-600">Create a puppy before adding reservations.</Text>
-            <Button title="Open puppies" onPress={() => router.push('/puppies' as never)} />
+            <Text className="text-sm leading-5 text-slate-600">Crea un cachorro antes de añadir reservas.</Text>
+            <Button title="Abrir cachorros" onPress={() => router.push('/puppies' as never)} />
           </View>
         </Card>
       ) : null}
 
       {!clientsQuery.isLoading && !clientsQuery.error && clients.length === 0 ? (
-        <Card title="No clients yet">
+        <Card title="Todavía no hay clientes">
           <View className="gap-4">
-            <Text className="text-sm leading-5 text-slate-600">Create a client before adding reservations.</Text>
-            <Button title="Open clients" onPress={() => router.push('/clients' as never)} />
+            <Text className="text-sm leading-5 text-slate-600">Crea un cliente antes de añadir reservas.</Text>
+            <Button title="Abrir clientes" onPress={() => router.push('/clients' as never)} />
           </View>
         </Card>
       ) : null}
@@ -259,13 +255,13 @@ function ReservationsContent({
       puppies.length > 0 &&
       clients.length > 0 &&
       reservations.length === 0 ? (
-        <Card title={hasActiveFilters ? 'No matching reservations' : 'No reservations yet'}>
+        <Card title={hasActiveFilters ? 'No hay reservas que coincidan' : 'Todavía no hay reservas'}>
           <View className="gap-4">
             <Text className="text-sm leading-5 text-slate-600">
-              {hasActiveFilters ? 'Change the filters to see more reservations.' : 'Create the first puppy reservation.'}
+              {hasActiveFilters ? 'Cambia los filtros para ver más reservas.' : 'Crea la primera reserva de cachorro.'}
             </Text>
             {!isFormOpen && !hasActiveFilters ? (
-              <Button title="Create reservation" onPress={() => router.push('/reservations/new' as never)} />
+              <Button title="Crear reserva" onPress={() => router.push('/reservations/new' as never)} />
             ) : null}
           </View>
         </Card>
@@ -279,7 +275,6 @@ function ReservationsContent({
               isDeleting={deleteReservationMutation.isPending}
               isOwner={isOwner}
               key={reservation.id}
-              littersById={littersById}
               puppiesById={puppiesById}
               reservation={reservation}
               onDelete={() => handleDeleteReservation(reservation)}
@@ -314,10 +309,10 @@ function ReservationFiltersCard({
   onChangeStatus,
 }: ReservationFiltersCardProps) {
   return (
-    <Card title="Filters">
+    <Card title="Filtros">
       <View className="gap-4">
-        <FilterSection label="Status">
-          <FilterOption label="All statuses" isSelected={!selectedStatus} onPress={() => onChangeStatus('')} />
+        <FilterSection label="Estado">
+          <FilterOption label="Todos los estados" isSelected={!selectedStatus} onPress={() => onChangeStatus('')} />
           {reservationStatusOptions.map((status) => (
             <FilterOption
               key={status}
@@ -329,8 +324,8 @@ function ReservationFiltersCard({
         </FilterSection>
 
         {puppies.length > 0 ? (
-          <FilterSection label="Puppy">
-            <FilterOption label="All puppies" isSelected={!selectedPuppyId} onPress={() => onChangePuppy('')} />
+          <FilterSection label="Cachorro">
+            <FilterOption label="Todos los cachorros" isSelected={!selectedPuppyId} onPress={() => onChangePuppy('')} />
             {puppies.map((puppy) => (
               <FilterOption
                 key={puppy.id}
@@ -343,8 +338,8 @@ function ReservationFiltersCard({
         ) : null}
 
         {clients.length > 0 ? (
-          <FilterSection label="Client">
-            <FilterOption label="All clients" isSelected={!selectedClientId} onPress={() => onChangeClient('')} />
+          <FilterSection label="Cliente">
+            <FilterOption label="Todos los clientes" isSelected={!selectedClientId} onPress={() => onChangeClient('')} />
             {clients.map((client) => (
               <FilterOption
                 key={client.id}
@@ -403,7 +398,6 @@ interface ReservationCardProps {
   clientsById: Map<string, Client>;
   isDeleting: boolean;
   isOwner: boolean;
-  littersById: Map<string, Litter>;
   puppiesById: Map<string, Puppy>;
   reservation: Reservation;
   onDelete: () => void;
@@ -414,7 +408,6 @@ function ReservationCard({
   clientsById,
   isDeleting,
   isOwner,
-  littersById,
   puppiesById,
   reservation,
   onDelete,
@@ -422,36 +415,29 @@ function ReservationCard({
 }: ReservationCardProps) {
   const puppy = puppiesById.get(reservation.puppy_id);
   const client = clientsById.get(reservation.client_id);
-  const litter = reservation.litter_id ? littersById.get(reservation.litter_id) : null;
-  const deposit = reservation.deposit_amount !== null
-    ? `Deposit ${formatAmount(reservation.deposit_amount)} ${reservation.deposit_paid ? 'paid' : 'not paid'}`
-    : reservation.deposit_paid
-      ? 'Deposit paid'
-      : null;
   const details = [
     getReservationStatusLabel(reservation.status),
-    `Date ${reservation.reservation_date}`,
-    getClientLabel(client),
-    litter ? `Litter ${litter.name}` : null,
-    reservation.reserved_price !== null ? `Reserved price ${formatAmount(reservation.reserved_price)}` : null,
-    deposit,
+    `Fecha ${reservation.reservation_date}`,
+    `Cliente ${getClientLabel(client)}`,
+    reservation.deposit_amount !== null ? `Señal ${formatAmount(reservation.deposit_amount)}` : null,
+    reservation.final_price !== null ? `Precio final ${formatAmount(reservation.final_price)}` : null,
   ].filter(Boolean);
 
   return (
     <Card>
       <View className="gap-3">
         <View className="gap-1">
-          <Text className="text-xl font-semibold text-slate-950">{puppy?.name ?? 'Unknown puppy'}</Text>
+          <Text className="text-xl font-semibold text-slate-950">{puppy?.name ?? 'Cachorro desconocido'}</Text>
           <Text className="text-sm leading-5 text-slate-600">{details.join(' | ')}</Text>
         </View>
 
         {reservation.notes ? <Text className="text-sm leading-5 text-slate-600">{reservation.notes}</Text> : null}
 
         <View className="flex-row gap-3">
-          <Button title="Edit" variant="secondary" className="flex-1" onPress={onEdit} />
+          <Button title="Editar" variant="secondary" className="flex-1" onPress={onEdit} />
           {isOwner ? (
             <Button
-              title="Delete"
+              title="Eliminar"
               variant="ghost"
               loading={isDeleting}
               className="flex-1"
@@ -466,7 +452,7 @@ function ReservationCard({
 }
 
 function getClientLabel(client: Client | undefined) {
-  return client ? getClientFullName(client) : 'Unknown client';
+  return client ? getClientFullName(client) : 'cliente desconocido';
 }
 
 function formatAmount(value: number) {
@@ -483,11 +469,19 @@ function getErrorMessage(error: unknown) {
 
   if (message) {
     if (message.includes('reservations_active_puppy_idx')) {
-      return 'This puppy already has an active reservation.';
+      return 'Este cachorro ya tiene una reserva activa.';
+    }
+
+    if (message.includes('Puppy must belong to the reservation kennel')) {
+      return 'El cachorro debe pertenecer al criadero de la reserva.';
+    }
+
+    if (message.includes('Client must belong to the reservation kennel')) {
+      return 'El cliente debe pertenecer al criadero de la reserva.';
     }
 
     return message;
   }
 
-  return 'Something went wrong while managing reservations.';
+  return 'Algo ha ido mal al gestionar las reservas.';
 }

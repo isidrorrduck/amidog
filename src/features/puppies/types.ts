@@ -58,9 +58,9 @@ export function toPuppyMutationInput(values: ValidPuppyFormValues): PuppyMutatio
 
 export function getPuppySexLabel(sex: PuppySex) {
   const labels: Record<PuppySex, string> = {
-    unknown: 'Unknown',
-    male: 'Male',
-    female: 'Female',
+    unknown: 'Sin definir',
+    male: 'Macho',
+    female: 'Hembra',
   };
 
   return labels[sex];
@@ -68,11 +68,11 @@ export function getPuppySexLabel(sex: PuppySex) {
 
 export function getPuppyStatusLabel(status: PuppyStatus) {
   const labels: Record<PuppyStatus, string> = {
-    available: 'Available',
-    reserved: 'Reserved',
-    placed: 'Placed',
-    kept: 'Kept',
-    deceased: 'Deceased',
+    available: 'Disponible',
+    reserved: 'Reservado',
+    placed: 'Entregado',
+    kept: 'Se queda',
+    deceased: 'Fallecido',
   };
 
   return labels[status];

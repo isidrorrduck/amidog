@@ -57,7 +57,7 @@ export function useDeleteReservation(kennelId: string | null | undefined) {
 
 async function requireKennelId(kennelId: string | null | undefined) {
   if (!kennelId) {
-    throw new Error('Select a kennel before managing reservations.');
+    throw new Error('Selecciona un criadero antes de gestionar reservas.');
   }
 
   return kennelId;

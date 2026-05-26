@@ -1,20 +1,66 @@
-create table if not exists public.reservations (
-  id uuid primary key default gen_random_uuid(),
-  kennel_id uuid not null references public.kennels(id) on delete cascade,
-  puppy_id uuid not null references public.puppies(id) on delete cascade,
-  client_id uuid not null references public.clients(id) on delete cascade,
-  status text not null default 'pending' check (status in ('pending', 'paid', 'cancelled', 'completed')),
-  reservation_date date not null default current_date,
-  deposit_amount numeric(12, 2) check (deposit_amount is null or deposit_amount >= 0),
-  final_price numeric(12, 2) check (final_price is null or final_price >= 0),
-  notes text,
-  created_at timestamptz not null default now(),
-  updated_at timestamptz not null default now()
-);
+drop index if exists public.reservations_active_puppy_idx;
+drop index if exists public.reservations_litter_id_idx;
 
-create index if not exists reservations_kennel_id_idx on public.reservations(kennel_id);
-create index if not exists reservations_puppy_id_idx on public.reservations(puppy_id);
-create index if not exists reservations_client_id_idx on public.reservations(client_id);
+alter table public.reservations drop constraint if exists reservations_status_check;
+update public.reservations
+set status = 'pending'
+where status = 'reserved';
+alter table public.reservations
+  add constraint reservations_status_check
+  check (status in ('pending', 'paid', 'cancelled', 'completed'));
+
+do $$
+begin
+  if exists (
+    select 1
+    from information_schema.columns
+    where table_schema = 'public'
+      and table_name = 'reservations'
+      and column_name = 'reserved_price'
+  ) and not exists (
+    select 1
+    from information_schema.columns
+    where table_schema = 'public'
+      and table_name = 'reservations'
+      and column_name = 'final_price'
+  ) then
+    alter table public.reservations rename column reserved_price to final_price;
+  elsif not exists (
+    select 1
+    from information_schema.columns
+    where table_schema = 'public'
+      and table_name = 'reservations'
+      and column_name = 'final_price'
+  ) then
+    alter table public.reservations add column final_price numeric(12, 2);
+  elsif exists (
+    select 1
+    from information_schema.columns
+    where table_schema = 'public'
+      and table_name = 'reservations'
+      and column_name = 'reserved_price'
+  ) then
+    update public.reservations
+    set final_price = coalesce(final_price, reserved_price);
+    alter table public.reservations drop column reserved_price;
+  end if;
+end;
+$$;
+
+alter table public.reservations drop column if exists reserved_price;
+alter table public.reservations drop column if exists deposit_paid;
+alter table public.reservations drop column if exists litter_id;
+
+alter table public.reservations drop constraint if exists reservations_deposit_amount_check;
+alter table public.reservations
+  add constraint reservations_deposit_amount_check
+  check (deposit_amount is null or deposit_amount >= 0);
+
+alter table public.reservations drop constraint if exists reservations_final_price_check;
+alter table public.reservations
+  add constraint reservations_final_price_check
+  check (final_price is null or final_price >= 0);
+
 create index if not exists reservations_kennel_status_idx on public.reservations(kennel_id, status);
 create index if not exists reservations_kennel_date_idx on public.reservations(kennel_id, reservation_date);
 
@@ -54,11 +100,6 @@ drop trigger if exists ensure_reservation_relations_belong_to_kennel on public.r
 create trigger ensure_reservation_relations_belong_to_kennel
 before insert or update on public.reservations
 for each row execute function public.ensure_reservation_relations_belong_to_kennel();
-
-drop trigger if exists set_reservations_updated_at on public.reservations;
-create trigger set_reservations_updated_at
-before update on public.reservations
-for each row execute function public.set_updated_at();
 
 alter table public.reservations enable row level security;
 
