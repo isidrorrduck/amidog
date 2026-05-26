@@ -2,6 +2,24 @@ drop index if exists public.reservations_active_puppy_idx;
 drop index if exists public.reservations_litter_id_idx;
 
 alter table public.reservations drop constraint if exists reservations_status_check;
+
+do $$
+begin
+  if exists (
+    select 1
+    from information_schema.columns
+    where table_schema = 'public'
+      and table_name = 'reservations'
+      and column_name = 'deposit_paid'
+  ) then
+    update public.reservations
+    set status = 'paid'
+    where deposit_paid is true
+      and status in ('pending', 'reserved');
+  end if;
+end;
+$$;
+
 update public.reservations
 set status = 'pending'
 where status = 'reserved';
