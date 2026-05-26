@@ -16,3 +16,5 @@ expo-start.out.log
 
 expo-env.d.ts
 # @end expo-cli
+*.jks
+*.pem
