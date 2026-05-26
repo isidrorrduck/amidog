@@ -3,10 +3,12 @@ create table if not exists public.reservations (
   kennel_id uuid not null references public.kennels(id) on delete cascade,
   puppy_id uuid not null references public.puppies(id) on delete cascade,
   client_id uuid not null references public.clients(id) on delete cascade,
-  status text not null default 'pending' check (status in ('pending', 'paid', 'cancelled', 'completed')),
-  reservation_date date not null default current_date,
+  litter_id uuid references public.litters(id) on delete set null,
+  status text not null default 'pending' check (status in ('pending', 'reserved', 'paid', 'cancelled', 'completed')),
+  reserved_price numeric(12, 2) check (reserved_price is null or reserved_price >= 0),
   deposit_amount numeric(12, 2) check (deposit_amount is null or deposit_amount >= 0),
-  final_price numeric(12, 2) check (final_price is null or final_price >= 0),
+  deposit_paid boolean not null default false,
+  reservation_date date not null default current_date,
   notes text,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
@@ -15,25 +17,29 @@ create table if not exists public.reservations (
 create index if not exists reservations_kennel_id_idx on public.reservations(kennel_id);
 create index if not exists reservations_puppy_id_idx on public.reservations(puppy_id);
 create index if not exists reservations_client_id_idx on public.reservations(client_id);
+create index if not exists reservations_litter_id_idx on public.reservations(litter_id);
 create index if not exists reservations_kennel_status_idx on public.reservations(kennel_id, status);
 create index if not exists reservations_kennel_date_idx on public.reservations(kennel_id, reservation_date);
 
 create unique index if not exists reservations_active_puppy_idx
 on public.reservations(puppy_id)
-where status in ('pending', 'paid');
+where status in ('pending', 'reserved', 'paid');
 
 create or replace function public.ensure_reservation_relations_belong_to_kennel()
 returns trigger
 language plpgsql
 set search_path = public
 as $$
+declare
+  puppy_kennel_id uuid;
+  puppy_litter_id uuid;
 begin
-  if not exists (
-    select 1
-    from public.puppies
-    where puppies.id = new.puppy_id
-      and puppies.kennel_id = new.kennel_id
-  ) then
+  select puppies.kennel_id, puppies.litter_id
+    into puppy_kennel_id, puppy_litter_id
+  from public.puppies
+  where puppies.id = new.puppy_id;
+
+  if puppy_kennel_id is null or puppy_kennel_id <> new.kennel_id then
     raise exception 'Puppy must belong to the reservation kennel';
   end if;
 
@@ -45,6 +51,8 @@ begin
   ) then
     raise exception 'Client must belong to the reservation kennel';
   end if;
+
+  new.litter_id := puppy_litter_id;
 
   return new;
 end;
