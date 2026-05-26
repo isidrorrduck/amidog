@@ -46,7 +46,7 @@ export function useDeleteLitter(kennelId: string | null | undefined) {
 
 async function requireKennelId(kennelId: string | null | undefined) {
   if (!kennelId) {
-    throw new Error('Select a kennel before managing litters.');
+    throw new Error('Selecciona un criadero antes de gestionar camadas.');
   }
 
   return kennelId;

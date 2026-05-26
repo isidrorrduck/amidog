@@ -27,7 +27,7 @@ export interface SignUpResult {
   needsEmailConfirmation: boolean;
 }
 
-const fallbackKennelName = 'My Kennel';
+const fallbackKennelName = 'Mi criadero';
 
 export async function signInWithPassword({ email, password }: SignInInput) {
   const supabase = getSupabaseClient();
@@ -135,6 +135,6 @@ function normalizeKennelName(kennelName: string | undefined, email: string | und
 
   const emailPrefix = email?.split('@')[0]?.trim();
 
-  return emailPrefix ? `${emailPrefix} Kennel` : fallbackKennelName;
+  return emailPrefix ? `Criadero ${emailPrefix}` : fallbackKennelName;
 }
 

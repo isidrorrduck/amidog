@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { Pressable, Text, View } from 'react-native';
 
-import { Button, Card, Input } from '../../components';
+import { Button, AppCard, Input } from '../../components';
 import { getClientFullName, type Client } from '../clients';
 import { type Puppy } from '../puppies';
 import {
@@ -84,7 +84,7 @@ export function ReservationForm({
   };
 
   return (
-    <Card title={reservation ? 'Edit reservation' : 'Create reservation'}>
+    <AppCard title={reservation ? 'Editar reserva' : 'Crear reserva'}>
       <View className="gap-4">
         <Controller
           control={control}
@@ -107,7 +107,7 @@ export function ReservationForm({
           name="status"
           render={({ field: { onChange, value } }) => (
             <View className="gap-2">
-              <Text className="text-sm font-semibold text-slate-700">Status</Text>
+              <Text className="text-sm font-semibold text-slate-700">Estado</Text>
               <View className="flex-row flex-wrap gap-2">
                 {reservationStatusOptions.map((option) => (
                   <SelectorOption
@@ -128,7 +128,7 @@ export function ReservationForm({
           name="reservedPrice"
           render={({ field: { onBlur, onChange, value } }) => (
             <Input
-              label="Reserved price"
+              label="Precio reservado"
               placeholder="1200.00"
               keyboardType="decimal-pad"
               value={value}
@@ -144,7 +144,7 @@ export function ReservationForm({
           name="depositAmount"
           render={({ field: { onBlur, onChange, value } }) => (
             <Input
-              label="Deposit amount"
+              label="Importe de la señal"
               placeholder="300.00"
               keyboardType="decimal-pad"
               value={value}
@@ -160,10 +160,10 @@ export function ReservationForm({
           name="depositPaid"
           render={({ field: { onChange, value } }) => (
             <View className="gap-2">
-              <Text className="text-sm font-semibold text-slate-700">Deposit</Text>
+              <Text className="text-sm font-semibold text-slate-700">Señal</Text>
               <View className="flex-row gap-2">
-                <SelectorOption label="Not paid" isSelected={!value} onPress={() => onChange(false)} />
-                <SelectorOption label="Paid" isSelected={value} onPress={() => onChange(true)} />
+                <SelectorOption label="No pagada" isSelected={!value} onPress={() => onChange(false)} />
+                <SelectorOption label="Pagada" isSelected={value} onPress={() => onChange(true)} />
               </View>
               {errors.depositPaid?.message ? (
                 <Text className="text-sm text-red-600">{errors.depositPaid.message}</Text>
@@ -177,7 +177,7 @@ export function ReservationForm({
           name="reservationDate"
           render={({ field: { onBlur, onChange, value } }) => (
             <Input
-              label="Reservation date"
+              label="Fecha de reserva"
               placeholder="2026-05-12"
               keyboardType="numbers-and-punctuation"
               value={value}
@@ -193,8 +193,8 @@ export function ReservationForm({
           name="notes"
           render={({ field: { onBlur, onChange, value } }) => (
             <Input
-              label="Notes"
-              placeholder="Placement terms, follow-up tasks and payment notes"
+              label="Notas"
+              placeholder="Condiciones de entrega, seguimiento y notas de pago"
               multiline
               numberOfLines={4}
               textAlignVertical="top"
@@ -208,19 +208,19 @@ export function ReservationForm({
         />
 
         {puppies.length === 0 ? (
-          <Text className="text-sm leading-5 text-slate-600">Create a puppy before adding reservations.</Text>
+          <Text className="text-sm leading-5 text-slate-600">Crea un cachorro antes de añadir reservas.</Text>
         ) : null}
 
         {clients.length === 0 ? (
-          <Text className="text-sm leading-5 text-slate-600">Create a client before adding reservations.</Text>
+          <Text className="text-sm leading-5 text-slate-600">Crea un cliente antes de añadir reservas.</Text>
         ) : null}
 
         {errorMessage ? <Text className="text-sm leading-5 text-red-600">{errorMessage}</Text> : null}
 
         <View className="flex-row gap-3">
-          <Button title="Cancel" variant="secondary" className="flex-1" onPress={onCancel} />
+          <Button title="Cancelar" variant="secondary" className="flex-1" onPress={onCancel} />
           <Button
-            title={reservation ? 'Save reservation' : 'Create reservation'}
+            title={reservation ? 'Guardar reserva' : 'Crear reserva'}
             loading={isSubmitting}
             disabled={clients.length === 0 || puppies.length === 0}
             className="flex-1"
@@ -228,7 +228,7 @@ export function ReservationForm({
           />
         </View>
       </View>
-    </Card>
+    </AppCard>
   );
 }
 
@@ -242,7 +242,7 @@ interface PuppySelectorProps {
 function PuppySelector({ error, puppies, value, onChange }: PuppySelectorProps) {
   return (
     <View className="gap-2">
-      <Text className="text-sm font-semibold text-slate-700">Puppy</Text>
+      <Text className="text-sm font-semibold text-slate-700">Cachorro</Text>
       <View className="flex-row flex-wrap gap-2">
         {puppies.map((puppy) => (
           <SelectorOption
@@ -268,7 +268,7 @@ interface ClientSelectorProps {
 function ClientSelector({ clients, error, value, onChange }: ClientSelectorProps) {
   return (
     <View className="gap-2">
-      <Text className="text-sm font-semibold text-slate-700">Client</Text>
+      <Text className="text-sm font-semibold text-slate-700">Cliente</Text>
       <View className="flex-row flex-wrap gap-2">
         {clients.map((client) => (
           <SelectorOption

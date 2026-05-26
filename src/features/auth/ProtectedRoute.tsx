@@ -2,7 +2,7 @@ import { Redirect } from 'expo-router';
 import { ReactNode } from 'react';
 import { Text, View } from 'react-native';
 
-import { Button, Card, Screen } from '../../components';
+import { AppCard, AppScreen, Button } from '../../components';
 import { useKennels } from '../kennels/KennelProvider';
 import { NoKennelOnboarding } from '../kennels/NoKennelOnboarding';
 import { AuthLoadingScreen } from './AuthLoadingScreen';
@@ -30,7 +30,7 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
         message={profileError}
         onRetry={refreshProfile}
         onSignOut={signOut}
-        title="Unable to prepare your profile"
+        title="No se ha podido preparar tu perfil"
       />
     );
   }
@@ -41,7 +41,7 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
         message={kennelError}
         onRetry={refreshKennels}
         onSignOut={signOut}
-        title="Unable to load your kennel"
+        title="No se ha podido cargar tu criadero"
       />
     );
   }
@@ -62,17 +62,17 @@ interface WorkspaceErrorProps {
 
 function WorkspaceError({ message, onRetry, onSignOut, title }: WorkspaceErrorProps) {
   return (
-    <Screen contentClassName="justify-center">
-      <Card>
+    <AppScreen contentClassName="justify-center">
+      <AppCard>
         <View className="gap-4">
           <View className="gap-2">
             <Text className="text-2xl font-bold text-slate-950">{title}</Text>
             <Text className="text-sm leading-5 text-red-600">{message}</Text>
           </View>
-          <Button title="Try again" onPress={() => void onRetry()} />
-          <Button title="Log out" variant="secondary" onPress={() => void onSignOut()} />
+          <Button title="Intentarlo de nuevo" onPress={() => void onRetry()} />
+          <Button title="Cerrar sesión" variant="secondary" onPress={() => void onSignOut()} />
         </View>
-      </Card>
-    </Screen>
+      </AppCard>
+    </AppScreen>
   );
 }

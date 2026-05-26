@@ -92,7 +92,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         }
 
         if (error) {
-          setProfileError(error.message);
+          setProfileError(getErrorMessage(error));
           return;
         }
 
@@ -212,7 +212,7 @@ function getErrorMessage(error: unknown) {
     return error.error_description;
   }
 
-  return 'Something went wrong while preparing the account workspace.';
+  return 'Algo ha ido mal al preparar el espacio de la cuenta.';
 }
 
 function isObjectWithStringProperty<T extends string>(

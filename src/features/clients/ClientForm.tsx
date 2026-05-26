@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { Text, View } from 'react-native';
 
-import { Button, Card, Input } from '../../components';
+import { Button, AppCard, Input } from '../../components';
 import {
   clientFormSchema,
   getClientFormDefaultValues,
@@ -56,14 +56,14 @@ export function ClientForm({ client, errorMessage, isSubmitting = false, onCance
   };
 
   return (
-    <Card title={client ? 'Edit client' : 'Create client'}>
+    <AppCard title={client ? 'Editar cliente' : 'Crear cliente'}>
       <View className="gap-4">
         <Controller
           control={control}
           name="firstName"
           render={({ field: { onBlur, onChange, value } }) => (
             <Input
-              label="First name"
+              label="Nombre"
               placeholder="Ada"
               autoCapitalize="words"
               value={value}
@@ -79,8 +79,8 @@ export function ClientForm({ client, errorMessage, isSubmitting = false, onCance
           name="lastName"
           render={({ field: { onBlur, onChange, value } }) => (
             <Input
-              label="Last name"
-              placeholder="Lovelace"
+              label="Apellidos"
+              placeholder="García"
               autoCapitalize="words"
               value={value}
               onBlur={onBlur}
@@ -95,8 +95,8 @@ export function ClientForm({ client, errorMessage, isSubmitting = false, onCance
           name="email"
           render={({ field: { onBlur, onChange, value } }) => (
             <Input
-              label="Email"
-              placeholder="ada@example.com"
+              label="Correo electrónico"
+              placeholder="ada@email.com"
               autoCapitalize="none"
               autoCorrect={false}
               keyboardType="email-address"
@@ -113,7 +113,7 @@ export function ClientForm({ client, errorMessage, isSubmitting = false, onCance
           name="phone"
           render={({ field: { onBlur, onChange, value } }) => (
             <Input
-              label="Phone"
+              label="Teléfono"
               placeholder="+34 600 000 000"
               keyboardType="phone-pad"
               value={value}
@@ -129,8 +129,8 @@ export function ClientForm({ client, errorMessage, isSubmitting = false, onCance
           name="address"
           render={({ field: { onBlur, onChange, value } }) => (
             <Input
-              label="Address"
-              placeholder="123 Main Street"
+              label="Dirección"
+              placeholder="Calle Mayor 123"
               autoCapitalize="words"
               value={value}
               onBlur={onBlur}
@@ -145,7 +145,7 @@ export function ClientForm({ client, errorMessage, isSubmitting = false, onCance
           name="city"
           render={({ field: { onBlur, onChange, value } }) => (
             <Input
-              label="City"
+              label="Ciudad"
               placeholder="Madrid"
               autoCapitalize="words"
               value={value}
@@ -161,8 +161,8 @@ export function ClientForm({ client, errorMessage, isSubmitting = false, onCance
           name="country"
           render={({ field: { onBlur, onChange, value } }) => (
             <Input
-              label="Country"
-              placeholder="Spain"
+              label="País"
+              placeholder="España"
               autoCapitalize="words"
               value={value}
               onBlur={onBlur}
@@ -177,8 +177,8 @@ export function ClientForm({ client, errorMessage, isSubmitting = false, onCance
           name="notes"
           render={({ field: { onBlur, onChange, value } }) => (
             <Input
-              label="Notes"
-              placeholder="Preferences, family details and placement notes"
+              label="Notas"
+              placeholder="Preferencias, datos familiares y notas de entrega"
               multiline
               numberOfLines={4}
               textAlignVertical="top"
@@ -194,16 +194,16 @@ export function ClientForm({ client, errorMessage, isSubmitting = false, onCance
         {errorMessage ? <Text className="text-sm leading-5 text-red-600">{errorMessage}</Text> : null}
 
         <View className="flex-row gap-3">
-          <Button title="Cancel" variant="secondary" className="flex-1" onPress={onCancel} />
+          <Button title="Cancelar" variant="secondary" className="flex-1" onPress={onCancel} />
           <Button
-            title={client ? 'Save client' : 'Create client'}
+            title={client ? 'Guardar cliente' : 'Crear cliente'}
             loading={isSubmitting}
             className="flex-1"
             onPress={() => void handleSubmit(handleValidSubmit)()}
           />
         </View>
       </View>
-    </Card>
+    </AppCard>
   );
 }
 

@@ -3,7 +3,7 @@ import type { ReactNode } from 'react';
 import { useMemo, useState } from 'react';
 import { ActivityIndicator, Alert, Linking, Pressable, Text, View } from 'react-native';
 
-import { Button, Card, Screen } from '../../components';
+import { Button, AppCard, AppScreen } from '../../components';
 import { ProtectedRoute } from '../auth';
 import { getClientFullName, useClients, type Client } from '../clients';
 import { useDogs, type Dog } from '../dogs';
@@ -141,10 +141,10 @@ function DocumentsContent({
   };
 
   const handleDeleteDocument = (document: KennelDocument) => {
-    Alert.alert('Delete document?', `${document.title} will be removed from ${currentKennel?.name ?? 'this kennel'}.`, [
-      { text: 'Cancel', style: 'cancel' },
+    Alert.alert('¿Eliminar documento?', `Se eliminará ${document.title} de ${currentKennel?.name ?? 'este criadero'}.`, [
+      { text: 'Cancelar', style: 'cancel' },
       {
-        text: 'Delete',
+        text: 'Eliminar',
         style: 'destructive',
         onPress: () => {
           void deleteDocumentMutation.mutateAsync(document.id).catch((error) => {
@@ -156,30 +156,30 @@ function DocumentsContent({
   };
 
   return (
-    <Screen scrollable>
+    <AppScreen scrollable>
       <View className="gap-2">
-        <Text className="text-3xl font-bold text-slate-950">Documents</Text>
+        <Text className="text-3xl font-bold text-slate-950">Documentos</Text>
         <Text className="text-base leading-6 text-slate-600">
-          {currentKennel?.name ?? 'Kennel'} files for dogs, puppies, litters and clients
+          Archivos de {currentKennel?.name ?? 'criadero'} para perros, cachorros, camadas y clientes
         </Text>
       </View>
 
       <Button
-        title={isFormOpen ? 'Close form' : 'Upload document'}
+        title={isFormOpen ? 'Cerrar formulario' : 'Subir documento'}
         variant={isFormOpen ? 'secondary' : 'primary'}
         onPress={isFormOpen ? closeForm : () => router.push(getNewDocumentHref(filters) as never)}
       />
 
       {screenError ? (
-        <Card>
+        <AppCard>
           <Text className="text-sm leading-5 text-red-600">{screenError}</Text>
-        </Card>
+        </AppCard>
       ) : null}
 
       {relationError ? (
-        <Card title="Unable to load linked records">
+        <AppCard title="No se han podido cargar los registros vinculados">
           <Text className="text-sm leading-5 text-red-600">{getErrorMessage(relationError)}</Text>
-        </Card>
+        </AppCard>
       ) : null}
 
       {!initialDocumentId ? (
@@ -208,34 +208,34 @@ function DocumentsContent({
       ) : null}
 
       {activeDocumentsQuery.isLoading || isRelationLoading ? (
-        <Card title="Loading documents">
+        <AppCard title="Cargando documentos">
           <View className="items-start">
             <ActivityIndicator color="#1d4ed8" />
           </View>
-        </Card>
+        </AppCard>
       ) : null}
 
       {activeDocumentsQuery.error ? (
-        <Card title="Unable to load documents">
+        <AppCard title="No se han podido cargar los documentos">
           <Text className="text-sm leading-5 text-red-600">{getErrorMessage(activeDocumentsQuery.error)}</Text>
-        </Card>
+        </AppCard>
       ) : null}
 
       {!activeDocumentsQuery.isLoading && !activeDocumentsQuery.error && documents.length === 0 ? (
-        <Card title={initialDocumentId ? 'Document not found' : hasActiveFilters ? 'No matching documents' : 'No documents yet'}>
+        <AppCard title={initialDocumentId ? 'Documento no encontrado' : hasActiveFilters ? 'No hay documentos que coincidan' : 'Todavía no hay documentos'}>
           <View className="gap-4">
             <Text className="text-sm leading-5 text-slate-600">
               {initialDocumentId
-                ? 'This document is not available in the current kennel.'
+                ? 'Este documento no está disponible en el criadero actual.'
                 : hasActiveFilters
-                  ? 'Change the filters to see more documents.'
-                  : 'Upload the first document for this kennel.'}
+                  ? 'Cambia los filtros para ver más documentos.'
+                  : 'Sube el primer documento de este criadero.'}
             </Text>
             {!initialDocumentId && !isFormOpen && !hasActiveFilters ? (
-              <Button title="Upload document" onPress={openCreateForm} />
+              <Button title="Subir documento" onPress={openCreateForm} />
             ) : null}
           </View>
-        </Card>
+        </AppCard>
       ) : null}
 
       {documents.length > 0 ? (
@@ -256,7 +256,7 @@ function DocumentsContent({
           ))}
         </View>
       ) : null}
-    </Screen>
+    </AppScreen>
   );
 }
 
@@ -284,10 +284,10 @@ function DocumentFiltersCard({
     : [];
 
   return (
-    <Card title="Filters">
+    <AppCard title="Filtros">
       <View className="gap-4">
-        <FilterSection label="Document type">
-          <FilterOption label="All types" isSelected={!selectedDocumentType} onPress={() => onChangeDocumentType('')} />
+        <FilterSection label="Tipo de documento">
+          <FilterOption label="Todos los tipos" isSelected={!selectedDocumentType} onPress={() => onChangeDocumentType('')} />
           {documentTypeOptions.map((documentType) => (
             <FilterOption
               key={documentType}
@@ -298,8 +298,8 @@ function DocumentFiltersCard({
           ))}
         </FilterSection>
 
-        <FilterSection label="Linked to">
-          <FilterOption label="All records" isSelected={!selectedEntityType} onPress={() => onChangeEntityType('')} />
+        <FilterSection label="Vinculado a">
+          <FilterOption label="Todos los registros" isSelected={!selectedEntityType} onPress={() => onChangeEntityType('')} />
           {documentEntityTypeOptions.map((entityType) => (
             <FilterOption
               key={entityType}
@@ -312,7 +312,7 @@ function DocumentFiltersCard({
 
         {selectedEntityType ? (
           <FilterSection label={getDocumentEntityTypeLabel(selectedEntityType)}>
-            <FilterOption label="All" isSelected={!selectedEntityId} onPress={() => onChangeEntityId('')} />
+            <FilterOption label="Todos" isSelected={!selectedEntityId} onPress={() => onChangeEntityId('')} />
             {filteredEntityOptions.map((option) => (
               <FilterOption
                 key={option.id}
@@ -322,12 +322,12 @@ function DocumentFiltersCard({
               />
             ))}
             {filteredEntityOptions.length === 0 ? (
-              <Text className="text-sm leading-5 text-slate-600">No records are available for this filter.</Text>
+              <Text className="text-sm leading-5 text-slate-600">No hay registros disponibles para este filtro.</Text>
             ) : null}
           </FilterSection>
         ) : null}
       </View>
-    </Card>
+    </AppCard>
   );
 }
 
@@ -398,11 +398,11 @@ function DocumentCard({
     entityLabel,
     document.file_name,
     formatSize(document.size_bytes),
-    `Uploaded ${formatDate(document.created_at)}`,
+    `Subido ${formatDate(document.created_at)}`,
   ];
 
   return (
-    <Card>
+    <AppCard>
       <View className="gap-3">
         <View className="gap-1">
           <Text className="text-xl font-semibold text-slate-950">{document.title}</Text>
@@ -412,15 +412,15 @@ function DocumentCard({
         {document.notes ? <Text className="text-sm leading-5 text-slate-600">{document.notes}</Text> : null}
 
         <View className="gap-3">
-          <Button title="Open" loading={isOpening} onPress={onOpen} />
+          <Button title="Abrir" loading={isOpening} onPress={onOpen} />
           {showDetails || isOwner ? (
             <View className="flex-row gap-3">
               {showDetails ? (
-                <Button title="Details" variant="secondary" className="flex-1" onPress={onDetails} />
+                <Button title="Detalles" variant="secondary" className="flex-1" onPress={onDetails} />
               ) : null}
               {isOwner ? (
                 <Button
-                  title="Delete"
+                  title="Eliminar"
                   variant="ghost"
                   loading={isDeleting}
                   className="flex-1"
@@ -432,7 +432,7 @@ function DocumentCard({
           ) : null}
         </View>
       </View>
-    </Card>
+    </AppCard>
   );
 }
 
@@ -470,18 +470,18 @@ function getDocumentEntityLabel(
   },
 ) {
   if (document.entity_type === 'dog') {
-    return dogsById.get(document.entity_id)?.name ?? 'Unknown dog';
+    return dogsById.get(document.entity_id)?.name ?? 'Perro desconocido';
   }
 
   if (document.entity_type === 'puppy') {
-    return puppiesById.get(document.entity_id)?.name ?? 'Unknown puppy';
+    return puppiesById.get(document.entity_id)?.name ?? 'Cachorro desconocido';
   }
 
   if (document.entity_type === 'litter') {
-    return littersById.get(document.entity_id)?.name ?? 'Unknown litter';
+    return littersById.get(document.entity_id)?.name ?? 'Camada desconocida';
   }
 
-  return clientsById.get(document.entity_id) ? getClientFullName(clientsById.get(document.entity_id)!) : 'Unknown client';
+  return clientsById.get(document.entity_id) ? getClientFullName(clientsById.get(document.entity_id)!) : 'Cliente desconocido';
 }
 
 function getNewDocumentHref(filters: DocumentFilters) {
@@ -510,13 +510,6 @@ function formatSize(size: number) {
   return `${(size / (1024 * 1024)).toFixed(1)} MB`;
 }
 
-function getErrorMessage(error: unknown) {
-  const message =
-    error instanceof Error
-      ? error.message
-      : typeof error === 'object' && error !== null && typeof (error as { message?: unknown }).message === 'string'
-        ? (error as { message: string }).message
-        : null;
-
-  return message ?? 'Something went wrong while managing documents.';
+function getErrorMessage(_error: unknown) {
+  return 'Algo ha ido mal al gestionar los documentos.';
 }

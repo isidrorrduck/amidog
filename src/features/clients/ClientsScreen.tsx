@@ -2,7 +2,7 @@ import { router } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, Alert, Text, View } from 'react-native';
 
-import { Button, Card, Input, Screen } from '../../components';
+import { Button, AppCard, Input, AppScreen } from '../../components';
 import { ProtectedRoute } from '../auth';
 import { useCurrentKennel } from '../kennels';
 import { ClientForm } from './ClientForm';
@@ -54,7 +54,7 @@ function ClientsContent({ initialMode, initialClientId }: ClientsScreenProps) {
     if (client) {
       openEditForm(client);
     } else if (!clientsQuery.error) {
-      setScreenError('Unable to find this client in the current kennel.');
+      setScreenError('No se ha encontrado este cliente en el criadero actual.');
     }
   }, [clients, clientsQuery.error, clientsQuery.isLoading, editingClient, initialClientId]);
 
@@ -94,10 +94,10 @@ function ClientsContent({ initialMode, initialClientId }: ClientsScreenProps) {
   };
 
   const handleDeleteClient = (client: Client) => {
-    Alert.alert('Delete client?', `${getClientFullName(client)} will be removed from ${currentKennel?.name ?? 'this kennel'}.`, [
-      { text: 'Cancel', style: 'cancel' },
+    Alert.alert('¿Eliminar cliente?', `Se eliminará a ${getClientFullName(client)} de ${currentKennel?.name ?? 'este criadero'}.`, [
+      { text: 'Cancelar', style: 'cancel' },
       {
-        text: 'Delete',
+        text: 'Eliminar',
         style: 'destructive',
         onPress: () => {
           void deleteClientMutation.mutateAsync(client.id).catch((error) => {
@@ -109,22 +109,22 @@ function ClientsContent({ initialMode, initialClientId }: ClientsScreenProps) {
   };
 
   return (
-    <Screen scrollable>
+    <AppScreen scrollable>
       <View className="gap-2">
-        <Text className="text-3xl font-bold text-slate-950">Clients</Text>
-        <Text className="text-base leading-6 text-slate-600">{currentKennel?.name ?? 'Kennel'} client registry</Text>
+        <Text className="text-3xl font-bold text-slate-950">Clientes</Text>
+        <Text className="text-base leading-6 text-slate-600">Registro de clientes de {currentKennel?.name ?? 'criadero'}</Text>
       </View>
 
       <Button
-        title={isFormOpen ? 'Close form' : 'Create client'}
+        title={isFormOpen ? 'Cerrar formulario' : 'Crear cliente'}
         variant={isFormOpen ? 'secondary' : 'primary'}
         onPress={isFormOpen ? closeForm : () => router.push('/clients/new' as never)}
       />
 
       {screenError ? (
-        <Card>
+        <AppCard>
           <Text className="text-sm leading-5 text-red-600">{screenError}</Text>
-        </Card>
+        </AppCard>
       ) : null}
 
       {isFormOpen ? (
@@ -138,44 +138,44 @@ function ClientsContent({ initialMode, initialClientId }: ClientsScreenProps) {
       ) : null}
 
       {clients.length > 0 || searchTerm.length > 0 ? (
-        <Card title="Search clients">
+        <AppCard title="Buscar clientes">
           <Input
-            placeholder="Name, email or phone"
+            placeholder="Nombre, correo o teléfono"
             autoCapitalize="none"
             autoCorrect={false}
             value={searchTerm}
             onChangeText={setSearchTerm}
           />
-        </Card>
+        </AppCard>
       ) : null}
 
       {clientsQuery.isLoading ? (
-        <Card title="Loading clients">
+        <AppCard title="Cargando clientes">
           <View className="items-start">
             <ActivityIndicator color="#1d4ed8" />
           </View>
-        </Card>
+        </AppCard>
       ) : null}
 
       {clientsQuery.error ? (
-        <Card title="Unable to load clients">
+        <AppCard title="No se han podido cargar los clientes">
           <Text className="text-sm leading-5 text-red-600">{getErrorMessage(clientsQuery.error)}</Text>
-        </Card>
+        </AppCard>
       ) : null}
 
       {!clientsQuery.isLoading && !clientsQuery.error && clients.length === 0 ? (
-        <Card title="No clients yet">
+        <AppCard title="Todavía no hay clientes">
           <View className="gap-4">
-            <Text className="text-sm leading-5 text-slate-600">Create the first client for this kennel.</Text>
-            {!isFormOpen ? <Button title="Create client" onPress={() => router.push('/clients/new' as never)} /> : null}
+            <Text className="text-sm leading-5 text-slate-600">Crea el primer cliente de este criadero.</Text>
+            {!isFormOpen ? <Button title="Crear cliente" onPress={() => router.push('/clients/new' as never)} /> : null}
           </View>
-        </Card>
+        </AppCard>
       ) : null}
 
       {!clientsQuery.isLoading && !clientsQuery.error && clients.length > 0 && filteredClients.length === 0 ? (
-        <Card title="No matching clients">
-          <Text className="text-sm leading-5 text-slate-600">Try another name, email or phone.</Text>
-        </Card>
+        <AppCard title="No hay clientes que coincidan">
+          <Text className="text-sm leading-5 text-slate-600">Prueba con otro nombre, correo o teléfono.</Text>
+        </AppCard>
       ) : null}
 
       {filteredClients.length > 0 ? (
@@ -193,7 +193,7 @@ function ClientsContent({ initialMode, initialClientId }: ClientsScreenProps) {
           ))}
         </View>
       ) : null}
-    </Screen>
+    </AppScreen>
   );
 }
 
@@ -211,22 +211,22 @@ function ClientCard({ client, isDeleting, isOwner, onDelete, onDocuments, onEdit
   const details = [client.email, client.phone, client.address, location].filter(Boolean);
 
   return (
-    <Card>
+    <AppCard>
       <View className="gap-3">
         <View className="gap-1">
           <Text className="text-xl font-semibold text-slate-950">{getClientFullName(client)}</Text>
-          <Text className="text-sm leading-5 text-slate-600">{details.join(' | ') || 'No contact details yet'}</Text>
+          <Text className="text-sm leading-5 text-slate-600">{details.join(' | ') || 'Sin datos de contacto todavía'}</Text>
         </View>
 
         {client.notes ? <Text className="text-sm leading-5 text-slate-600">{client.notes}</Text> : null}
 
         <View className="gap-3">
-          <Button title="Documents" variant="secondary" onPress={onDocuments} />
+          <Button title="Documentos" variant="secondary" onPress={onDocuments} />
           <View className="flex-row gap-3">
-            <Button title="Edit" variant="secondary" className="flex-1" onPress={onEdit} />
+            <Button title="Editar" variant="secondary" className="flex-1" onPress={onEdit} />
             {isOwner ? (
               <Button
-                title="Delete"
+                title="Eliminar"
                 variant="ghost"
                 loading={isDeleting}
                 className="flex-1"
@@ -237,7 +237,7 @@ function ClientCard({ client, isDeleting, isOwner, onDelete, onDocuments, onEdit
           </View>
         </View>
       </View>
-    </Card>
+    </AppCard>
   );
 }
 
@@ -253,6 +253,6 @@ function clientMatchesSearch(client: Client, normalizedSearchTerm: string) {
     .includes(normalizedSearchTerm);
 }
 
-function getErrorMessage(error: unknown) {
-  return error instanceof Error ? error.message : 'Something went wrong while managing clients.';
+function getErrorMessage(_error: unknown) {
+  return 'Algo ha ido mal al gestionar los clientes.';
 }

@@ -1,8 +1,8 @@
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
-import { ActivityIndicator, Alert, Text, View } from 'react-native';
+import { Alert, Text, View } from 'react-native';
 
-import { Button, Card, Screen } from '../../src/components';
+import { AppCard, AppScreen, Button, EmptyState, LoadingState, ScreenHeader } from '../../src/components';
 import { ProtectedRoute } from '../../src/features/auth';
 import {
   DogForm,
@@ -24,6 +24,7 @@ export default function DogsScreen() {
 }
 
 function DogsContent() {
+  const { action } = useLocalSearchParams<{ action?: string }>();
   const { currentKennel, currentMembership } = useCurrentKennel();
   const kennelId = currentKennel?.id ?? null;
   const dogsQuery = useDogs(kennelId);
@@ -31,7 +32,7 @@ function DogsContent() {
   const updateDogMutation = useUpdateDog(kennelId);
   const deleteDogMutation = useDeleteDog(kennelId);
   const [editingDog, setEditingDog] = useState<Dog | null>(null);
-  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [isFormOpen, setIsFormOpen] = useState(action === 'create');
   const [formError, setFormError] = useState<string | null>(null);
   const [screenError, setScreenError] = useState<string | null>(null);
   const dogs = dogsQuery.data ?? [];
@@ -79,10 +80,10 @@ function DogsContent() {
   };
 
   const handleDeleteDog = (dog: Dog) => {
-    Alert.alert('Delete dog?', `${dog.name} will be removed from ${currentKennel?.name ?? 'this kennel'}.`, [
-      { text: 'Cancel', style: 'cancel' },
+    Alert.alert('¿Eliminar perro?', `Se eliminará a ${dog.name} de ${currentKennel?.name ?? 'este criadero'}.`, [
+      { text: 'Cancelar', style: 'cancel' },
       {
-        text: 'Delete',
+        text: 'Eliminar',
         style: 'destructive',
         onPress: () => {
           void deleteDogMutation.mutateAsync(dog.id).catch((error) => {
@@ -94,22 +95,23 @@ function DogsContent() {
   };
 
   return (
-    <Screen scrollable>
-      <View className="gap-2">
-        <Text className="text-3xl font-bold text-slate-950">Dogs</Text>
-        <Text className="text-base leading-6 text-slate-600">{currentKennel?.name ?? 'Kennel'} registry</Text>
-      </View>
-
-      <Button
-        title={isFormOpen ? 'Close form' : 'Create dog'}
-        variant={isFormOpen ? 'secondary' : 'primary'}
-        onPress={isFormOpen ? closeForm : openCreateForm}
+    <AppScreen scrollable>
+      <ScreenHeader
+        title="Perros"
+        subtitle={`Registro de ${currentKennel?.name ?? 'criadero'}`}
+        action={
+          <Button
+            title={isFormOpen ? 'Cerrar' : 'Añadir perro'}
+            variant={isFormOpen ? 'secondary' : 'primary'}
+            onPress={isFormOpen ? closeForm : openCreateForm}
+          />
+        }
       />
 
       {screenError ? (
-        <Card>
+        <AppCard className="border-red-200 bg-red-50">
           <Text className="text-sm leading-5 text-red-600">{screenError}</Text>
-        </Card>
+        </AppCard>
       ) : null}
 
       {isFormOpen ? (
@@ -123,30 +125,29 @@ function DogsContent() {
       ) : null}
 
       {dogsQuery.isLoading ? (
-        <Card title="Loading dogs">
-          <View className="items-start">
-            <ActivityIndicator color="#1d4ed8" />
-          </View>
-        </Card>
+        <LoadingState title="Cargando perros" message="Preparando el registro del criadero." />
       ) : null}
 
       {dogsQuery.error ? (
-        <Card title="Unable to load dogs">
+        <AppCard title="No se han podido cargar los perros" className="border-red-200 bg-red-50">
           <Text className="text-sm leading-5 text-red-600">{getErrorMessage(dogsQuery.error)}</Text>
-        </Card>
+        </AppCard>
       ) : null}
 
       {!dogsQuery.isLoading && !dogsQuery.error && dogs.length === 0 ? (
-        <Card title="No dogs yet">
-          <View className="gap-4">
-            <Text className="text-sm leading-5 text-slate-600">Create the first dog for this kennel.</Text>
-            {!isFormOpen ? <Button title="Create dog" onPress={openCreateForm} /> : null}
-          </View>
-        </Card>
+        <EmptyState
+          title="Todavía no hay perros"
+          message="Añade el primer perro para empezar a construir el registro del criadero."
+          actionLabel={!isFormOpen ? 'Añadir perro' : undefined}
+          onAction={!isFormOpen ? openCreateForm : undefined}
+        />
       ) : null}
 
       {dogs.length > 0 ? (
         <View className="gap-3">
+          <Text className="text-sm font-semibold text-muted">
+            {dogs.length === 1 ? '1 perro registrado' : `${dogs.length} perros registrados`}
+          </Text>
           {dogs.map((dog) => (
             <DogCard
               dog={dog}
@@ -160,7 +161,7 @@ function DogsContent() {
           ))}
         </View>
       ) : null}
-    </Screen>
+    </AppScreen>
   );
 }
 
@@ -174,45 +175,126 @@ interface DogCardProps {
 }
 
 function DogCard({ dog, isDeleting, isOwner, onDelete, onDocuments, onEdit }: DogCardProps) {
-  const details = [
-    dog.breed,
-    getDogSexLabel(dog.sex),
-    dog.birth_date ? `Born ${dog.birth_date}` : null,
-    dog.color,
-    dog.microchip_number ? `Chip ${dog.microchip_number}` : null,
-  ].filter(Boolean);
+  const sexLabel = getDogSexLabel(dog.sex);
+  const birthDate = dog.birth_date ? formatIsoDate(dog.birth_date) : null;
 
   return (
-    <Card>
-      <View className="gap-3">
-        <View className="gap-1">
-          <Text className="text-xl font-semibold text-slate-950">{dog.name}</Text>
-          <Text className="text-sm leading-5 text-slate-600">{details.join(' | ') || 'No details yet'}</Text>
-        </View>
+    <AppCard className="p-0">
+      <View className="gap-4 p-4">
+        <View className="flex-row gap-3">
+          <Avatar name={dog.name} />
 
-        {dog.notes ? <Text className="text-sm leading-5 text-slate-600">{dog.notes}</Text> : null}
+          <View className="min-w-0 flex-1 gap-2">
+            <View className="gap-1">
+              <Text className="text-xl font-semibold text-ink" numberOfLines={1}>
+                {dog.name}
+              </Text>
+              <Text className="text-sm leading-5 text-muted" numberOfLines={1}>
+                {dog.breed ?? 'Raza no indicada'}
+              </Text>
+            </View>
 
-        <View className="gap-3">
-          <Button title="Documents" variant="secondary" onPress={onDocuments} />
-          <View className="flex-row gap-3">
-            <Button title="Edit" variant="secondary" className="flex-1" onPress={onEdit} />
-            {isOwner ? (
-              <Button
-                title="Delete"
-                variant="ghost"
-                loading={isDeleting}
-                className="flex-1"
-                textClassName="text-red-600"
-                onPress={onDelete}
-              />
-            ) : null}
+            <View className="flex-row flex-wrap gap-2">
+              <Badge label={sexLabel} tone={dog.sex === 'female' ? 'accent' : 'brand'} />
+              {birthDate ? <Badge label={`Nacimiento ${birthDate}`} /> : null}
+              {dog.microchip_number ? <Badge label="Microchip" /> : null}
+            </View>
           </View>
         </View>
+
+        <View className="gap-2 border-t border-border pt-4">
+          {dog.color ? <InfoLine label="Color" value={dog.color} /> : null}
+          {dog.microchip_number ? <InfoLine label="Microchip" value={dog.microchip_number} /> : null}
+          {!dog.color && !dog.microchip_number && !dog.notes ? (
+            <Text className="text-sm leading-5 text-muted">Sin detalles adicionales todavía.</Text>
+          ) : null}
+          {dog.notes ? (
+            <Text className="text-sm leading-5 text-muted" numberOfLines={3}>
+              {dog.notes}
+            </Text>
+          ) : null}
+        </View>
+
+        <View className="gap-3">
+          <View className="flex-row gap-3">
+            <Button title="Documentos" variant="secondary" className="flex-1" onPress={onDocuments} />
+            <Button title="Editar" variant="secondary" className="flex-1" onPress={onEdit} />
+          </View>
+          {isOwner ? (
+            <Button
+              title="Eliminar perro"
+              variant="ghost"
+              loading={isDeleting}
+              textClassName="text-red-600"
+              onPress={onDelete}
+            />
+          ) : null}
+        </View>
       </View>
-    </Card>
+    </AppCard>
   );
 }
 
-function getErrorMessage(error: unknown) {
-  return error instanceof Error ? error.message : 'Something went wrong while managing dogs.';
+interface BadgeProps {
+  label: string;
+  tone?: 'brand' | 'accent' | 'neutral';
+}
+
+function Badge({ label, tone = 'neutral' }: BadgeProps) {
+  const containerClass =
+    tone === 'brand'
+      ? 'border-brand-100 bg-brand-50'
+      : tone === 'accent'
+        ? 'border-accent-500 bg-accent-50'
+        : 'border-border bg-slate-50';
+  const textClass = tone === 'brand' ? 'text-brand-700' : tone === 'accent' ? 'text-accent-600' : 'text-muted';
+
+  return (
+    <View className={`rounded-full border px-3 py-1 ${containerClass}`}>
+      <Text className={`text-xs font-semibold ${textClass}`}>{label}</Text>
+    </View>
+  );
+}
+
+interface InfoLineProps {
+  label: string;
+  value: string;
+}
+
+function InfoLine({ label, value }: InfoLineProps) {
+  return (
+    <View className="flex-row items-start justify-between gap-3">
+      <Text className="text-sm font-semibold text-muted">{label}</Text>
+      <Text className="min-w-0 flex-1 text-right text-sm leading-5 text-ink" numberOfLines={2}>
+        {value}
+      </Text>
+    </View>
+  );
+}
+
+function Avatar({ name }: { name: string }) {
+  return (
+    <View className="h-16 w-16 items-center justify-center rounded-full border border-brand-100 bg-brand-50">
+      <Text className="text-xl font-bold text-brand-700">{getInitials(name)}</Text>
+    </View>
+  );
+}
+
+function getInitials(name: string) {
+  return name
+    .trim()
+    .split(/\s+/)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase() ?? '')
+    .join('');
+}
+
+function formatIsoDate(value: string) {
+  const [year, month, day] = value.split('-');
+
+  return year && month && day ? `${day}/${month}/${year}` : value;
+}
+
+function getErrorMessage(_error: unknown) {
+  return 'Algo ha ido mal al gestionar los perros.';
 }
