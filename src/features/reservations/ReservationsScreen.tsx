@@ -3,7 +3,7 @@ import type { ReactNode } from 'react';
 import { useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, Alert, Pressable, Text, View } from 'react-native';
 
-import { Button, Card, Screen } from '../../components';
+import { AppCard, AppScreen, Button } from '../../components';
 import { ProtectedRoute } from '../auth';
 import { getClientFullName, useClients, type Client } from '../clients';
 import { useCurrentKennel } from '../kennels';
@@ -167,11 +167,11 @@ function ReservationsContent({
   };
 
   return (
-    <Screen scrollable>
+    <AppScreen scrollable>
       <View className="gap-2">
         <Text className="text-3xl font-bold text-slate-950">Reservas</Text>
         <Text className="text-base leading-6 text-slate-600">
-          Reservas de cachorros de {currentKennel?.name ?? 'este criadero'}
+          Reservas de cachorros de {currentKennel?.name ?? 'criadero'}
         </Text>
       </View>
 
@@ -182,15 +182,15 @@ function ReservationsContent({
       />
 
       {screenError ? (
-        <Card>
+        <AppCard>
           <Text className="text-sm leading-5 text-red-600">{screenError}</Text>
-        </Card>
+        </AppCard>
       ) : null}
 
       {relationError ? (
-        <Card title="No se han podido cargar los datos de reservas">
+        <AppCard title="No se han podido cargar los datos de reservas">
           <Text className="text-sm leading-5 text-red-600">{getErrorMessage(relationError)}</Text>
-        </Card>
+        </AppCard>
       ) : null}
 
       <ReservationFiltersCard
@@ -219,35 +219,35 @@ function ReservationsContent({
       ) : null}
 
       {reservationsQuery.isLoading || puppiesQuery.isLoading || clientsQuery.isLoading ? (
-        <Card title="Cargando reservas">
+        <AppCard title="Cargando reservas">
           <View className="items-start">
             <ActivityIndicator color="#1d4ed8" />
           </View>
-        </Card>
+        </AppCard>
       ) : null}
 
       {reservationsQuery.error ? (
-        <Card title="No se han podido cargar las reservas">
+        <AppCard title="No se han podido cargar las reservas">
           <Text className="text-sm leading-5 text-red-600">{getErrorMessage(reservationsQuery.error)}</Text>
-        </Card>
+        </AppCard>
       ) : null}
 
       {!puppiesQuery.isLoading && !puppiesQuery.error && puppies.length === 0 ? (
-        <Card title="Todavía no hay cachorros">
+        <AppCard title="Todavía no hay cachorros">
           <View className="gap-4">
             <Text className="text-sm leading-5 text-slate-600">Crea un cachorro antes de añadir reservas.</Text>
             <Button title="Abrir cachorros" onPress={() => router.push('/puppies' as never)} />
           </View>
-        </Card>
+        </AppCard>
       ) : null}
 
       {!clientsQuery.isLoading && !clientsQuery.error && clients.length === 0 ? (
-        <Card title="Todavía no hay clientes">
+        <AppCard title="Todavía no hay clientes">
           <View className="gap-4">
             <Text className="text-sm leading-5 text-slate-600">Crea un cliente antes de añadir reservas.</Text>
             <Button title="Abrir clientes" onPress={() => router.push('/clients' as never)} />
           </View>
-        </Card>
+        </AppCard>
       ) : null}
 
       {!reservationsQuery.isLoading &&
@@ -255,7 +255,7 @@ function ReservationsContent({
       puppies.length > 0 &&
       clients.length > 0 &&
       reservations.length === 0 ? (
-        <Card title={hasActiveFilters ? 'No hay reservas que coincidan' : 'Todavía no hay reservas'}>
+        <AppCard title={hasActiveFilters ? 'No hay reservas que coincidan' : 'Todavía no hay reservas'}>
           <View className="gap-4">
             <Text className="text-sm leading-5 text-slate-600">
               {hasActiveFilters ? 'Cambia los filtros para ver más reservas.' : 'Crea la primera reserva de cachorro.'}
@@ -264,7 +264,7 @@ function ReservationsContent({
               <Button title="Crear reserva" onPress={() => router.push('/reservations/new' as never)} />
             ) : null}
           </View>
-        </Card>
+        </AppCard>
       ) : null}
 
       {reservations.length > 0 ? (
@@ -283,7 +283,7 @@ function ReservationsContent({
           ))}
         </View>
       ) : null}
-    </Screen>
+    </AppScreen>
   );
 }
 
@@ -309,7 +309,7 @@ function ReservationFiltersCard({
   onChangeStatus,
 }: ReservationFiltersCardProps) {
   return (
-    <Card title="Filtros">
+    <AppCard title="Filtros">
       <View className="gap-4">
         <FilterSection label="Estado">
           <FilterOption label="Todos los estados" isSelected={!selectedStatus} onPress={() => onChangeStatus('')} />
@@ -351,7 +351,7 @@ function ReservationFiltersCard({
           </FilterSection>
         ) : null}
       </View>
-    </Card>
+    </AppCard>
   );
 }
 
@@ -424,7 +424,7 @@ function ReservationCard({
   ].filter(Boolean);
 
   return (
-    <Card>
+    <AppCard>
       <View className="gap-3">
         <View className="gap-1">
           <Text className="text-xl font-semibold text-slate-950">{puppy?.name ?? 'Cachorro desconocido'}</Text>
@@ -447,12 +447,12 @@ function ReservationCard({
           ) : null}
         </View>
       </View>
-    </Card>
+    </AppCard>
   );
 }
 
 function getClientLabel(client: Client | undefined) {
-  return client ? getClientFullName(client) : 'cliente desconocido';
+  return client ? getClientFullName(client) : 'Cliente desconocido';
 }
 
 function formatAmount(value: number) {

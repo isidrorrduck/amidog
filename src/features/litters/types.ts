@@ -19,19 +19,19 @@ export interface LitterMutationInput {
 
 export const litterFormSchema = z
   .object({
-    name: z.string().trim().min(1, 'Enter the litter name.').max(120, 'Use 120 characters or fewer.'),
+    name: z.string().trim().min(1, 'Introduce el nombre de la camada.').max(120, 'Usa 120 caracteres o menos.'),
     motherId: optionalUuid(),
     fatherId: optionalUuid(),
-    birthDate: z.string().trim().refine(isEmptyOrIsoDate, 'Use YYYY-MM-DD.'),
-    expectedBirthDate: z.string().trim().refine(isEmptyOrIsoDate, 'Use YYYY-MM-DD.'),
+    birthDate: z.string().trim().refine(isEmptyOrIsoDate, 'Usa el formato AAAA-MM-DD.'),
+    expectedBirthDate: z.string().trim().refine(isEmptyOrIsoDate, 'Usa el formato AAAA-MM-DD.'),
     status: z.enum(litterStatusOptions),
-    notes: optionalText(1000, 'Use 1000 characters or fewer.'),
+    notes: optionalText(1000, 'Usa 1000 caracteres o menos.'),
   })
   .superRefine((values, context) => {
     if (values.motherId && values.fatherId && values.motherId === values.fatherId) {
       context.addIssue({
         code: 'custom',
-        message: 'Choose different dogs for mother and father.',
+        message: 'Elige perros distintos para la madre y el padre.',
         path: ['fatherId'],
       });
     }
@@ -66,10 +66,10 @@ export function toLitterMutationInput(values: ValidLitterFormValues): LitterMuta
 
 export function getLitterStatusLabel(status: LitterStatus) {
   const labels: Record<LitterStatus, string> = {
-    planned: 'Planned',
-    expected: 'Expected',
-    born: 'Born',
-    archived: 'Archived',
+    planned: 'Planificada',
+    expected: 'Esperada',
+    born: 'Nacida',
+    archived: 'Archivada',
   };
 
   return labels[status];
@@ -80,7 +80,7 @@ function optionalText(max: number, message: string) {
 }
 
 function optionalUuid() {
-  return z.string().trim().refine(isEmptyOrUuid, 'Choose a dog from this kennel.');
+  return z.string().trim().refine(isEmptyOrUuid, 'Elige un perro de este criadero.');
 }
 
 function emptyToNull(value: string) {

@@ -3,6 +3,7 @@ import { ReactNode, useState } from 'react';
 
 import { AuthProvider } from '../features/auth';
 import { KennelProvider } from '../features/kennels';
+import { PushNotificationsRegistrar } from '../features/notifications';
 
 interface AppProvidersProps {
   children: ReactNode;
@@ -24,7 +25,10 @@ export function AppProviders({ children }: AppProvidersProps) {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <KennelProvider>{children}</KennelProvider>
+        <KennelProvider>
+          <PushNotificationsRegistrar />
+          {children}
+        </KennelProvider>
       </AuthProvider>
     </QueryClientProvider>
   );

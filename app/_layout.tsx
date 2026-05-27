@@ -4,6 +4,7 @@ import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 
 import { AppProviders } from '../src/providers/AppProviders';
+import { tokens } from '../src/theme';
 
 export default function RootLayout() {
   return (
@@ -11,8 +12,8 @@ export default function RootLayout() {
       <Stack
         screenOptions={{
           headerBackTitle: 'Atrás',
-          headerTintColor: '#1d4ed8',
-          contentStyle: { backgroundColor: '#f8fafc' },
+          headerTintColor: tokens.colors.brand[600],
+          contentStyle: { backgroundColor: tokens.colors.background },
         }}
       >
         <Stack.Screen name="index" options={{ headerShown: false }} />
@@ -24,6 +25,9 @@ export default function RootLayout() {
         <Stack.Screen name="litters" options={{ title: 'Camadas' }} />
         <Stack.Screen name="puppies" options={{ title: 'Cachorros' }} />
         <Stack.Screen name="reservations" options={{ title: 'Reservas' }} />
+        <Stack.Screen name="documents" options={{ title: 'Documentos' }} />
+        <Stack.Screen name="promotions" options={{ title: 'Promociones' }} />
+        <Stack.Screen name="notifications" options={{ title: 'Notificaciones' }} />
         <Stack.Screen name="bookings" options={{ title: 'Reservas' }} />
       </Stack>
       <StatusBar style="dark" />

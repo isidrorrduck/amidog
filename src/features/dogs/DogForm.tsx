@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { Pressable, Text, View } from 'react-native';
 
-import { Button, Card, Input } from '../../components';
+import { Button, AppCard, Input } from '../../components';
 import {
   dogFormSchema,
   dogSexOptions,
@@ -58,14 +58,14 @@ export function DogForm({ dog, errorMessage, isSubmitting = false, onCancel, onS
   };
 
   return (
-    <Card title={dog ? 'Edit dog' : 'Create dog'}>
-      <View className="gap-4">
+    <AppCard title={dog ? 'Editar perro' : 'Añadir perro'} subtitle="Ficha del perro">
+      <View className="gap-5">
         <Controller
           control={control}
           name="name"
           render={({ field: { onBlur, onChange, value } }) => (
             <Input
-              label="Name"
+              label="Nombre"
               placeholder="Mora"
               autoCapitalize="words"
               value={value}
@@ -81,7 +81,7 @@ export function DogForm({ dog, errorMessage, isSubmitting = false, onCancel, onS
           name="breed"
           render={({ field: { onBlur, onChange, value } }) => (
             <Input
-              label="Breed"
+              label="Raza"
               placeholder="Border Collie"
               autoCapitalize="words"
               value={value}
@@ -97,8 +97,8 @@ export function DogForm({ dog, errorMessage, isSubmitting = false, onCancel, onS
           name="sex"
           render={({ field: { onChange, value } }) => (
             <View className="gap-2">
-              <Text className="text-sm font-semibold text-slate-700">Sex</Text>
-              <View className="flex-row gap-2">
+              <Text className="text-sm font-semibold text-slate-700">Sexo</Text>
+              <View className="flex-row flex-wrap gap-2">
                 {dogSexOptions.map((option) => {
                   const isSelected = value === option;
 
@@ -107,7 +107,7 @@ export function DogForm({ dog, errorMessage, isSubmitting = false, onCancel, onS
                       accessibilityRole="button"
                       key={option}
                       onPress={() => onChange(option)}
-                      className={`min-h-11 flex-1 items-center justify-center rounded-lg border px-3 ${
+                      className={`min-h-11 min-w-28 flex-1 items-center justify-center rounded-lg border px-3 ${
                         isSelected ? 'border-brand-600 bg-brand-50' : 'border-slate-300 bg-white'
                       }`}
                     >
@@ -128,7 +128,7 @@ export function DogForm({ dog, errorMessage, isSubmitting = false, onCancel, onS
           name="birthDate"
           render={({ field: { onBlur, onChange, value } }) => (
             <Input
-              label="Birth date"
+              label="Fecha de nacimiento"
               placeholder="2024-05-10"
               keyboardType="numbers-and-punctuation"
               value={value}
@@ -145,7 +145,7 @@ export function DogForm({ dog, errorMessage, isSubmitting = false, onCancel, onS
           render={({ field: { onBlur, onChange, value } }) => (
             <Input
               label="Color"
-              placeholder="Black tricolor"
+              placeholder="Tricolor negro"
               autoCapitalize="words"
               value={value}
               onBlur={onBlur}
@@ -176,8 +176,8 @@ export function DogForm({ dog, errorMessage, isSubmitting = false, onCancel, onS
           name="notes"
           render={({ field: { onBlur, onChange, value } }) => (
             <Input
-              label="Notes"
-              placeholder="Temperament, health notes, registration details"
+              label="Notas"
+              placeholder="Temperamento, salud y datos de registro"
               multiline
               numberOfLines={4}
               textAlignVertical="top"
@@ -190,19 +190,23 @@ export function DogForm({ dog, errorMessage, isSubmitting = false, onCancel, onS
           )}
         />
 
-        {errorMessage ? <Text className="text-sm leading-5 text-red-600">{errorMessage}</Text> : null}
+        {errorMessage ? (
+          <View className="rounded-lg bg-red-50 px-3 py-2">
+            <Text className="text-sm leading-5 text-red-600">{errorMessage}</Text>
+          </View>
+        ) : null}
 
-        <View className="flex-row gap-3">
-          <Button title="Cancel" variant="secondary" className="flex-1" onPress={onCancel} />
+        <View className="flex-row gap-3 pt-1">
+          <Button title="Cancelar" variant="secondary" className="flex-1" onPress={onCancel} />
           <Button
-            title={dog ? 'Save dog' : 'Create dog'}
+            title={dog ? 'Guardar perro' : 'Añadir perro'}
             loading={isSubmitting}
             className="flex-1"
             onPress={() => void handleSubmit(handleValidSubmit)()}
           />
         </View>
       </View>
-    </Card>
+    </AppCard>
   );
 }
 

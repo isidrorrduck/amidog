@@ -12,19 +12,12 @@ export interface KennelWorkspace {
   role: KennelRole;
 }
 
-const fallbackKennelName = 'My Kennel';
+const fallbackKennelName = 'Mi criadero';
+const membershipAccountColumns = ['profile_id', 'user_id'] as const;
 
 export async function listKennelWorkspaces(profileId: string): Promise<KennelWorkspace[]> {
   const supabase = getSupabaseClient();
-  const { data: memberships, error: membershipError } = await supabase
-    .from('kennel_members')
-    .select('*')
-    .eq('profile_id', profileId)
-    .order('created_at', { ascending: true });
-
-  if (membershipError) {
-    throw membershipError;
-  }
+  const memberships = await listMembershipsForProfile(profileId);
 
   if (!memberships || memberships.length === 0) {
     return [];
@@ -70,7 +63,7 @@ export async function createKennelForProfile(profileId: string, kennelName: stri
   const workspace = workspaces.find((item) => item.kennel.id === kennelId);
 
   if (!workspace) {
-    throw new Error('The kennel was created, but it could not be loaded for this account.');
+    throw new Error('El criadero se ha creado, pero no se ha podido cargar para esta cuenta.');
   }
 
   return workspace;
@@ -99,9 +92,74 @@ export function normalizeKennelName(kennelName: string | undefined, email: strin
 
   const emailPrefix = email?.split('@')[0]?.trim();
 
-  return emailPrefix ? `${emailPrefix} Kennel` : fallbackKennelName;
+  return emailPrefix ? `Criadero ${emailPrefix}` : fallbackKennelName;
+}
+
+async function listMembershipsForProfile(profileId: string): Promise<KennelMember[]> {
+  let lastMissingColumnError: unknown = null;
+
+  for (const column of membershipAccountColumns) {
+    const { data, error } = await fetchMembershipsByAccountColumn(column, profileId);
+
+    if (!error) {
+      return data ?? [];
+    }
+
+    if (!isMissingColumnError(error, column)) {
+      throw error;
+    }
+
+    lastMissingColumnError = error;
+  }
+
+  throw lastMissingColumnError ?? new Error('No se han podido cargar los miembros del criadero para esta cuenta.');
+}
+
+async function fetchMembershipsByAccountColumn(
+  column: (typeof membershipAccountColumns)[number],
+  profileId: string,
+) {
+  const supabase = getSupabaseClient();
+  const orderedResult = await supabase
+    .from('kennel_members')
+    .select('*')
+    .eq(column, profileId)
+    .order('created_at', { ascending: true });
+
+  if (!isMissingColumnError(orderedResult.error, 'created_at')) {
+    return orderedResult;
+  }
+
+  return supabase.from('kennel_members').select('*').eq(column, profileId);
+}
+
+function isMissingColumnError(error: unknown, column: string) {
+  if (!isObjectWithStringProperty(error, 'message')) {
+    return false;
+  }
+
+  const message = error.message.toLowerCase();
+
+  return (
+    message.includes(`.${column.toLowerCase()} does not exist`) ||
+    message.includes(`column ${column.toLowerCase()} does not exist`) ||
+    message.includes(`'${column.toLowerCase()}' column`)
+  );
 }
 
 function getStringMetadataValue(value: unknown) {
   return typeof value === 'string' && value.trim().length > 0 ? value.trim() : null;
+}
+
+function isObjectWithStringProperty<T extends string>(
+  value: unknown,
+  property: T,
+): value is Record<T, string> {
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    property in value &&
+    typeof (value as Record<T, unknown>)[property] === 'string' &&
+    (value as Record<T, string>)[property].trim().length > 0
+  );
 }

@@ -54,6 +54,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     async (user: User | null) => {
       if (!user || !isSupabaseReady) {
         clearProfile();
+        setProfileError(null);
         return;
       }
 
@@ -64,6 +65,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         setProfile(nextProfile);
         setProfileError(null);
       } catch (error) {
+        setProfile(null);
         setProfileError(getErrorMessage(error));
       } finally {
         setIsProfileLoading(false);
@@ -90,7 +92,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         }
 
         if (error) {
-          setProfileError(error.message);
+          setProfileError(getErrorMessage(error));
           return;
         }
 
@@ -146,6 +148,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const signOut = useCallback(async () => {
     await signOutOfSupabase();
     setSession(null);
+    setProfileError(null);
     clearProfile();
   }, [clearProfile]);
 
@@ -197,5 +200,30 @@ export function useAuth() {
 }
 
 function getErrorMessage(error: unknown) {
-  return error instanceof Error ? error.message : 'Something went wrong while preparing the account workspace.';
+  if (error instanceof Error && error.message) {
+    return error.message;
+  }
+
+  if (isObjectWithStringProperty(error, 'message')) {
+    return error.message;
+  }
+
+  if (isObjectWithStringProperty(error, 'error_description')) {
+    return error.error_description;
+  }
+
+  return 'Algo ha ido mal al preparar el espacio de la cuenta.';
+}
+
+function isObjectWithStringProperty<T extends string>(
+  value: unknown,
+  property: T,
+): value is Record<T, string> {
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    property in value &&
+    typeof (value as Record<T, unknown>)[property] === 'string' &&
+    (value as Record<T, string>)[property].trim().length > 0
+  );
 }

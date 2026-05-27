@@ -46,7 +46,7 @@ export function useDeleteDog(kennelId: string | null | undefined) {
 
 async function requireKennelId(kennelId: string | null | undefined) {
   if (!kennelId) {
-    throw new Error('Select a kennel before managing dogs.');
+    throw new Error('Selecciona un criadero antes de gestionar perros.');
   }
 
   return kennelId;

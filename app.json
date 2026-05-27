@@ -5,10 +5,24 @@
     "version": "0.1.0",
     "scheme": "amidog",
     "orientation": "portrait",
+    "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
-    "newArchEnabled": true,
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#F8FAFC"
+    },
     "plugins": [
-      "expo-router"
+      "expo-router",
+      [
+        "expo-notifications",
+        {
+          "color": "#0F766E",
+          "defaultChannel": "default"
+        }
+      ],
+      "expo-document-picker",
+      "./plugins/with-gradle-8-13"
     ],
     "experiments": {
       "typedRoutes": true
@@ -17,10 +31,26 @@
       "supportsTablet": true
     },
     "android": {
-      "edgeToEdgeEnabled": true
+      "package": "com.sgservice.amidog",
+      "versionCode": 1,
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/icon.png",
+        "backgroundColor": "#F8FAFC"
+      },
+      "permissions": [
+        "INTERNET",
+        "POST_NOTIFICATIONS"
+      ]
     },
     "web": {
-      "bundler": "metro"
+      "bundler": "metro",
+      "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "0b1d7766-7107-46c4-9c09-66ba16d3f271"
+      }
     }
   }
 }

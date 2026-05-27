@@ -1,6 +1,6 @@
 import { Text, View } from 'react-native';
 
-import { Button, Card, Screen } from '../../src/components';
+import { Button, AppCard, AppScreen } from '../../src/components';
 import { useAuth } from '../../src/features/auth';
 import { KennelSelector, useCurrentKennel } from '../../src/features/kennels';
 
@@ -9,28 +9,32 @@ export default function ProfileScreen() {
   const { currentKennel, currentMembership } = useCurrentKennel();
 
   return (
-    <Screen>
+    <AppScreen>
       <View className="gap-2">
-        <Text className="text-3xl font-bold text-slate-950">Profile</Text>
+        <Text className="text-3xl font-bold text-slate-950">Perfil</Text>
         <Text className="text-base leading-6 text-slate-600">
-          Account and workspace basics from Supabase Auth.
+          Datos básicos de tu cuenta y del espacio de trabajo.
         </Text>
       </View>
 
-      <Card title="Session">
+      <AppCard title="Sesión">
         <View className="mb-4 gap-2">
-          <Text className="text-sm leading-5 text-slate-600">Email: {profile?.email ?? user?.email ?? 'Unknown'}</Text>
+          <Text className="text-sm leading-5 text-slate-600">Correo: {profile?.email ?? user?.email ?? 'Desconocido'}</Text>
           <Text className="text-sm leading-5 text-slate-600">
-            Kennel: {currentKennel?.name ?? 'Preparing workspace'}
+            Criadero: {currentKennel?.name ?? 'Preparando espacio'}
           </Text>
           <Text className="text-sm capitalize leading-5 text-slate-600">
-            Role: {currentMembership?.role ?? 'member'}
+            Rol: {getRoleLabel(currentMembership?.role)}
           </Text>
         </View>
-        <Button title="Log out" variant="secondary" onPress={signOut} />
-      </Card>
+        <Button title="Cerrar sesión" variant="secondary" onPress={signOut} />
+      </AppCard>
 
       <KennelSelector allowCreate />
-    </Screen>
+    </AppScreen>
   );
+}
+
+function getRoleLabel(role: string | null | undefined) {
+  return role === 'owner' ? 'Propietario' : 'Miembro';
 }

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 
-import { Button, Card, Input } from '../../components';
+import { Button, AppCard, Input } from '../../components';
 import { useAuth } from '../auth/AuthProvider';
 import { useKennels } from './KennelProvider';
 import { normalizeKennelName } from './kennelService';
@@ -45,7 +45,7 @@ export function KennelSelector({ allowCreate = false }: KennelSelectorProps) {
   };
 
   return (
-    <Card title="Kennels">
+    <AppCard title="Criaderos">
       <View className="gap-3">
         {availableKennels.map((workspace) => {
           const isActive = workspace.kennel.id === currentKennel?.id;
@@ -63,10 +63,10 @@ export function KennelSelector({ allowCreate = false }: KennelSelectorProps) {
               <View className="flex-row items-center justify-between gap-3">
                 <View className="min-w-0 flex-1 gap-1">
                   <Text className="text-base font-semibold text-slate-950">{workspace.kennel.name}</Text>
-                  <Text className="text-sm capitalize text-slate-500">{workspace.role}</Text>
+                  <Text className="text-sm capitalize text-slate-500">{getRoleLabel(workspace.role)}</Text>
                 </View>
                 <Text className={`text-sm font-semibold ${isActive ? 'text-brand-700' : 'text-slate-500'}`}>
-                  {isActive ? 'Active' : 'Switch'}
+                  {isActive ? 'Activo' : 'Cambiar'}
                 </Text>
               </View>
             </Pressable>
@@ -76,22 +76,26 @@ export function KennelSelector({ allowCreate = false }: KennelSelectorProps) {
         {allowCreate ? (
           <View className="gap-3 border-t border-slate-200 pt-3">
             <Input
-              label="New kennel"
-              placeholder="Second kennel"
+              label="Nuevo criadero"
+              placeholder="Segundo criadero"
               value={kennelName}
               onChangeText={setKennelName}
             />
-            <Button title="Create kennel" loading={isKennelMutating} onPress={handleCreateKennel} />
+            <Button title="Crear criadero" loading={isKennelMutating} onPress={handleCreateKennel} />
           </View>
         ) : null}
 
         {kennelError ? <Text className="text-sm leading-5 text-red-600">{kennelError}</Text> : null}
         {selectorError ? <Text className="text-sm leading-5 text-red-600">{selectorError}</Text> : null}
       </View>
-    </Card>
+    </AppCard>
   );
 }
 
-function getErrorMessage(error: unknown) {
-  return error instanceof Error ? error.message : 'Unable to update kennel selection.';
+function getErrorMessage(_error: unknown) {
+  return 'No se ha podido actualizar la selección de criadero.';
+}
+
+function getRoleLabel(role: string) {
+  return role === 'owner' ? 'Propietario' : 'Miembro';
 }

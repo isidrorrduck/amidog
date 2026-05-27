@@ -4,7 +4,26 @@ export type KennelRole = 'owner' | 'member';
 export type DogSex = 'unknown' | 'male' | 'female';
 export type LitterStatus = 'planned' | 'expected' | 'born' | 'archived';
 export type PuppySex = 'unknown' | 'male' | 'female';
-export type PuppyStatus = 'available' | 'reserved' | 'placed' | 'kept' | 'deceased';
+export type PuppyStatus = 'available' | 'reserved' | 'sold' | 'keeper' | 'deceased';
+export type DocumentEntityType = 'dog' | 'puppy' | 'litter' | 'client';
+export type DocumentType =
+  | 'genetic_analysis'
+  | 'pedigree'
+  | 'contract'
+  | 'vaccine_record'
+  | 'veterinary_report'
+  | 'recommendation'
+  | 'other';
+export type PromotionType =
+  | 'veterinary'
+  | 'nutrition'
+  | 'genetics'
+  | 'supplements'
+  | 'grooming'
+  | 'kennel'
+  | 'puppies'
+  | 'other';
+export type PushTokenPlatform = 'ios' | 'android' | 'web' | 'windows' | 'macos' | 'unknown';
 export type ReservationStatus = 'pending' | 'paid' | 'cancelled' | 'completed';
 
 export interface Database {
@@ -20,7 +39,7 @@ export interface Database {
         };
         Insert: {
           id: string;
-          email: string;
+          email?: string | null;
           display_name?: string | null;
           created_at?: string;
           updated_at?: string;
@@ -69,14 +88,16 @@ export interface Database {
         Row: {
           id: string;
           kennel_id: string;
-          profile_id: string;
+          profile_id?: string;
+          user_id?: string;
           role: KennelRole;
           created_at: string;
         };
         Insert: {
           id?: string;
           kennel_id: string;
-          profile_id: string;
+          profile_id?: string;
+          user_id?: string;
           role?: KennelRole;
           created_at?: string;
         };
@@ -84,6 +105,7 @@ export interface Database {
           id?: string;
           kennel_id?: string;
           profile_id?: string;
+          user_id?: string;
           role?: KennelRole;
           created_at?: string;
         };
@@ -203,6 +225,208 @@ export interface Database {
           },
         ];
       };
+      documents: {
+        Row: {
+          id: string;
+          kennel_id: string;
+          entity_type: DocumentEntityType;
+          entity_id: string;
+          title: string;
+          document_type: DocumentType;
+          file_path: string;
+          file_name: string;
+          mime_type: string;
+          size_bytes: number;
+          notes: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          kennel_id: string;
+          entity_type: DocumentEntityType;
+          entity_id: string;
+          title: string;
+          document_type?: DocumentType;
+          file_path: string;
+          file_name: string;
+          mime_type: string;
+          size_bytes: number;
+          notes?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          kennel_id?: string;
+          entity_type?: DocumentEntityType;
+          entity_id?: string;
+          title?: string;
+          document_type?: DocumentType;
+          file_path?: string;
+          file_name?: string;
+          mime_type?: string;
+          size_bytes?: number;
+          notes?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'documents_kennel_id_fkey';
+            columns: ['kennel_id'];
+            referencedRelation: 'kennels';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      promotions: {
+        Row: {
+          id: string;
+          kennel_id: string | null;
+          title: string;
+          message: string;
+          image_url: string | null;
+          action_url: string | null;
+          promotion_type: PromotionType;
+          is_global: boolean;
+          created_by: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          kennel_id?: string | null;
+          title: string;
+          message: string;
+          image_url?: string | null;
+          action_url?: string | null;
+          promotion_type?: PromotionType;
+          is_global?: boolean;
+          created_by?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          kennel_id?: string | null;
+          title?: string;
+          message?: string;
+          image_url?: string | null;
+          action_url?: string | null;
+          promotion_type?: PromotionType;
+          is_global?: boolean;
+          created_by?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'promotions_kennel_id_fkey';
+            columns: ['kennel_id'];
+            referencedRelation: 'kennels';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'promotions_created_by_fkey';
+            columns: ['created_by'];
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      notifications: {
+        Row: {
+          id: string;
+          kennel_id: string;
+          client_id: string | null;
+          promotion_id: string | null;
+          title: string;
+          body: string;
+          read_at: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          kennel_id: string;
+          client_id?: string | null;
+          promotion_id?: string | null;
+          title: string;
+          body: string;
+          read_at?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          kennel_id?: string;
+          client_id?: string | null;
+          promotion_id?: string | null;
+          title?: string;
+          body?: string;
+          read_at?: string | null;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'notifications_kennel_id_fkey';
+            columns: ['kennel_id'];
+            referencedRelation: 'kennels';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'notifications_client_id_fkey';
+            columns: ['client_id'];
+            referencedRelation: 'clients';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'notifications_promotion_id_fkey';
+            columns: ['promotion_id'];
+            referencedRelation: 'promotions';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      push_tokens: {
+        Row: {
+          id: string;
+          user_id: string;
+          kennel_id: string;
+          expo_push_token: string;
+          platform: PushTokenPlatform;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          kennel_id: string;
+          expo_push_token: string;
+          platform?: PushTokenPlatform;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          kennel_id?: string;
+          expo_push_token?: string;
+          platform?: PushTokenPlatform;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'push_tokens_user_id_fkey';
+            columns: ['user_id'];
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'push_tokens_kennel_id_fkey';
+            columns: ['kennel_id'];
+            referencedRelation: 'kennels';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       litters: {
         Row: {
           id: string;
@@ -269,10 +493,13 @@ export interface Database {
           id: string;
           kennel_id: string;
           litter_id: string;
+          client_id: string | null;
           name: string;
           sex: PuppySex;
+          birth_date: string | null;
           color: string | null;
           birth_weight: number | null;
+          photo_url: string | null;
           status: PuppyStatus;
           notes: string | null;
           created_at: string;
@@ -282,10 +509,13 @@ export interface Database {
           id?: string;
           kennel_id: string;
           litter_id: string;
+          client_id?: string | null;
           name: string;
           sex?: PuppySex;
+          birth_date?: string | null;
           color?: string | null;
           birth_weight?: number | null;
+          photo_url?: string | null;
           status?: PuppyStatus;
           notes?: string | null;
           created_at?: string;
@@ -295,10 +525,13 @@ export interface Database {
           id?: string;
           kennel_id?: string;
           litter_id?: string;
+          client_id?: string | null;
           name?: string;
           sex?: PuppySex;
+          birth_date?: string | null;
           color?: string | null;
           birth_weight?: number | null;
+          photo_url?: string | null;
           status?: PuppyStatus;
           notes?: string | null;
           created_at?: string;
@@ -315,6 +548,12 @@ export interface Database {
             foreignKeyName: 'puppies_litter_id_fkey';
             columns: ['litter_id'];
             referencedRelation: 'litters';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'puppies_client_id_fkey';
+            columns: ['client_id'];
+            referencedRelation: 'clients';
             referencedColumns: ['id'];
           },
         ];

@@ -1,9 +1,14 @@
 import type { User } from '@supabase/supabase-js';
 
 import { getSupabaseClient } from '../../lib/supabase';
-import type { Database } from '../../types/database';
 
-export type AuthProfile = Database['public']['Tables']['profiles']['Row'];
+export interface AuthProfile {
+  id: string;
+  email?: string | null;
+  display_name?: string | null;
+  created_at?: string;
+  updated_at?: string;
+}
 
 interface SignInInput {
   email: string;
@@ -22,7 +27,7 @@ export interface SignUpResult {
   needsEmailConfirmation: boolean;
 }
 
-const fallbackKennelName = 'My Kennel';
+const fallbackKennelName = 'Mi criadero';
 
 export async function signInWithPassword({ email, password }: SignInInput) {
   const supabase = getSupabaseClient();
@@ -93,29 +98,28 @@ export async function ensureAuthenticatedProfile(user: User): Promise<AuthProfil
 
 async function ensureProfile(user: User): Promise<AuthProfile> {
   const supabase = getSupabaseClient();
-  const displayName = getStringMetadataValue(user.user_metadata.display_name);
 
   const { data, error } = await supabase
     .from('profiles')
     .upsert(
       {
         id: user.id,
-        email: user.email ?? '',
-        display_name: displayName,
-        updated_at: new Date().toISOString(),
       },
       {
         onConflict: 'id',
       },
     )
-    .select()
+    .select('id')
     .single();
 
   if (error) {
     throw error;
   }
 
-  return data;
+  return {
+    id: data.id,
+    email: user.email ?? null,
+  };
 }
 
 function normalizeEmail(email: string) {
@@ -131,9 +135,6 @@ function normalizeKennelName(kennelName: string | undefined, email: string | und
 
   const emailPrefix = email?.split('@')[0]?.trim();
 
-  return emailPrefix ? `${emailPrefix} Kennel` : fallbackKennelName;
+  return emailPrefix ? `Criadero ${emailPrefix}` : fallbackKennelName;
 }
 
-function getStringMetadataValue(value: unknown) {
-  return typeof value === 'string' && value.trim().length > 0 ? value.trim() : null;
-}

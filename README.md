@@ -81,6 +81,10 @@ npm run typecheck
 npm run start
 ```
 
+## Android build
+
+La preparacion de la primera AAB Android con EAS Build esta documentada en `docs/android-build.md`.
+
 ## Pendiente
 
 - Definir el modelo multi-tenant en Supabase.

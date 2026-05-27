@@ -1,6 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createContext, ReactNode, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 
+import { ensureAuthenticatedProfile } from '../auth/authService';
 import { useAuth } from '../auth/AuthProvider';
 import {
   createKennelForProfile,
@@ -104,13 +105,13 @@ export function KennelProvider({ children }: KennelProviderProps) {
   const switchKennel = useCallback(
     async (kennelId: string) => {
       if (!profile) {
-        throw new Error('Sign in before switching kennels.');
+        throw new Error('Inicia sesión antes de cambiar de criadero.');
       }
 
       const nextWorkspace = availableKennels.find((workspace) => workspace.kennel.id === kennelId);
 
       if (!nextWorkspace) {
-        throw new Error('You do not have access to that kennel.');
+        throw new Error('No tienes acceso a ese criadero.');
       }
 
       setCurrentWorkspace(nextWorkspace);
@@ -121,19 +122,25 @@ export function KennelProvider({ children }: KennelProviderProps) {
 
   const createKennel = useCallback(
     async (kennelName: string) => {
-      if (!profile) {
-        throw new Error('Sign in before creating a kennel.');
+      if (!user) {
+        throw new Error('Inicia sesión antes de crear un criadero.');
       }
 
       setIsKennelMutating(true);
 
       try {
-        const nextWorkspace = await createKennelForProfile(profile.id, kennelName);
-        const workspaces = await listKennelWorkspaces(profile.id);
+        const profileId = profile?.id ?? user.id;
+
+        if (!profile) {
+          await ensureAuthenticatedProfile(user);
+        }
+
+        const nextWorkspace = await createKennelForProfile(profileId, kennelName);
+        const workspaces = await listKennelWorkspaces(profileId);
 
         setAvailableKennels(workspaces);
         setCurrentWorkspace(nextWorkspace);
-        await persistActiveKennel(profile.id, nextWorkspace.kennel.id);
+        await persistActiveKennel(profileId, nextWorkspace.kennel.id);
         setKennelError(null);
       } catch (error) {
         setKennelError(getErrorMessage(error));
@@ -142,7 +149,7 @@ export function KennelProvider({ children }: KennelProviderProps) {
         setIsKennelMutating(false);
       }
     },
-    [persistActiveKennel, profile],
+    [persistActiveKennel, profile, user],
   );
 
   const value = useMemo<KennelContextValue>(
@@ -188,5 +195,30 @@ function getActiveKennelStorageKey(profileId: string) {
 }
 
 function getErrorMessage(error: unknown) {
-  return error instanceof Error ? error.message : 'Something went wrong while loading kennels.';
+  if (error instanceof Error && error.message) {
+    return error.message;
+  }
+
+  if (isObjectWithStringProperty(error, 'message')) {
+    return error.message;
+  }
+
+  if (isObjectWithStringProperty(error, 'error_description')) {
+    return error.error_description;
+  }
+
+  return 'Algo ha ido mal al cargar los criaderos.';
+}
+
+function isObjectWithStringProperty<T extends string>(
+  value: unknown,
+  property: T,
+): value is Record<T, string> {
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    property in value &&
+    typeof (value as Record<T, unknown>)[property] === 'string' &&
+    (value as Record<T, string>)[property].trim().length > 0
+  );
 }

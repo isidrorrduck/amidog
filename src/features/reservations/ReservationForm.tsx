@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { Pressable, Text, View } from 'react-native';
 
-import { Button, Card, Input } from '../../components';
+import { AppCard, Button, Input } from '../../components';
 import { getClientFullName, type Client } from '../clients';
 import { type Puppy } from '../puppies';
 import {
@@ -83,7 +83,7 @@ export function ReservationForm({
   };
 
   return (
-    <Card title={reservation ? 'Editar reserva' : 'Crear reserva'}>
+    <AppCard title={reservation ? 'Editar reserva' : 'Crear reserva'}>
       <View className="gap-4">
         <Controller
           control={control}
@@ -176,7 +176,7 @@ export function ReservationForm({
           render={({ field: { onBlur, onChange, value } }) => (
             <Input
               label="Notas"
-              placeholder="Condiciones de entrega, pagos pendientes o seguimiento"
+              placeholder="Condiciones de entrega, seguimiento y notas de pago"
               multiline
               numberOfLines={4}
               textAlignVertical="top"
@@ -210,7 +210,7 @@ export function ReservationForm({
           />
         </View>
       </View>
-    </Card>
+    </AppCard>
   );
 }
 
