@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { Pressable, Text, View } from 'react-native';
 
-import { Button, AppCard, Input } from '../../components';
+import { AppCard, Button, Input } from '../../components';
 import { getClientFullName, type Client } from '../clients';
 import { type Puppy } from '../puppies';
 import {
@@ -32,10 +32,9 @@ const reservationFormFields = [
   'puppyId',
   'clientId',
   'status',
-  'reservedPrice',
-  'depositAmount',
-  'depositPaid',
   'reservationDate',
+  'depositAmount',
+  'finalPrice',
   'notes',
 ] as const;
 type ReservationFormField = (typeof reservationFormFields)[number];
@@ -125,16 +124,16 @@ export function ReservationForm({
 
         <Controller
           control={control}
-          name="reservedPrice"
+          name="reservationDate"
           render={({ field: { onBlur, onChange, value } }) => (
             <Input
-              label="Precio reservado"
-              placeholder="1200.00"
-              keyboardType="decimal-pad"
+              label="Fecha de reserva"
+              placeholder="2026-05-12"
+              keyboardType="numbers-and-punctuation"
               value={value}
               onBlur={onBlur}
               onChangeText={onChange}
-              error={errors.reservedPrice?.message}
+              error={errors.reservationDate?.message}
             />
           )}
         />
@@ -144,7 +143,7 @@ export function ReservationForm({
           name="depositAmount"
           render={({ field: { onBlur, onChange, value } }) => (
             <Input
-              label="Importe de la señal"
+              label="Señal"
               placeholder="300.00"
               keyboardType="decimal-pad"
               value={value}
@@ -157,33 +156,16 @@ export function ReservationForm({
 
         <Controller
           control={control}
-          name="depositPaid"
-          render={({ field: { onChange, value } }) => (
-            <View className="gap-2">
-              <Text className="text-sm font-semibold text-slate-700">Señal</Text>
-              <View className="flex-row gap-2">
-                <SelectorOption label="No pagada" isSelected={!value} onPress={() => onChange(false)} />
-                <SelectorOption label="Pagada" isSelected={value} onPress={() => onChange(true)} />
-              </View>
-              {errors.depositPaid?.message ? (
-                <Text className="text-sm text-red-600">{errors.depositPaid.message}</Text>
-              ) : null}
-            </View>
-          )}
-        />
-
-        <Controller
-          control={control}
-          name="reservationDate"
+          name="finalPrice"
           render={({ field: { onBlur, onChange, value } }) => (
             <Input
-              label="Fecha de reserva"
-              placeholder="2026-05-12"
-              keyboardType="numbers-and-punctuation"
+              label="Precio final"
+              placeholder="1200.00"
+              keyboardType="decimal-pad"
               value={value}
               onBlur={onBlur}
               onChangeText={onChange}
-              error={errors.reservationDate?.message}
+              error={errors.finalPrice?.message}
             />
           )}
         />

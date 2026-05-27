@@ -24,7 +24,7 @@ export type PromotionType =
   | 'puppies'
   | 'other';
 export type PushTokenPlatform = 'ios' | 'android' | 'web' | 'windows' | 'macos' | 'unknown';
-export type ReservationStatus = 'pending' | 'reserved' | 'paid' | 'cancelled' | 'completed';
+export type ReservationStatus = 'pending' | 'paid' | 'cancelled' | 'completed';
 
 export interface Database {
   public: {
@@ -564,12 +564,10 @@ export interface Database {
           kennel_id: string;
           puppy_id: string;
           client_id: string;
-          litter_id: string | null;
           status: ReservationStatus;
-          reserved_price: number | null;
-          deposit_amount: number | null;
-          deposit_paid: boolean;
           reservation_date: string;
+          deposit_amount: number | null;
+          final_price: number | null;
           notes: string | null;
           created_at: string;
           updated_at: string;
@@ -579,12 +577,10 @@ export interface Database {
           kennel_id: string;
           puppy_id: string;
           client_id: string;
-          litter_id?: string | null;
           status?: ReservationStatus;
-          reserved_price?: number | null;
-          deposit_amount?: number | null;
-          deposit_paid?: boolean;
           reservation_date?: string;
+          deposit_amount?: number | null;
+          final_price?: number | null;
           notes?: string | null;
           created_at?: string;
           updated_at?: string;
@@ -594,12 +590,10 @@ export interface Database {
           kennel_id?: string;
           puppy_id?: string;
           client_id?: string;
-          litter_id?: string | null;
           status?: ReservationStatus;
-          reserved_price?: number | null;
-          deposit_amount?: number | null;
-          deposit_paid?: boolean;
           reservation_date?: string;
+          deposit_amount?: number | null;
+          final_price?: number | null;
           notes?: string | null;
           created_at?: string;
           updated_at?: string;
@@ -621,12 +615,6 @@ export interface Database {
             foreignKeyName: 'reservations_client_id_fkey';
             columns: ['client_id'];
             referencedRelation: 'clients';
-            referencedColumns: ['id'];
-          },
-          {
-            foreignKeyName: 'reservations_litter_id_fkey';
-            columns: ['litter_id'];
-            referencedRelation: 'litters';
             referencedColumns: ['id'];
           },
         ];

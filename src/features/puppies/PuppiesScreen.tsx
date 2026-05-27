@@ -7,6 +7,8 @@ import { ProtectedRoute } from '../auth';
 import { getClientFullName, useClients, type Client } from '../clients';
 import { useCurrentKennel } from '../kennels';
 import { useLitters, type Litter } from '../litters';
+import { getReservationStatusLabel, type Reservation } from '../reservations/types';
+import { useReservations } from '../reservations/useReservations';
 import { PuppyForm } from './PuppyForm';
 import { getPuppySexLabel, getPuppyStatusLabel, type Puppy, type PuppyMutationInput } from './types';
 import { useCreatePuppy, useDeletePuppy, usePuppies, useUpdatePuppy } from './usePuppies';
@@ -32,6 +34,7 @@ function PuppiesContent({ initialMode, initialLitterId, initialPuppyId }: Puppie
   const puppiesQuery = usePuppies(kennelId, selectedLitterId || null);
   const littersQuery = useLitters(kennelId);
   const clientsQuery = useClients(kennelId);
+  const reservationsQuery = useReservations(kennelId);
   const createPuppyMutation = useCreatePuppy(kennelId);
   const updatePuppyMutation = useUpdatePuppy(kennelId);
   const deletePuppyMutation = useDeletePuppy(kennelId);
@@ -45,8 +48,22 @@ function PuppiesContent({ initialMode, initialLitterId, initialPuppyId }: Puppie
   const puppies = puppiesQuery.data ?? [];
   const litters = littersQuery.data ?? [];
   const clients = clientsQuery.data ?? [];
+  const reservations = reservationsQuery.data ?? [];
   const littersById = useMemo(() => new Map(litters.map((litter) => [litter.id, litter])), [litters]);
   const clientsById = useMemo(() => new Map(clients.map((client) => [client.id, client])), [clients]);
+  const reservationsByPuppyId = useMemo(() => {
+    const map = new Map<string, Reservation>();
+
+    reservations.forEach((reservation) => {
+      const current = map.get(reservation.puppy_id);
+
+      if (!current || (!isActiveReservation(current) && isActiveReservation(reservation))) {
+        map.set(reservation.puppy_id, reservation);
+      }
+    });
+
+    return map;
+  }, [reservations]);
   const isOwner = currentMembership?.role === 'owner';
   const isFormSubmitting = createPuppyMutation.isPending || updatePuppyMutation.isPending;
   const fallbackLitterId = selectedLitterId || (litters.length === 1 ? litters[0]?.id ?? '' : '');
@@ -216,19 +233,29 @@ function PuppiesContent({ initialMode, initialLitterId, initialPuppyId }: Puppie
           <Text className="text-sm font-semibold text-muted">
             {puppies.length === 1 ? '1 cachorro registrado' : `${puppies.length} cachorros registrados`}
           </Text>
-          {puppies.map((puppy) => (
-            <PuppyCard
-              clientsById={clientsById}
-              isDeleting={deletePuppyMutation.isPending}
-              isOwner={isOwner}
-              key={puppy.id}
-              littersById={littersById}
-              puppy={puppy}
-              onDelete={() => handleDeletePuppy(puppy)}
-              onDocuments={() => router.push(`/documents?entityType=puppy&entityId=${puppy.id}` as never)}
-              onEdit={() => openEditForm(puppy)}
-            />
-          ))}
+          {puppies.map((puppy) => {
+            const reservation = reservationsByPuppyId.get(puppy.id);
+
+            return (
+              <PuppyCard
+                clientsById={clientsById}
+                isDeleting={deletePuppyMutation.isPending}
+                isOwner={isOwner}
+                key={puppy.id}
+                littersById={littersById}
+                puppy={puppy}
+                reservation={reservation}
+                onDelete={() => handleDeletePuppy(puppy)}
+                onDocuments={() => router.push(`/documents?entityType=puppy&entityId=${puppy.id}` as never)}
+                onEdit={() => openEditForm(puppy)}
+                onReservation={() =>
+                  reservation
+                    ? router.push(`/reservations/${reservation.id}` as never)
+                    : router.push(`/reservations/new?puppyId=${puppy.id}` as never)
+                }
+              />
+            );
+          })}
         </View>
       ) : null}
     </AppScreen>
@@ -290,9 +317,11 @@ interface PuppyCardProps {
   isOwner: boolean;
   littersById: Map<string, Litter>;
   puppy: Puppy;
+  reservation?: Reservation;
   onDelete: () => void;
   onDocuments: () => void;
   onEdit: () => void;
+  onReservation: () => void;
 }
 
 function PuppyCard({
@@ -301,9 +330,11 @@ function PuppyCard({
   isOwner,
   littersById,
   puppy,
+  reservation,
   onDelete,
   onDocuments,
   onEdit,
+  onReservation,
 }: PuppyCardProps) {
   const litterName = littersById.get(puppy.litter_id)?.name ?? 'Camada desconocida';
   const client = puppy.client_id ? clientsById.get(puppy.client_id) : null;
@@ -330,6 +361,7 @@ function PuppyCard({
               <Badge label={getPuppyStatusLabel(puppy.status)} tone={getStatusTone(puppy.status)} />
               <Badge label={getPuppySexLabel(puppy.sex)} />
               {birthDate ? <Badge label={`Nacimiento ${birthDate}`} /> : null}
+              {reservation ? <Badge label={`Reserva ${getReservationStatusLabel(reservation.status)}`} tone="accent" /> : null}
             </View>
           </View>
         </View>
@@ -354,6 +386,11 @@ function PuppyCard({
             <Button title="Documentos" variant="secondary" className="flex-1" onPress={onDocuments} />
             <Button title="Editar" variant="secondary" className="flex-1" onPress={onEdit} />
           </View>
+          <Button
+            title={reservation ? 'Ver reserva' : 'Reservar cachorro'}
+            variant="secondary"
+            onPress={onReservation}
+          />
           {isOwner ? (
             <Button
               title="Eliminar cachorro"
@@ -458,4 +495,8 @@ function formatIsoDate(value: string) {
 
 function getErrorMessage(_error: unknown) {
   return 'Algo ha ido mal al gestionar los cachorros.';
+}
+
+function isActiveReservation(reservation: Reservation) {
+  return reservation.status === 'pending' || reservation.status === 'paid';
 }

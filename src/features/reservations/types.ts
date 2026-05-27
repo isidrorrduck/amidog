@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 import type { Database } from '../../types/database';
 
-export const reservationStatusOptions = ['pending', 'reserved', 'paid', 'cancelled', 'completed'] as const;
+export const reservationStatusOptions = ['pending', 'paid', 'cancelled', 'completed'] as const;
 
 export type Reservation = Database['public']['Tables']['reservations']['Row'];
 export type ReservationStatus = (typeof reservationStatusOptions)[number];
@@ -17,10 +17,9 @@ export interface ReservationMutationInput {
   puppy_id: string;
   client_id: string;
   status: ReservationStatus;
-  reserved_price: number | null;
-  deposit_amount: number | null;
-  deposit_paid: boolean;
   reservation_date: string;
+  deposit_amount: number | null;
+  final_price: number | null;
   notes: string | null;
 }
 
@@ -29,24 +28,23 @@ export const reservationFormSchema = z
     puppyId: requiredUuid('Elige un cachorro para esta reserva.'),
     clientId: requiredUuid('Elige un cliente para esta reserva.'),
     status: z.enum(reservationStatusOptions),
-    reservedPrice: moneyText('Introduce un precio reservado válido.'),
-    depositAmount: moneyText('Introduce una señal válida.'),
-    depositPaid: z.boolean(),
     reservationDate: z
       .string()
       .trim()
       .min(1, 'Introduce la fecha de reserva.')
       .refine(isIsoDate, 'Usa el formato AAAA-MM-DD.'),
+    depositAmount: moneyText('Introduce una señal válida.'),
+    finalPrice: moneyText('Introduce un precio final válido.'),
     notes: optionalText(1000, 'Usa 1000 caracteres o menos.'),
   })
   .superRefine((values, context) => {
-    const reservedPrice = emptyToNumber(values.reservedPrice);
     const depositAmount = emptyToNumber(values.depositAmount);
+    const finalPrice = emptyToNumber(values.finalPrice);
 
-    if (reservedPrice !== null && depositAmount !== null && depositAmount > reservedPrice) {
+    if (depositAmount !== null && finalPrice !== null && depositAmount > finalPrice) {
       context.addIssue({
         code: 'custom',
-        message: 'La señal no puede ser mayor que el precio reservado.',
+        message: 'La señal no puede ser mayor que el precio final.',
         path: ['depositAmount'],
       });
     }
@@ -63,16 +61,13 @@ export function getReservationFormDefaultValues(
     puppyId: reservation?.puppy_id ?? defaults.puppyId ?? '',
     clientId: reservation?.client_id ?? defaults.clientId ?? '',
     status: reservation?.status ?? 'pending',
-    reservedPrice:
-      reservation?.reserved_price === null || reservation?.reserved_price === undefined
-        ? ''
-        : String(reservation.reserved_price),
+    reservationDate: reservation?.reservation_date ?? getTodayIsoDate(),
     depositAmount:
       reservation?.deposit_amount === null || reservation?.deposit_amount === undefined
         ? ''
         : String(reservation.deposit_amount),
-    depositPaid: reservation?.deposit_paid ?? false,
-    reservationDate: reservation?.reservation_date ?? getTodayIsoDate(),
+    finalPrice:
+      reservation?.final_price === null || reservation?.final_price === undefined ? '' : String(reservation.final_price),
     notes: reservation?.notes ?? '',
   };
 }
@@ -82,10 +77,9 @@ export function toReservationMutationInput(values: ValidReservationFormValues): 
     puppy_id: values.puppyId,
     client_id: values.clientId,
     status: values.status,
-    reserved_price: emptyToNumber(values.reservedPrice),
-    deposit_amount: emptyToNumber(values.depositAmount),
-    deposit_paid: values.depositPaid,
     reservation_date: values.reservationDate,
+    deposit_amount: emptyToNumber(values.depositAmount),
+    final_price: emptyToNumber(values.finalPrice),
     notes: emptyToNull(values.notes),
   };
 }
@@ -93,7 +87,6 @@ export function toReservationMutationInput(values: ValidReservationFormValues): 
 export function getReservationStatusLabel(status: ReservationStatus) {
   const labels: Record<ReservationStatus, string> = {
     pending: 'Pendiente',
-    reserved: 'Reservada',
     paid: 'Pagada',
     cancelled: 'Cancelada',
     completed: 'Completada',
@@ -127,7 +120,7 @@ function getTodayIsoDate() {
 }
 
 function isUuid(value: string) {
-  return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{12}$/i.test(value);
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
 }
 
 function isEmptyOrMoney(value: string) {

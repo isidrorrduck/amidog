@@ -3,11 +3,10 @@ import type { ReactNode } from 'react';
 import { useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, Alert, Pressable, Text, View } from 'react-native';
 
-import { Button, AppCard, AppScreen } from '../../components';
+import { AppCard, AppScreen, Button } from '../../components';
 import { ProtectedRoute } from '../auth';
 import { getClientFullName, useClients, type Client } from '../clients';
 import { useCurrentKennel } from '../kennels';
-import { useLitters, type Litter } from '../litters';
 import { usePuppies, type Puppy } from '../puppies';
 import { ReservationForm } from './ReservationForm';
 import {
@@ -62,7 +61,6 @@ function ReservationsContent({
   const reservationsQuery = useReservations(kennelId, filters);
   const puppiesQuery = usePuppies(kennelId);
   const clientsQuery = useClients(kennelId);
-  const littersQuery = useLitters(kennelId);
   const createReservationMutation = useCreateReservation(kennelId);
   const updateReservationMutation = useUpdateReservation(kennelId);
   const deleteReservationMutation = useDeleteReservation(kennelId);
@@ -75,14 +73,12 @@ function ReservationsContent({
   const reservations = reservationsQuery.data ?? [];
   const puppies = puppiesQuery.data ?? [];
   const clients = clientsQuery.data ?? [];
-  const litters = littersQuery.data ?? [];
   const puppiesById = useMemo(() => new Map(puppies.map((puppy) => [puppy.id, puppy])), [puppies]);
   const clientsById = useMemo(() => new Map(clients.map((client) => [client.id, client])), [clients]);
-  const littersById = useMemo(() => new Map(litters.map((litter) => [litter.id, litter])), [litters]);
   const isOwner = currentMembership?.role === 'owner';
   const isFormSubmitting = createReservationMutation.isPending || updateReservationMutation.isPending;
   const isRouteForm = initialMode === 'create' || Boolean(initialReservationId);
-  const relationError = clientsQuery.error ?? puppiesQuery.error ?? littersQuery.error ?? null;
+  const relationError = clientsQuery.error ?? puppiesQuery.error ?? null;
   const hasActiveFilters = Boolean(selectedStatus || selectedPuppyId || selectedClientId);
   const defaultPuppyId = editingReservation
     ? editingReservation.puppy_id
@@ -222,7 +218,7 @@ function ReservationsContent({
         />
       ) : null}
 
-      {reservationsQuery.isLoading || puppiesQuery.isLoading || clientsQuery.isLoading || littersQuery.isLoading ? (
+      {reservationsQuery.isLoading || puppiesQuery.isLoading || clientsQuery.isLoading ? (
         <AppCard title="Cargando reservas">
           <View className="items-start">
             <ActivityIndicator color="#1d4ed8" />
@@ -279,7 +275,6 @@ function ReservationsContent({
               isDeleting={deleteReservationMutation.isPending}
               isOwner={isOwner}
               key={reservation.id}
-              littersById={littersById}
               puppiesById={puppiesById}
               reservation={reservation}
               onDelete={() => handleDeleteReservation(reservation)}
@@ -403,7 +398,6 @@ interface ReservationCardProps {
   clientsById: Map<string, Client>;
   isDeleting: boolean;
   isOwner: boolean;
-  littersById: Map<string, Litter>;
   puppiesById: Map<string, Puppy>;
   reservation: Reservation;
   onDelete: () => void;
@@ -414,7 +408,6 @@ function ReservationCard({
   clientsById,
   isDeleting,
   isOwner,
-  littersById,
   puppiesById,
   reservation,
   onDelete,
@@ -422,19 +415,12 @@ function ReservationCard({
 }: ReservationCardProps) {
   const puppy = puppiesById.get(reservation.puppy_id);
   const client = clientsById.get(reservation.client_id);
-  const litter = reservation.litter_id ? littersById.get(reservation.litter_id) : null;
-  const deposit = reservation.deposit_amount !== null
-    ? `Señal ${formatAmount(reservation.deposit_amount)} ${reservation.deposit_paid ? 'pagada' : 'no pagada'}`
-    : reservation.deposit_paid
-      ? 'Señal pagada'
-      : null;
   const details = [
     getReservationStatusLabel(reservation.status),
     `Fecha ${reservation.reservation_date}`,
-    getClientLabel(client),
-    litter ? `Camada ${litter.name}` : null,
-    reservation.reserved_price !== null ? `Precio reservado ${formatAmount(reservation.reserved_price)}` : null,
-    deposit,
+    `Cliente ${getClientLabel(client)}`,
+    reservation.deposit_amount !== null ? `Señal ${formatAmount(reservation.deposit_amount)}` : null,
+    reservation.final_price !== null ? `Precio final ${formatAmount(reservation.final_price)}` : null,
   ].filter(Boolean);
 
   return (
@@ -485,6 +471,16 @@ function getErrorMessage(error: unknown) {
     if (message.includes('reservations_active_puppy_idx')) {
       return 'Este cachorro ya tiene una reserva activa.';
     }
+
+    if (message.includes('Puppy must belong to the reservation kennel')) {
+      return 'El cachorro debe pertenecer al criadero de la reserva.';
+    }
+
+    if (message.includes('Client must belong to the reservation kennel')) {
+      return 'El cliente debe pertenecer al criadero de la reserva.';
+    }
+
+    return message;
   }
 
   return 'Algo ha ido mal al gestionar las reservas.';

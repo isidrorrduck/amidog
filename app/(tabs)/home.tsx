@@ -37,6 +37,12 @@ const quickActions = [
     title: 'Añadir cachorro',
   },
   {
+    body: 'Gestiona reservas, señales y estado de entrega.',
+    href: '/reservations',
+    label: 'R',
+    title: 'Reservas',
+  },
+  {
     body: 'Revisa y actualiza los perros registrados.',
     href: '/dogs',
     label: 'DR',
@@ -58,7 +64,7 @@ const quickActions = [
 
 const nextSteps = [
   { description: 'Historial de contacto y preferencias de familias.', status: 'Siguiente', title: 'Clientes' },
-  { description: 'Reservas, señales y seguimiento de entregas.', status: 'Siguiente', title: 'Reservas' },
+  { description: 'Documentos, contratos y archivos asociados a perros, camadas y cachorros.', status: 'Siguiente', title: 'Documentos' },
 ] as const;
 
 export default function HomeScreen() {
