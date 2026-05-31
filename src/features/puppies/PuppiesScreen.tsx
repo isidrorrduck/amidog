@@ -198,6 +198,7 @@ function PuppiesContent({ initialMode, initialLitterId, initialPuppyId }: Puppie
               onDelete={() => handleDeletePuppy(detailPuppy)}
               onDocuments={() => router.push(`/documents?entityType=puppy&entityId=${detailPuppy.id}` as never)}
               onEdit={() => openEditForm(detailPuppy)}
+              onOwnerPreview={() => router.push(`/puppies/${detailPuppy.id}/owner-preview` as never)}
               onReservation={() =>
                 detailReservation
                   ? router.push(`/reservations/${detailReservation.id}` as never)
@@ -492,6 +493,7 @@ interface PuppyProfileCardProps {
   onDelete: () => void;
   onDocuments: () => void;
   onEdit: () => void;
+  onOwnerPreview: () => void;
   onReservation: () => void;
 }
 
@@ -505,6 +507,7 @@ function PuppyProfileCard({
   onDelete,
   onDocuments,
   onEdit,
+  onOwnerPreview,
   onReservation,
 }: PuppyProfileCardProps) {
   const litterName = littersById.get(puppy.litter_id)?.name ?? 'Camada desconocida';
@@ -551,6 +554,7 @@ function PuppyProfileCard({
         </View>
 
         <View className="gap-3">
+          <Button title="Vista propietario" onPress={onOwnerPreview} />
           <View className="flex-row gap-3">
             <Button title="Documentos" variant="secondary" className="flex-1" onPress={onDocuments} />
             <Button title="Editar" variant="secondary" className="flex-1" onPress={onEdit} />
