@@ -1,4 +1,4 @@
-import { router, useLocalSearchParams } from 'expo-router';
+import { Stack, router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { Alert, Text, View } from 'react-native';
 
@@ -17,9 +17,12 @@ import { useCurrentKennel } from '../../src/features/kennels';
 
 export default function DogsScreen() {
   return (
-    <ProtectedRoute>
-      <DogsContent />
-    </ProtectedRoute>
+    <>
+      <Stack.Screen options={{ title: 'Perros' }} />
+      <ProtectedRoute>
+        <DogsContent />
+      </ProtectedRoute>
+    </>
   );
 }
 
@@ -75,6 +78,7 @@ function DogsContent() {
 
       closeForm();
     } catch (error) {
+      console.error(`[DogsScreen.handleSubmitDog] ${editingDog ? 'updateDog' : 'createDog'} failed`, error);
       setFormError(getErrorMessage(error));
     }
   };
