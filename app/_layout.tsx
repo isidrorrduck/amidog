@@ -21,7 +21,7 @@ export default function RootLayout() {
         <Stack.Screen name="auth/register" options={{ headerShown: false }} />
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="breeders" options={{ title: 'Criadores' }} />
-        <Stack.Screen name="dogs" options={{ title: 'Perros' }} />
+        <Stack.Screen name="dogs/index" options={{ title: 'Perros' }} />
         <Stack.Screen name="litters" options={{ title: 'Camadas' }} />
         <Stack.Screen name="puppies" options={{ title: 'Cachorros' }} />
         <Stack.Screen name="reservations" options={{ title: 'Reservas' }} />

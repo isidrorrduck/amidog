@@ -31,6 +31,7 @@ export async function createDog(kennelId: string, input: DogMutationInput): Prom
   const { data, error } = await supabase.from('dogs').insert(payload).select().single();
 
   if (error) {
+    logDogMutationError('createDog', payload, error);
     throw error;
   }
 
@@ -52,6 +53,7 @@ export async function updateDog(kennelId: string, dogId: string, input: DogMutat
     .single();
 
   if (error) {
+    logDogMutationError('updateDog', payload, error);
     throw error;
   }
 
@@ -65,4 +67,42 @@ export async function deleteDog(kennelId: string, dogId: string): Promise<void> 
   if (error) {
     throw error;
   }
+}
+
+function logDogMutationError(operation: 'createDog' | 'updateDog', payload: DogInsert | DogUpdate, error: unknown) {
+  const errorFields = getSupabaseErrorFields(error);
+
+  console.error(`[dogsService.${operation}] Supabase dog mutation failed`, {
+    payload,
+    code: errorFields.code,
+    message: errorFields.message,
+    details: errorFields.details,
+    hint: errorFields.hint,
+  });
+}
+
+function getSupabaseErrorFields(error: unknown) {
+  if (typeof error !== 'object' || error === null) {
+    return {
+      code: undefined,
+      message: error instanceof Error ? error.message : undefined,
+      details: undefined,
+      hint: undefined,
+    };
+  }
+
+  const record = error as Record<string, unknown>;
+
+  return {
+    code: getStringField(record, 'code'),
+    message: getStringField(record, 'message'),
+    details: getStringField(record, 'details'),
+    hint: getStringField(record, 'hint'),
+  };
+}
+
+function getStringField(record: Record<string, unknown>, field: string) {
+  const value = record[field];
+
+  return typeof value === 'string' ? value : undefined;
 }
