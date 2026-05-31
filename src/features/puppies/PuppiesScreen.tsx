@@ -1,6 +1,6 @@
 import { router } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
-import { Alert, Pressable, Text, View } from 'react-native';
+import { Alert, Linking, Pressable, Text, View } from 'react-native';
 
 import { AppCard, AppScreen, Button, EmptyState, LoadingState, ScreenHeader } from '../../components';
 import { ProtectedRoute } from '../auth';
@@ -12,6 +12,8 @@ import { useReservations } from '../reservations/useReservations';
 import { PuppyForm } from './PuppyForm';
 import { getPuppySexLabel, getPuppyStatusLabel, type Puppy, type PuppyMutationInput } from './types';
 import { useCreatePuppy, useDeletePuppy, usePuppies, useUpdatePuppy } from './usePuppies';
+
+const BREEDER_RECOMMENDATIONS_URL = 'https://www.sgservice.es/clinica-veterinaria-san-cristobal/';
 
 interface PuppiesScreenProps {
   initialMode?: 'create';
@@ -68,8 +70,11 @@ function PuppiesContent({ initialMode, initialLitterId, initialPuppyId }: Puppie
   const isFormSubmitting = createPuppyMutation.isPending || updatePuppyMutation.isPending;
   const fallbackLitterId = selectedLitterId || (litters.length === 1 ? litters[0]?.id ?? '' : '');
   const defaultLitterId = editingPuppy ? editingPuppy.litter_id : createDefaultLitterId || fallbackLitterId;
-  const isRouteForm = initialMode === 'create' || Boolean(initialPuppyId);
+  const isCreateRoute = initialMode === 'create';
   const isLoading = puppiesQuery.isLoading || littersQuery.isLoading || clientsQuery.isLoading;
+  const isPuppyDetailRoute = Boolean(initialPuppyId);
+  const detailPuppy = isPuppyDetailRoute ? puppies.find((item) => item.id === initialPuppyId) ?? null : null;
+  const detailReservation = detailPuppy ? reservationsByPuppyId.get(detailPuppy.id) : undefined;
 
   const openCreateForm = (litterId = fallbackLitterId) => {
     setEditingPuppy(null);
@@ -96,7 +101,7 @@ function PuppiesContent({ initialMode, initialLitterId, initialPuppyId }: Puppie
     setFormError(null);
     setIsFormOpen(false);
 
-    if (isRouteForm) {
+    if (isCreateRoute) {
       router.replace('/puppies' as never);
     }
   };
@@ -106,21 +111,6 @@ function PuppiesContent({ initialMode, initialLitterId, initialPuppyId }: Puppie
       setSelectedLitterId(initialLitterId);
     }
   }, [initialLitterId]);
-
-  useEffect(() => {
-    if (!initialPuppyId || editingPuppy || puppiesQuery.isLoading) {
-      return;
-    }
-
-    const puppy = puppies.find((item) => item.id === initialPuppyId);
-
-    if (puppy) {
-      setSelectedLitterId(puppy.litter_id);
-      openEditForm(puppy);
-    } else if (!puppiesQuery.error) {
-      setScreenError('No se ha encontrado este cachorro en el criadero actual.');
-    }
-  }, [editingPuppy, initialPuppyId, puppies, puppiesQuery.error, puppiesQuery.isLoading]);
 
   const handleSubmitPuppy = async (input: PuppyMutationInput) => {
     setFormError(null);
@@ -152,6 +142,88 @@ function PuppiesContent({ initialMode, initialLitterId, initialPuppyId }: Puppie
       },
     ]);
   };
+
+  const handleOpenBreederRecommendation = async () => {
+    try {
+      await Linking.openURL(BREEDER_RECOMMENDATIONS_URL);
+    } catch {
+      Alert.alert(
+        'No se ha podido abrir el enlace',
+        'Inténtalo de nuevo o abre la web de SG Service desde el navegador.',
+      );
+    }
+  };
+
+  if (isPuppyDetailRoute) {
+    return (
+      <AppScreen scrollable>
+        <ScreenHeader
+          title={detailPuppy?.name || 'Detalle del cachorro'}
+          subtitle="Perfil del cachorro y recomendaciones para su adaptación."
+          action={<Button title="Volver" variant="secondary" onPress={() => router.replace('/puppies' as never)} />}
+        />
+
+        {screenError ? (
+          <AppCard className="border-red-200 bg-red-50">
+            <Text className="text-sm leading-5 text-red-600">{screenError}</Text>
+          </AppCard>
+        ) : null}
+
+        {isLoading ? <LoadingState title="Cargando cachorro" message="Preparando el perfil del cachorro." /> : null}
+
+        {puppiesQuery.error ? (
+          <AppCard title="No se ha podido cargar el cachorro" className="border-red-200 bg-red-50">
+            <Text className="text-sm leading-5 text-red-600">{getErrorMessage(puppiesQuery.error)}</Text>
+          </AppCard>
+        ) : null}
+
+        {!isLoading && !puppiesQuery.error && !detailPuppy ? (
+          <EmptyState
+            title="Cachorro no encontrado"
+            message="No se ha encontrado este cachorro en el criadero actual."
+            actionLabel="Volver a cachorros"
+            onAction={() => router.replace('/puppies' as never)}
+          />
+        ) : null}
+
+        {detailPuppy ? (
+          <>
+            <PuppyProfileCard
+              clientsById={clientsById}
+              isDeleting={deletePuppyMutation.isPending}
+              isOwner={isOwner}
+              littersById={littersById}
+              puppy={detailPuppy}
+              reservation={detailReservation}
+              onDelete={() => handleDeletePuppy(detailPuppy)}
+              onDocuments={() => router.push(`/documents?entityType=puppy&entityId=${detailPuppy.id}` as never)}
+              onEdit={() => openEditForm(detailPuppy)}
+              onReservation={() =>
+                detailReservation
+                  ? router.push(`/reservations/${detailReservation.id}` as never)
+                  : router.push(`/reservations/new?puppyId=${detailPuppy.id}` as never)
+              }
+            />
+
+            {isFormOpen ? (
+              <PuppyForm
+                clients={clients}
+                defaultLitterId={defaultLitterId}
+                litters={litters}
+                puppy={editingPuppy}
+                errorMessage={formError}
+                isSubmitting={isFormSubmitting}
+                onCancel={closeForm}
+                onSubmit={handleSubmitPuppy}
+              />
+            ) : null}
+
+            <BreederRecommendationsSection onOpenRecommendation={handleOpenBreederRecommendation} />
+          </>
+        ) : null}
+      </AppScreen>
+    );
+  }
 
   return (
     <AppScreen scrollable>
@@ -246,6 +318,7 @@ function PuppiesContent({ initialMode, initialLitterId, initialPuppyId }: Puppie
                 puppy={puppy}
                 reservation={reservation}
                 onDelete={() => handleDeletePuppy(puppy)}
+                onDetail={() => router.push(`/puppies/${puppy.id}` as never)}
                 onDocuments={() => router.push(`/documents?entityType=puppy&entityId=${puppy.id}` as never)}
                 onEdit={() => openEditForm(puppy)}
                 onReservation={() =>
@@ -319,6 +392,7 @@ interface PuppyCardProps {
   puppy: Puppy;
   reservation?: Reservation;
   onDelete: () => void;
+  onDetail: () => void;
   onDocuments: () => void;
   onEdit: () => void;
   onReservation: () => void;
@@ -332,6 +406,7 @@ function PuppyCard({
   puppy,
   reservation,
   onDelete,
+  onDetail,
   onDocuments,
   onEdit,
   onReservation,
@@ -382,6 +457,7 @@ function PuppyCard({
         </View>
 
         <View className="gap-3">
+          <Button title="Ver detalle" variant="secondary" onPress={onDetail} />
           <View className="flex-row gap-3">
             <Button title="Documentos" variant="secondary" className="flex-1" onPress={onDocuments} />
             <Button title="Editar" variant="secondary" className="flex-1" onPress={onEdit} />
@@ -401,6 +477,153 @@ function PuppyCard({
             />
           ) : null}
         </View>
+      </View>
+    </AppCard>
+  );
+}
+
+interface PuppyProfileCardProps {
+  clientsById: Map<string, Client>;
+  isDeleting: boolean;
+  isOwner: boolean;
+  littersById: Map<string, Litter>;
+  puppy: Puppy;
+  reservation?: Reservation;
+  onDelete: () => void;
+  onDocuments: () => void;
+  onEdit: () => void;
+  onReservation: () => void;
+}
+
+function PuppyProfileCard({
+  clientsById,
+  isDeleting,
+  isOwner,
+  littersById,
+  puppy,
+  reservation,
+  onDelete,
+  onDocuments,
+  onEdit,
+  onReservation,
+}: PuppyProfileCardProps) {
+  const litterName = littersById.get(puppy.litter_id)?.name ?? 'Camada desconocida';
+  const client = puppy.client_id ? clientsById.get(puppy.client_id) : null;
+  const clientName = client ? getClientFullName(client) : null;
+  const birthDate = puppy.birth_date ? formatIsoDate(puppy.birth_date) : 'Sin fecha registrada';
+
+  return (
+    <AppCard>
+      <View className="gap-4">
+        <View className="flex-row gap-3">
+          <Avatar name={puppy.name} />
+
+          <View className="min-w-0 flex-1 gap-2">
+            <View className="gap-1">
+              <Text className="text-xl font-semibold text-ink" numberOfLines={1}>
+                {puppy.name || 'Cachorro sin nombre'}
+              </Text>
+              <Text className="text-sm leading-5 text-muted" numberOfLines={1}>
+                Camada {litterName}
+              </Text>
+            </View>
+
+            <View className="flex-row flex-wrap gap-2">
+              <Badge label={getPuppyStatusLabel(puppy.status)} tone={getStatusTone(puppy.status)} />
+              <Badge label={getPuppySexLabel(puppy.sex)} />
+              {reservation ? <Badge label={`Reserva ${getReservationStatusLabel(reservation.status)}`} tone="accent" /> : null}
+            </View>
+          </View>
+        </View>
+
+        <View className="gap-2 border-t border-border pt-4">
+          <InfoLine label="Nombre" value={puppy.name || 'Cachorro sin nombre'} />
+          <InfoLine label="Camada" value={litterName} />
+          <InfoLine label="Nacimiento" value={birthDate} />
+          <InfoLine label="Estado" value={getPuppyStatusLabel(puppy.status)} />
+          {clientName ? <InfoLine label="Cliente asignado" value={clientName} /> : null}
+          {puppy.color ? <InfoLine label="Color" value={puppy.color} /> : null}
+          {puppy.notes ? (
+            <Text className="text-sm leading-5 text-muted" numberOfLines={4}>
+              {puppy.notes}
+            </Text>
+          ) : null}
+        </View>
+
+        <View className="gap-3">
+          <View className="flex-row gap-3">
+            <Button title="Documentos" variant="secondary" className="flex-1" onPress={onDocuments} />
+            <Button title="Editar" variant="secondary" className="flex-1" onPress={onEdit} />
+          </View>
+          <Button
+            title={reservation ? 'Ver reserva' : 'Reservar cachorro'}
+            variant="secondary"
+            onPress={onReservation}
+          />
+          {isOwner ? (
+            <Button
+              title="Eliminar cachorro"
+              variant="ghost"
+              loading={isDeleting}
+              textClassName="text-red-600"
+              onPress={onDelete}
+            />
+          ) : null}
+        </View>
+      </View>
+    </AppCard>
+  );
+}
+
+interface BreederRecommendationsSectionProps {
+  onOpenRecommendation: () => void;
+}
+
+function BreederRecommendationsSection({ onOpenRecommendation }: BreederRecommendationsSectionProps) {
+  return (
+    <View className="gap-3">
+      <Text className="text-xl font-semibold text-ink">Recomendaciones del criador</Text>
+
+      <RecommendationCard
+        actionLabel="Comprar alimentación"
+        body="Mantén la alimentación recomendada por tu criador durante la adaptación del cachorro."
+        product="Royal Canin Maxi Puppy"
+        title="Alimentación recomendada"
+        eyebrow="Pienso recomendado por el criador"
+        onPress={onOpenRecommendation}
+      />
+
+      <RecommendationCard
+        actionLabel="Ver seguro"
+        body="Consulta la opción de seguro recomendada para proteger la salud de tu cachorro."
+        product="Seguro Veterinario Premium"
+        title="Seguro recomendado"
+        eyebrow="Seguro veterinario recomendado"
+        onPress={onOpenRecommendation}
+      />
+    </View>
+  );
+}
+
+interface RecommendationCardProps {
+  actionLabel: string;
+  body: string;
+  eyebrow: string;
+  product: string;
+  title: string;
+  onPress: () => void;
+}
+
+function RecommendationCard({ actionLabel, body, eyebrow, product, title, onPress }: RecommendationCardProps) {
+  return (
+    <AppCard title={title}>
+      <View className="gap-3">
+        <View className="gap-1">
+          <Text className="text-sm font-semibold text-brand-700">{eyebrow}</Text>
+          <Text className="text-lg font-semibold text-ink">{product}</Text>
+          <Text className="text-sm leading-5 text-muted">{body}</Text>
+        </View>
+        <Button title={actionLabel} onPress={onPress} />
       </View>
     </AppCard>
   );
