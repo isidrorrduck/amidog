@@ -587,9 +587,9 @@ function BreederRecommendationsSection({ onOpenRecommendation }: BreederRecommen
       <RecommendationCard
         actionLabel="Comprar alimentación"
         body="Mantén la alimentación recomendada por tu criador durante la adaptación del cachorro."
-        product="Royal Canin Maxi Puppy"
+        product="Dibaq Sense Puppy"
         title="Alimentación recomendada"
-        eyebrow="Pienso recomendado por el criador"
+        eyebrow="Alimentación recomendada por el criador"
         onPress={onOpenRecommendation}
       />
 
