@@ -5,6 +5,7 @@ import { Alert, Linking, Text, View } from 'react-native';
 import { AppCard, AppScreen, Button, EmptyState, LoadingState, ScreenHeader } from '../../components';
 import { ProtectedRoute } from '../auth';
 import { useDogs, type Dog } from '../dogs';
+import { getHealthEventTypeLabel, usePuppyHealthEvents, type HealthEvent } from '../health';
 import { useCurrentKennel } from '../kennels';
 import { useLitters, type Litter } from '../litters';
 import { getPuppySexLabel, getPuppyStatusLabel, type Puppy } from './types';
@@ -87,6 +88,7 @@ function PuppyOwnerPreviewContent({ puppyId }: PuppyOwnerPreviewScreenProps) {
       {puppy ? (
         <>
           <OwnerPuppyCard puppy={puppy} breed={breed} />
+          <OwnerHealthSection kennelId={kennelId} puppy={puppy} />
           <BreederCard />
           <OwnerRecommendationCard
             actionLabel="Comprar alimentación"
@@ -102,7 +104,6 @@ function PuppyOwnerPreviewContent({ puppyId }: PuppyOwnerPreviewScreenProps) {
             title="🛡 Seguro recomendado"
             onPress={handleOpenRecommendation}
           />
-          <ComingSoonSection />
         </>
       ) : null}
     </AppScreen>
@@ -141,6 +142,66 @@ function OwnerPuppyCard({ breed, puppy }: OwnerPuppyCardProps) {
         </View>
       </View>
     </AppCard>
+  );
+}
+
+interface OwnerHealthSectionProps {
+  kennelId: string | null;
+  puppy: Puppy;
+}
+
+function OwnerHealthSection({ kennelId, puppy }: OwnerHealthSectionProps) {
+  const healthEventsQuery = usePuppyHealthEvents(kennelId, puppy.id);
+  const events = healthEventsQuery.data ?? [];
+
+  if (healthEventsQuery.isLoading) {
+    return <LoadingState title="Cargando salud" message="Preparando el historial de salud del cachorro." />;
+  }
+
+  if (healthEventsQuery.error) {
+    return (
+      <AppCard title="Historial de salud" className="border-red-200 bg-red-50">
+        <Text className="text-sm leading-5 text-red-600">
+          No se ha podido cargar el historial de salud en este momento.
+        </Text>
+      </AppCard>
+    );
+  }
+
+  return (
+    <AppCard title="Historial de salud" subtitle="Cuidados y revisiones registrados por el criadero.">
+      {events.length === 0 ? (
+        <Text className="text-sm leading-5 text-muted">
+          Todavía no hay eventos de salud registrados para este cachorro.
+        </Text>
+      ) : (
+        <View className="gap-4">
+          {events.map((event, index) => (
+            <OwnerHealthEventItem event={event} isFirst={index === 0} key={event.id} />
+          ))}
+        </View>
+      )}
+    </AppCard>
+  );
+}
+
+interface OwnerHealthEventItemProps {
+  event: HealthEvent;
+  isFirst: boolean;
+}
+
+function OwnerHealthEventItem({ event, isFirst }: OwnerHealthEventItemProps) {
+  return (
+    <View className={`${isFirst ? '' : 'border-t border-border pt-4'} gap-2`}>
+      <View className="flex-row flex-wrap items-center gap-2">
+        <View className="rounded-full border border-brand-100 bg-brand-50 px-3 py-1">
+          <Text className="text-xs font-semibold text-brand-700">{getHealthEventTypeLabel(event.event_type)}</Text>
+        </View>
+        <Text className="text-xs font-semibold uppercase text-muted">{formatIsoDate(event.event_date)}</Text>
+      </View>
+      <Text className="text-base font-semibold text-ink">{event.title}</Text>
+      {event.notes ? <Text className="text-sm leading-5 text-muted">{event.notes}</Text> : null}
+    </View>
   );
 }
 
@@ -194,31 +255,6 @@ function OwnerRecommendationCard({ actionLabel, body, product, title, onPress }:
         <Button title={actionLabel} onPress={onPress} />
       </View>
     </AppCard>
-  );
-}
-
-function ComingSoonSection() {
-  const items = ['Documentación', 'Vacunas', 'Historial médico', 'Seguimiento del crecimiento'];
-
-  return (
-    <View className="gap-3">
-      <Text className="text-lg font-semibold text-ink">📄 Próximamente</Text>
-      <View className="gap-3">
-        {items.map((item) => (
-          <View
-            key={item}
-            className="flex-row items-center justify-between gap-3 rounded-lg border border-slate-200 bg-slate-50 p-4 opacity-70"
-          >
-            <Text className="min-w-0 flex-1 text-base font-semibold text-slate-500" numberOfLines={1}>
-              {item}
-            </Text>
-            <View className="rounded-full border border-slate-200 bg-white px-3 py-1">
-              <Text className="text-xs font-semibold uppercase text-slate-500">Próximamente</Text>
-            </View>
-          </View>
-        ))}
-      </View>
-    </View>
   );
 }
 

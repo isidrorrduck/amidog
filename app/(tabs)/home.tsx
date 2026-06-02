@@ -19,22 +19,28 @@ import { usePuppies } from '../../src/features/puppies';
 
 const quickActions = [
   {
-    body: 'Abre el formulario de perros del criadero activo.',
-    href: '/dogs?action=create',
-    label: 'D',
-    title: 'Añadir perro',
+    body: 'Revisa y actualiza los perros registrados.',
+    href: '/dogs',
+    label: 'P',
+    title: 'Perros',
   },
   {
-    body: 'Crea una camada planificada, esperada o nacida.',
-    href: '/litters?action=create',
-    label: 'L',
-    title: 'Añadir camada',
-  },
-  {
-    body: 'Registra cachorros dentro de una camada.',
-    href: '/puppies/new',
+    body: 'Gestiona camadas y enlaces de progenitores.',
+    href: '/litters',
     label: 'C',
-    title: 'Añadir cachorro',
+    title: 'Camadas',
+  },
+  {
+    body: 'Revisa estados, clientes asignados y notas.',
+    href: '/puppies',
+    label: 'CH',
+    title: 'Cachorros',
+  },
+  {
+    body: 'Consulta familias, contacto y seguimiento.',
+    href: '/clients',
+    label: 'CL',
+    title: 'Clientes',
   },
   {
     body: 'Gestiona reservas, señales y estado de entrega.',
@@ -43,28 +49,23 @@ const quickActions = [
     title: 'Reservas',
   },
   {
-    body: 'Revisa y actualiza los perros registrados.',
-    href: '/dogs',
-    label: 'DR',
-    title: 'Perros',
+    body: 'Accede a contratos, informes y archivos.',
+    href: '/documents',
+    label: 'D',
+    title: 'Documentos',
   },
   {
-    body: 'Gestiona camadas y enlaces de progenitores.',
-    href: '/litters',
-    label: 'LR',
-    title: 'Camadas',
+    body: 'Revisa promociones y recomendaciones activas.',
+    href: '/promotions',
+    label: 'PR',
+    title: 'Promociones',
   },
   {
-    body: 'Revisa estados, clientes asignados y notas.',
-    href: '/puppies',
-    label: 'CR',
-    title: 'Cachorros',
+    body: 'Consulta avisos y mensajes pendientes.',
+    href: '/notifications',
+    label: 'N',
+    title: 'Notificaciones',
   },
-] as const;
-
-const nextSteps = [
-  { description: 'Historial de contacto y preferencias de familias.', status: 'Siguiente', title: 'Clientes' },
-  { description: 'Documentos, contratos y archivos asociados a perros, camadas y cachorros.', status: 'Siguiente', title: 'Documentos' },
 ] as const;
 
 export default function HomeScreen() {
@@ -164,7 +165,7 @@ export default function HomeScreen() {
           </View>
 
           <View className="gap-3">
-            <SectionTitle title="Acciones rápidas" />
+            <SectionTitle title="Módulos" />
             <View className="flex-row flex-wrap gap-3">
               {quickActions.map((action) => (
                 <QuickActionCard
@@ -188,30 +189,11 @@ export default function HomeScreen() {
           puppies.length === 0 ? (
             <EmptyState
               title="Empieza el registro del criadero"
-              message="Añade el primer perro o la primera camada para convertir este espacio en un panel diario."
-              actionLabel="Añadir perro"
-              onAction={() => router.push('/dogs?action=create' as never)}
+              message="Abre Perros, Camadas o Cachorros para empezar a organizar el registro del criadero."
+              actionLabel="Abrir perros"
+              onAction={() => router.push('/dogs' as never)}
             />
           ) : null}
-
-          <AppCard title="Próximos pasos" subtitle="Flujos previstos para una gestión completa del criadero.">
-            <View className="gap-4">
-              {nextSteps.map((step, index) => (
-                <View
-                  className={`gap-1 ${index === 0 ? '' : 'border-t border-border pt-4'}`}
-                  key={step.title}
-                >
-                  <View className="flex-row items-center justify-between gap-3">
-                    <Text className="text-base font-semibold text-ink">{step.title}</Text>
-                    <Text className="rounded-full bg-brand-50 px-3 py-1 text-xs font-semibold text-brand-700">
-                      {step.status}
-                    </Text>
-                  </View>
-                  <Text className="text-sm leading-5 text-muted">{step.description}</Text>
-                </View>
-              ))}
-            </View>
-          </AppCard>
         </>
       ) : null}
     </AppScreen>
