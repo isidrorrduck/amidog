@@ -101,7 +101,7 @@ async function getCurrentUserId() {
   }
 
   if (!data.user) {
-    throw new Error('Inicia sesion antes de registrar eventos de salud.');
+    throw new Error('Inicia sesión antes de registrar eventos de salud.');
   }
 
   return data.user.id;

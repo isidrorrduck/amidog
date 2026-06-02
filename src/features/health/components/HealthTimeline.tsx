@@ -99,8 +99,8 @@ export function HealthTimeline({ isOwner, kennelId, kennelName, subject }: Healt
       <View className="gap-3">
         <View className="flex-row items-start justify-between gap-4">
           <View className="min-w-0 flex-1 gap-1">
-            <Text className="text-xl font-semibold text-ink">Linea de salud</Text>
-            <Text className="text-sm leading-5 text-muted">Eventos clinicos y cuidados de {subject.label}</Text>
+            <Text className="text-xl font-semibold text-ink">Línea de salud</Text>
+            <Text className="text-sm leading-5 text-muted">Eventos clínicos y cuidados de {subject.label}</Text>
           </View>
           <Button
             title={isFormOpen ? 'Cerrar' : '+ Añadir evento'}
@@ -128,7 +128,7 @@ export function HealthTimeline({ isOwner, kennelId, kennelName, subject }: Healt
       ) : null}
 
       {healthEventsQuery.isLoading ? (
-        <LoadingState title="Cargando salud" message="Preparando la linea temporal de salud." />
+        <LoadingState title="Cargando salud" message="Preparando la línea temporal de salud." />
       ) : null}
 
       {healthEventsQuery.error ? (
@@ -139,8 +139,8 @@ export function HealthTimeline({ isOwner, kennelId, kennelName, subject }: Healt
 
       {!healthEventsQuery.isLoading && !healthEventsQuery.error && events.length === 0 ? (
         <EmptyState
-          title="Todavia no hay eventos de salud"
-          message={`Añade vacunas, visitas veterinarias, pesos y notas clinicas de ${subject.label}.`}
+          title="Todavía no hay eventos de salud"
+          message={`Añade vacunas, visitas veterinarias, pesos y notas clínicas de ${subject.label}.`}
           actionLabel={!isFormOpen ? '+ Añadir evento' : undefined}
           onAction={!isFormOpen ? openCreateForm : undefined}
         />
@@ -271,7 +271,7 @@ function getErrorMessage(error: unknown) {
         : null;
 
   if (message) {
-    if (message.includes('Health event must be linked to a dog or puppy')) {
+    if (message.includes('Health event must be linked to exactly one dog or puppy')) {
       return 'El evento debe estar vinculado a un perro o cachorro.';
     }
 

@@ -72,7 +72,7 @@ export function HealthEventForm({
   return (
     <AppCard
       title={event ? 'Editar evento' : 'Añadir evento'}
-      subtitle={`Timeline de salud de ${subject.label}`}
+      subtitle={`Línea de salud de ${subject.label}`}
     >
       <View className="gap-4">
         <Controller
@@ -104,7 +104,7 @@ export function HealthEventForm({
           name="title"
           render={({ field: { onBlur, onChange, value } }) => (
             <Input
-              label="Titulo"
+              label="Título"
               placeholder="Vacuna anual"
               autoCapitalize="sentences"
               value={value}
@@ -121,7 +121,7 @@ export function HealthEventForm({
           render={({ field: { onBlur, onChange, value } }) => (
             <Input
               label="Notas"
-              placeholder="Detalle del tratamiento, dosis, peso o proxima revision"
+              placeholder="Detalle del tratamiento, dosis, peso o próxima revisión"
               multiline
               numberOfLines={4}
               textAlignVertical="top"

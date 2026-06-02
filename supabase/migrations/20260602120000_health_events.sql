@@ -10,7 +10,10 @@ create table if not exists public.health_events (
   created_by uuid not null references auth.users(id),
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
-  constraint health_events_subject_check check (dog_id is not null or puppy_id is not null),
+  constraint health_events_subject_check check (
+    (dog_id is not null and puppy_id is null)
+    or (dog_id is null and puppy_id is not null)
+  ),
   constraint health_events_event_type_check check (
     event_type in (
       'vaccine',
@@ -38,8 +41,8 @@ language plpgsql
 set search_path = public
 as $$
 begin
-  if new.dog_id is null and new.puppy_id is null then
-    raise exception 'Health event must be linked to a dog or puppy';
+  if (new.dog_id is null and new.puppy_id is null) or (new.dog_id is not null and new.puppy_id is not null) then
+    raise exception 'Health event must be linked to exactly one dog or puppy';
   end if;
 
   if new.dog_id is not null and not exists (
@@ -64,10 +67,26 @@ begin
 end;
 $$;
 
+create or replace function public.preserve_health_event_created_by()
+returns trigger
+language plpgsql
+set search_path = public
+as $$
+begin
+  new.created_by = old.created_by;
+  return new;
+end;
+$$;
+
 drop trigger if exists ensure_health_event_subject_belongs_to_kennel on public.health_events;
 create trigger ensure_health_event_subject_belongs_to_kennel
 before insert or update on public.health_events
 for each row execute function public.ensure_health_event_subject_belongs_to_kennel();
+
+drop trigger if exists preserve_health_event_created_by on public.health_events;
+create trigger preserve_health_event_created_by
+before update on public.health_events
+for each row execute function public.preserve_health_event_created_by();
 
 drop trigger if exists set_health_events_updated_at on public.health_events;
 create trigger set_health_events_updated_at

@@ -1,11 +1,13 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
-import { createDog, deleteDog, listDogs, updateDog } from './dogsService';
+import { createDog, deleteDog, getDog, listDogs, updateDog } from './dogsService';
 import type { DogMutationInput } from './types';
 
 export const dogsQueryKeys = {
   all: ['dogs'] as const,
   byKennel: (kennelId: string | null | undefined) => [...dogsQueryKeys.all, kennelId] as const,
+  detail: (kennelId: string | null | undefined, dogId: string | null | undefined) =>
+    [...dogsQueryKeys.byKennel(kennelId), 'detail', dogId ?? null] as const,
 };
 
 export function useDogs(kennelId: string | null | undefined) {
@@ -13,6 +15,14 @@ export function useDogs(kennelId: string | null | undefined) {
     queryKey: dogsQueryKeys.byKennel(kennelId),
     queryFn: () => requireKennelId(kennelId).then(listDogs),
     enabled: Boolean(kennelId),
+  });
+}
+
+export function useDog(kennelId: string | null | undefined, dogId: string | null | undefined) {
+  return useQuery({
+    queryKey: dogsQueryKeys.detail(kennelId, dogId),
+    queryFn: () => requireKennelId(kennelId).then((id) => getDog(id, requireDogId(dogId))),
+    enabled: Boolean(kennelId && dogId),
   });
 }
 
@@ -50,4 +60,12 @@ async function requireKennelId(kennelId: string | null | undefined) {
   }
 
   return kennelId;
+}
+
+function requireDogId(dogId: string | null | undefined) {
+  if (!dogId) {
+    throw new Error('Elige primero un perro.');
+  }
+
+  return dogId;
 }

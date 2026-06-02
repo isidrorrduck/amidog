@@ -40,11 +40,11 @@ export type HealthEventTone = 'brand' | 'accent' | 'success' | 'warning' | 'dang
 export function getHealthEventTypeLabel(eventType: HealthEventType) {
   const labels: Record<HealthEventType, string> = {
     vaccine: 'Vacuna',
-    deworming: 'Desparasitacion',
+    deworming: 'Desparasitación',
     weight: 'Peso',
     vet_visit: 'Visita veterinaria',
-    medication: 'Medicacion',
-    pregnancy_check: 'Control gestacion',
+    medication: 'Medicación',
+    pregnancy_check: 'Control gestación',
     birth: 'Nacimiento',
     other: 'Otro',
   };

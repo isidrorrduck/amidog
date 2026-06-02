@@ -10,7 +10,7 @@ export const healthEventFormSchema = z.object({
     .trim()
     .min(1, 'Introduce la fecha del evento.')
     .refine(isIsoDate, 'Usa el formato AAAA-MM-DD.'),
-  title: z.string().trim().min(1, 'Introduce un titulo para el evento.').max(160, 'Usa 160 caracteres o menos.'),
+  title: z.string().trim().min(1, 'Introduce un título para el evento.').max(160, 'Usa 160 caracteres o menos.'),
   notes: optionalText(1000, 'Usa 1000 caracteres o menos.'),
 });
 

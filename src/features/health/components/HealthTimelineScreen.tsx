@@ -3,9 +3,9 @@ import { Text } from 'react-native';
 
 import { AppCard, AppScreen, Button, EmptyState, LoadingState, ScreenHeader } from '../../../components';
 import { ProtectedRoute } from '../../auth';
-import { useDogs, type Dog } from '../../dogs';
+import { useDog, type Dog } from '../../dogs';
 import { useCurrentKennel } from '../../kennels';
-import { usePuppies, type Puppy } from '../../puppies';
+import { usePuppy, type Puppy } from '../../puppies';
 import type { HealthSubjectType, HealthTimelineSubject } from '../types';
 import { HealthTimeline } from './HealthTimeline';
 
@@ -25,21 +25,19 @@ export function HealthTimelineScreen(props: HealthTimelineScreenProps) {
 function HealthTimelineContent({ subjectId, subjectType }: HealthTimelineScreenProps) {
   const { currentKennel, currentMembership } = useCurrentKennel();
   const kennelId = currentKennel?.id ?? null;
-  const dogsQuery = useDogs(kennelId);
-  const puppiesQuery = usePuppies(kennelId);
-  const dogs = dogsQuery.data ?? [];
-  const puppies = puppiesQuery.data ?? [];
-  const subject = subjectId ? getSubject(subjectType, subjectId, dogs, puppies) : null;
+  const dogQuery = useDog(kennelId, subjectType === 'dog' ? subjectId : null);
+  const puppyQuery = usePuppy(kennelId, subjectType === 'puppy' ? subjectId : null);
+  const subject = getSubject(subjectType, dogQuery.data ?? null, puppyQuery.data ?? null);
   const isOwner = currentMembership?.role === 'owner';
-  const isLoading = subjectType === 'dog' ? dogsQuery.isLoading : puppiesQuery.isLoading;
-  const subjectError = subjectType === 'dog' ? dogsQuery.error : puppiesQuery.error;
+  const isLoading = subjectType === 'dog' ? dogQuery.isLoading : puppyQuery.isLoading;
+  const subjectError = subjectType === 'dog' ? dogQuery.error : puppyQuery.error;
   const backHref = subjectType === 'dog' ? '/dogs' : subjectId ? `/puppies/${subjectId}` : '/puppies';
 
   return (
     <AppScreen scrollable>
       <ScreenHeader
         title={subject ? `Salud de ${subject.label}` : 'Salud'}
-        subtitle={`Linea temporal de ${currentKennel?.name ?? 'criadero'}`}
+        subtitle={`Línea temporal de ${currentKennel?.name ?? 'criadero'}`}
         action={<Button title="Volver" variant="secondary" onPress={() => router.replace(backHref as never)} />}
       />
 
@@ -74,17 +72,12 @@ function HealthTimelineContent({ subjectId, subjectType }: HealthTimelineScreenP
 
 function getSubject(
   subjectType: HealthSubjectType,
-  subjectId: string,
-  dogs: Dog[],
-  puppies: Puppy[],
+  dog: Dog | null,
+  puppy: Puppy | null,
 ): HealthTimelineSubject | null {
   if (subjectType === 'dog') {
-    const dog = dogs.find((item) => item.id === subjectId);
-
     return dog ? { id: dog.id, label: dog.name, type: 'dog' } : null;
   }
-
-  const puppy = puppies.find((item) => item.id === subjectId);
 
   return puppy ? { id: puppy.id, label: puppy.name || 'Cachorro sin nombre', type: 'puppy' } : null;
 }
