@@ -198,6 +198,7 @@ function PuppiesContent({ initialMode, initialLitterId, initialPuppyId }: Puppie
               onDelete={() => handleDeletePuppy(detailPuppy)}
               onDocuments={() => router.push(`/documents?entityType=puppy&entityId=${detailPuppy.id}` as never)}
               onEdit={() => openEditForm(detailPuppy)}
+              onHealth={() => router.push(`/health/puppies/${detailPuppy.id}` as never)}
               onOwnerPreview={() => router.push(`/puppies/${detailPuppy.id}/owner-preview` as never)}
               onReservation={() =>
                 detailReservation
@@ -322,6 +323,7 @@ function PuppiesContent({ initialMode, initialLitterId, initialPuppyId }: Puppie
                 onDetail={() => router.push(`/puppies/${puppy.id}` as never)}
                 onDocuments={() => router.push(`/documents?entityType=puppy&entityId=${puppy.id}` as never)}
                 onEdit={() => openEditForm(puppy)}
+                onHealth={() => router.push(`/health/puppies/${puppy.id}` as never)}
                 onReservation={() =>
                   reservation
                     ? router.push(`/reservations/${reservation.id}` as never)
@@ -396,6 +398,7 @@ interface PuppyCardProps {
   onDetail: () => void;
   onDocuments: () => void;
   onEdit: () => void;
+  onHealth: () => void;
   onReservation: () => void;
 }
 
@@ -410,6 +413,7 @@ function PuppyCard({
   onDetail,
   onDocuments,
   onEdit,
+  onHealth,
   onReservation,
 }: PuppyCardProps) {
   const litterName = littersById.get(puppy.litter_id)?.name ?? 'Camada desconocida';
@@ -459,6 +463,7 @@ function PuppyCard({
 
         <View className="gap-3">
           <Button title="Ver detalle" variant="secondary" onPress={onDetail} />
+          <Button title="Salud" variant="secondary" onPress={onHealth} />
           <View className="flex-row gap-3">
             <Button title="Documentos" variant="secondary" className="flex-1" onPress={onDocuments} />
             <Button title="Editar" variant="secondary" className="flex-1" onPress={onEdit} />
@@ -493,6 +498,7 @@ interface PuppyProfileCardProps {
   onDelete: () => void;
   onDocuments: () => void;
   onEdit: () => void;
+  onHealth: () => void;
   onOwnerPreview: () => void;
   onReservation: () => void;
 }
@@ -507,6 +513,7 @@ function PuppyProfileCard({
   onDelete,
   onDocuments,
   onEdit,
+  onHealth,
   onOwnerPreview,
   onReservation,
 }: PuppyProfileCardProps) {
@@ -555,6 +562,7 @@ function PuppyProfileCard({
 
         <View className="gap-3">
           <Button title="Vista propietario" onPress={onOwnerPreview} />
+          <Button title="Salud" variant="secondary" onPress={onHealth} />
           <View className="flex-row gap-3">
             <Button title="Documentos" variant="secondary" className="flex-1" onPress={onDocuments} />
             <Button title="Editar" variant="secondary" className="flex-1" onPress={onEdit} />

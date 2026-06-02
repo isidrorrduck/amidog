@@ -14,6 +14,15 @@ export type DocumentType =
   | 'veterinary_report'
   | 'recommendation'
   | 'other';
+export type HealthEventType =
+  | 'vaccine'
+  | 'deworming'
+  | 'weight'
+  | 'vet_visit'
+  | 'medication'
+  | 'pregnancy_check'
+  | 'birth'
+  | 'other';
 export type PromotionType =
   | 'veterinary'
   | 'nutrition'
@@ -276,6 +285,73 @@ export interface Database {
             foreignKeyName: 'documents_kennel_id_fkey';
             columns: ['kennel_id'];
             referencedRelation: 'kennels';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      health_events: {
+        Row: {
+          id: string;
+          kennel_id: string;
+          dog_id: string | null;
+          puppy_id: string | null;
+          event_type: HealthEventType;
+          event_date: string;
+          title: string;
+          notes: string | null;
+          created_by: string;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          kennel_id: string;
+          dog_id?: string | null;
+          puppy_id?: string | null;
+          event_type: HealthEventType;
+          event_date: string;
+          title: string;
+          notes?: string | null;
+          created_by: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          kennel_id?: string;
+          dog_id?: string | null;
+          puppy_id?: string | null;
+          event_type?: HealthEventType;
+          event_date?: string;
+          title?: string;
+          notes?: string | null;
+          created_by?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'health_events_kennel_id_fkey';
+            columns: ['kennel_id'];
+            referencedRelation: 'kennels';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'health_events_dog_id_fkey';
+            columns: ['dog_id'];
+            referencedRelation: 'dogs';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'health_events_puppy_id_fkey';
+            columns: ['puppy_id'];
+            referencedRelation: 'puppies';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'health_events_created_by_fkey';
+            columns: ['created_by'];
+            referencedRelation: 'users';
             referencedColumns: ['id'];
           },
         ];
