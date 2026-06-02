@@ -21,6 +21,22 @@ export async function listDogs(kennelId: string): Promise<Dog[]> {
   return data ?? [];
 }
 
+export async function getDog(kennelId: string, dogId: string): Promise<Dog | null> {
+  const supabase = getSupabaseClient();
+  const { data, error } = await supabase
+    .from('dogs')
+    .select('*')
+    .eq('id', dogId)
+    .eq('kennel_id', kennelId)
+    .maybeSingle();
+
+  if (error) {
+    throw error;
+  }
+
+  return data ?? null;
+}
+
 export async function createDog(kennelId: string, input: DogMutationInput): Promise<Dog> {
   const supabase = getSupabaseClient();
   const payload: DogInsert = {

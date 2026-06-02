@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
-import { createPuppy, deletePuppy, listPuppies, updatePuppy } from './puppiesService';
+import { createPuppy, deletePuppy, getPuppy, listPuppies, updatePuppy } from './puppiesService';
 import type { PuppyMutationInput } from './types';
 
 export const puppiesQueryKeys = {
@@ -8,6 +8,8 @@ export const puppiesQueryKeys = {
   byKennel: (kennelId: string | null | undefined) => [...puppiesQueryKeys.all, kennelId] as const,
   byKennelAndLitter: (kennelId: string | null | undefined, litterId: string | null | undefined) =>
     [...puppiesQueryKeys.byKennel(kennelId), { litterId: litterId ?? null }] as const,
+  detail: (kennelId: string | null | undefined, puppyId: string | null | undefined) =>
+    [...puppiesQueryKeys.byKennel(kennelId), 'detail', puppyId ?? null] as const,
 };
 
 export function usePuppies(kennelId: string | null | undefined, litterId?: string | null) {
@@ -15,6 +17,14 @@ export function usePuppies(kennelId: string | null | undefined, litterId?: strin
     queryKey: puppiesQueryKeys.byKennelAndLitter(kennelId, litterId),
     queryFn: () => requireKennelId(kennelId).then((id) => listPuppies(id, litterId)),
     enabled: Boolean(kennelId),
+  });
+}
+
+export function usePuppy(kennelId: string | null | undefined, puppyId: string | null | undefined) {
+  return useQuery({
+    queryKey: puppiesQueryKeys.detail(kennelId, puppyId),
+    queryFn: () => requireKennelId(kennelId).then((id) => getPuppy(id, requirePuppyId(puppyId))),
+    enabled: Boolean(kennelId && puppyId),
   });
 }
 
@@ -52,4 +62,12 @@ async function requireKennelId(kennelId: string | null | undefined) {
   }
 
   return kennelId;
+}
+
+function requirePuppyId(puppyId: string | null | undefined) {
+  if (!puppyId) {
+    throw new Error('Elige primero un cachorro.');
+  }
+
+  return puppyId;
 }

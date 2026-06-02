@@ -27,6 +27,22 @@ export async function listPuppies(kennelId: string, litterId?: string | null): P
   return data ?? [];
 }
 
+export async function getPuppy(kennelId: string, puppyId: string): Promise<Puppy | null> {
+  const supabase = getSupabaseClient();
+  const { data, error } = await supabase
+    .from('puppies')
+    .select('*')
+    .eq('id', puppyId)
+    .eq('kennel_id', kennelId)
+    .maybeSingle();
+
+  if (error) {
+    throw error;
+  }
+
+  return data ?? null;
+}
+
 export async function createPuppy(kennelId: string, input: PuppyMutationInput): Promise<Puppy> {
   const supabase = getSupabaseClient();
   const payload: PuppyInsert = {

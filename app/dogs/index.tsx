@@ -161,6 +161,7 @@ function DogsContent() {
               onDelete={() => handleDeleteDog(dog)}
               onDocuments={() => router.push(`/documents?entityType=dog&entityId=${dog.id}` as never)}
               onEdit={() => openEditForm(dog)}
+              onHealth={() => router.push(`/health/dogs/${dog.id}` as never)}
             />
           ))}
         </View>
@@ -176,9 +177,10 @@ interface DogCardProps {
   onDelete: () => void;
   onDocuments: () => void;
   onEdit: () => void;
+  onHealth: () => void;
 }
 
-function DogCard({ dog, isDeleting, isOwner, onDelete, onDocuments, onEdit }: DogCardProps) {
+function DogCard({ dog, isDeleting, isOwner, onDelete, onDocuments, onEdit, onHealth }: DogCardProps) {
   const sexLabel = getDogSexLabel(dog.sex);
   const birthDate = dog.birth_date ? formatIsoDate(dog.birth_date) : null;
 
@@ -221,9 +223,10 @@ function DogCard({ dog, isDeleting, isOwner, onDelete, onDocuments, onEdit }: Do
 
         <View className="gap-3">
           <View className="flex-row gap-3">
+            <Button title="Salud" variant="secondary" className="flex-1" onPress={onHealth} />
             <Button title="Documentos" variant="secondary" className="flex-1" onPress={onDocuments} />
-            <Button title="Editar" variant="secondary" className="flex-1" onPress={onEdit} />
           </View>
+          <Button title="Editar" variant="secondary" onPress={onEdit} />
           {isOwner ? (
             <Button
               title="Eliminar perro"
