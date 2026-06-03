@@ -143,6 +143,7 @@ export async function uploadDocument(kennelId: string, input: DocumentMutationIn
     entity_id: input.entity_id,
     title: input.title,
     document_type: input.document_type,
+    url: filePath,
     file_path: filePath,
     file_name: input.file.name,
     mime_type: mimeType,

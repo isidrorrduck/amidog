@@ -1002,6 +1002,7 @@ create table if not exists public.documents (
   entity_id uuid,
   title text,
   document_type text default 'other',
+  url text,
   file_path text,
   file_name text,
   mime_type text,
@@ -1017,6 +1018,7 @@ alter table public.documents add column if not exists entity_type text;
 alter table public.documents add column if not exists entity_id uuid;
 alter table public.documents add column if not exists title text;
 alter table public.documents add column if not exists document_type text;
+alter table public.documents add column if not exists url text;
 alter table public.documents add column if not exists file_path text;
 alter table public.documents add column if not exists file_name text;
 alter table public.documents add column if not exists mime_type text;
@@ -1032,6 +1034,11 @@ where document_type is null;
 update public.documents
 set updated_at = coalesce(updated_at, created_at, now())
 where updated_at is null;
+
+update public.documents
+set url = coalesce(url, file_path)
+where url is null
+  and file_path is not null;
 
 alter table public.documents alter column document_type set default 'other';
 alter table public.documents alter column updated_at set default now();
@@ -1084,6 +1091,10 @@ begin
 
   if not exists (select 1 from public.documents where document_type is null) then
     alter table public.documents alter column document_type set not null;
+  end if;
+
+  if not exists (select 1 from public.documents where url is null) then
+    alter table public.documents alter column url set not null;
   end if;
 
   if not exists (select 1 from public.documents where file_path is null) then

@@ -242,6 +242,7 @@ export interface Database {
           entity_id: string;
           title: string;
           document_type: DocumentType;
+          url: string;
           file_path: string;
           file_name: string;
           mime_type: string;
@@ -257,6 +258,7 @@ export interface Database {
           entity_id: string;
           title: string;
           document_type?: DocumentType;
+          url: string;
           file_path: string;
           file_name: string;
           mime_type: string;
@@ -272,6 +274,7 @@ export interface Database {
           entity_id?: string;
           title?: string;
           document_type?: DocumentType;
+          url?: string;
           file_path?: string;
           file_name?: string;
           mime_type?: string;
