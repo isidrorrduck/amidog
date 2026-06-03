@@ -94,13 +94,6 @@ function DocumentsContent({
   const relationError = dogsQuery.error ?? puppiesQuery.error ?? littersQuery.error ?? clientsQuery.error ?? null;
   const hasActiveFilters = Boolean(selectedDocumentType || selectedEntityType || selectedEntityId);
 
-  const openCreateForm = () => {
-    setFormError(null);
-    setScreenError(null);
-    uploadDocumentMutation.reset();
-    setIsFormOpen(true);
-  };
-
   const closeForm = () => {
     setFormError(null);
     setIsFormOpen(false);
@@ -172,13 +165,17 @@ function DocumentsContent({
 
       {screenError ? (
         <AppCard>
-          <Text className="text-sm leading-5 text-red-600">{screenError}</Text>
+          <Text selectable className="text-sm leading-5 text-red-600">
+            {screenError}
+          </Text>
         </AppCard>
       ) : null}
 
       {relationError ? (
         <AppCard title="No se han podido cargar los registros vinculados">
-          <Text className="text-sm leading-5 text-red-600">{getErrorMessage(relationError)}</Text>
+          <Text selectable className="text-sm leading-5 text-red-600">
+            {getErrorMessage(relationError)}
+          </Text>
         </AppCard>
       ) : null}
 
@@ -217,7 +214,9 @@ function DocumentsContent({
 
       {activeDocumentsQuery.error ? (
         <AppCard title="No se han podido cargar los documentos">
-          <Text className="text-sm leading-5 text-red-600">{getErrorMessage(activeDocumentsQuery.error)}</Text>
+          <Text selectable className="text-sm leading-5 text-red-600">
+            {getErrorMessage(activeDocumentsQuery.error)}
+          </Text>
         </AppCard>
       ) : null}
 
@@ -231,9 +230,6 @@ function DocumentsContent({
                   ? 'Cambia los filtros para ver más documentos.'
                   : 'Sube el primer documento de este criadero.'}
             </Text>
-            {!initialDocumentId && !isFormOpen && !hasActiveFilters ? (
-              <Button title="Subir documento" onPress={openCreateForm} />
-            ) : null}
           </View>
         </AppCard>
       ) : null}
@@ -510,6 +506,26 @@ function formatSize(size: number) {
   return `${(size / (1024 * 1024)).toFixed(1)} MB`;
 }
 
-function getErrorMessage(_error: unknown) {
-  return 'Algo ha ido mal al gestionar los documentos.';
+function getErrorMessage(error: unknown) {
+  if (error instanceof Error && error.message.trim()) {
+    return error.message;
+  }
+
+  const message = getErrorField(error, 'message');
+
+  if (message) {
+    return message;
+  }
+
+  return 'Error de documentos sin mensaje concreto. Revisa los logs de consola para ver la fase y el detalle técnico.';
+}
+
+function getErrorField(error: unknown, field: string) {
+  if (typeof error !== 'object' || error === null || !(field in error)) {
+    return null;
+  }
+
+  const value = (error as Record<string, unknown>)[field];
+
+  return typeof value === 'string' && value.trim() ? value : null;
 }

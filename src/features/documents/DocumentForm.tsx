@@ -104,11 +104,14 @@ export function DocumentForm({
         return;
       }
 
+      const name = getAssetFileName(asset);
+      const mimeType = asset.mimeType ?? getMimeTypeFromFileName(name);
       const file: DocumentFileAsset = {
         uri: asset.uri,
-        name: asset.name,
-        mimeType: asset.mimeType ?? null,
+        name,
+        mimeType,
         size: asset.size ?? null,
+        webFile: asset.file ?? null,
       };
 
       setValue('file', file, { shouldDirty: true, shouldValidate: true });
@@ -224,6 +227,7 @@ export function DocumentForm({
             <Text className="text-sm leading-5 text-slate-600">
               {selectedFile.name}
               {selectedFile.size ? ` | ${formatSize(selectedFile.size)}` : ''}
+              {selectedFile.mimeType ? ` | ${selectedFile.mimeType}` : ''}
             </Text>
           ) : null}
           {errors.file?.message ? <Text className="text-sm text-red-600">{errors.file.message}</Text> : null}
@@ -248,7 +252,11 @@ export function DocumentForm({
           )}
         />
 
-        {errorMessage ? <Text className="text-sm leading-5 text-red-600">{errorMessage}</Text> : null}
+        {errorMessage ? (
+          <Text selectable className="text-sm leading-5 text-red-600">
+            {errorMessage}
+          </Text>
+        ) : null}
 
         <View className="flex-row gap-3">
           <Button title="Cancelar" variant="secondary" className="flex-1" onPress={onCancel} />
@@ -310,6 +318,74 @@ function titleFromFileName(fileName: string) {
   return fileName.replace(/\.[^/.]+$/, '').replace(/[-_]+/g, ' ').trim();
 }
 
+function getAssetFileName(asset: DocumentPicker.DocumentPickerAsset) {
+  const candidateName =
+    getStringValue(asset.name) ??
+    getStringValue((asset as { fileName?: unknown }).fileName) ??
+    getFileNameFromUri(asset.uri) ??
+    'documento';
+  const trimmedName = candidateName.trim();
+
+  if (/\.[a-z0-9]{2,8}$/i.test(trimmedName)) {
+    return trimmedName;
+  }
+
+  const extension = getFileExtensionFromMimeType(asset.mimeType);
+
+  return extension ? `${trimmedName}.${extension}` : trimmedName;
+}
+
+function getFileNameFromUri(uri: string) {
+  const withoutQuery = uri.split('?')[0] ?? uri;
+  const rawName = withoutQuery.split('/').filter(Boolean).pop();
+
+  if (!rawName) {
+    return null;
+  }
+
+  try {
+    return decodeURIComponent(rawName);
+  } catch {
+    return rawName;
+  }
+}
+
+function getMimeTypeFromFileName(fileName: string) {
+  const extension = fileName.split('.').pop()?.toLowerCase();
+  const mimeTypes: Record<string, string> = {
+    gif: 'image/gif',
+    heic: 'image/heic',
+    heif: 'image/heif',
+    jpeg: 'image/jpeg',
+    jpg: 'image/jpeg',
+    pdf: 'application/pdf',
+    png: 'image/png',
+    txt: 'text/plain',
+    webp: 'image/webp',
+  };
+
+  return extension ? mimeTypes[extension] ?? null : null;
+}
+
+function getFileExtensionFromMimeType(mimeType: string | null | undefined) {
+  const extensions: Record<string, string> = {
+    'application/pdf': 'pdf',
+    'image/gif': 'gif',
+    'image/heic': 'heic',
+    'image/heif': 'heif',
+    'image/jpeg': 'jpg',
+    'image/png': 'png',
+    'image/webp': 'webp',
+    'text/plain': 'txt',
+  };
+
+  return mimeType ? extensions[mimeType.toLowerCase()] ?? null : null;
+}
+
+function getStringValue(value: unknown) {
+  return typeof value === 'string' && value.trim() ? value.trim() : null;
+}
+
 function formatSize(size: number) {
   if (size < 1024) {
     return `${size} B`;
@@ -322,7 +398,11 @@ function formatSize(size: number) {
   return `${(size / (1024 * 1024)).toFixed(1)} MB`;
 }
 
-function getErrorMessage(_error: unknown) {
+function getErrorMessage(error: unknown) {
+  if (error instanceof Error && error.message.trim()) {
+    return `No se ha podido elegir el archivo: ${error.message}`;
+  }
+
   return 'No se ha podido elegir el archivo.';
 }
 

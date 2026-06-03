@@ -15,6 +15,7 @@ create table if not exists public.documents (
       'other'
     )
   ),
+  url text not null,
   file_path text not null,
   file_name text not null,
   mime_type text not null,
