@@ -165,13 +165,17 @@ function DocumentsContent({
 
       {screenError ? (
         <AppCard>
-          <Text className="text-sm leading-5 text-red-600">{screenError}</Text>
+          <Text selectable className="text-sm leading-5 text-red-600">
+            {screenError}
+          </Text>
         </AppCard>
       ) : null}
 
       {relationError ? (
         <AppCard title="No se han podido cargar los registros vinculados">
-          <Text className="text-sm leading-5 text-red-600">{getErrorMessage(relationError)}</Text>
+          <Text selectable className="text-sm leading-5 text-red-600">
+            {getErrorMessage(relationError)}
+          </Text>
         </AppCard>
       ) : null}
 
@@ -210,7 +214,9 @@ function DocumentsContent({
 
       {activeDocumentsQuery.error ? (
         <AppCard title="No se han podido cargar los documentos">
-          <Text className="text-sm leading-5 text-red-600">{getErrorMessage(activeDocumentsQuery.error)}</Text>
+          <Text selectable className="text-sm leading-5 text-red-600">
+            {getErrorMessage(activeDocumentsQuery.error)}
+          </Text>
         </AppCard>
       ) : null}
 
@@ -511,7 +517,7 @@ function getErrorMessage(error: unknown) {
     return message;
   }
 
-  return 'Algo ha ido mal al gestionar los documentos. Vuelve a intentarlo y revisa la conexión con Supabase.';
+  return 'Error de documentos sin mensaje concreto. Revisa los logs de consola para ver la fase y el detalle técnico.';
 }
 
 function getErrorField(error: unknown, field: string) {

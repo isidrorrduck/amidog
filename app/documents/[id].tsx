@@ -1,11 +1,16 @@
-import { useLocalSearchParams } from 'expo-router';
+import { Stack, useLocalSearchParams } from 'expo-router';
 
 import { DocumentsScreen } from '../../src/features/documents';
 
 export default function DocumentDetailRoute() {
   const { id } = useLocalSearchParams<{ id?: string | string[] }>();
 
-  return <DocumentsScreen initialDocumentId={asString(id)} />;
+  return (
+    <>
+      <Stack.Screen options={{ title: 'Detalle del documento' }} />
+      <DocumentsScreen initialDocumentId={asString(id)} />
+    </>
+  );
 }
 
 function asString(value: string | string[] | undefined) {

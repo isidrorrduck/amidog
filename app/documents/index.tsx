@@ -1,4 +1,4 @@
-import { useLocalSearchParams } from 'expo-router';
+import { Stack, useLocalSearchParams } from 'expo-router';
 
 import { DocumentsScreen, documentEntityTypeOptions, documentTypeOptions } from '../../src/features/documents';
 import type { DocumentEntityType, DocumentType } from '../../src/features/documents';
@@ -11,11 +11,14 @@ export default function DocumentsIndexRoute() {
   }>();
 
   return (
-    <DocumentsScreen
-      initialDocumentType={asDocumentType(documentType)}
-      initialEntityId={asString(entityId)}
-      initialEntityType={asDocumentEntityType(entityType)}
-    />
+    <>
+      <Stack.Screen options={{ title: 'Documentos' }} />
+      <DocumentsScreen
+        initialDocumentType={asDocumentType(documentType)}
+        initialEntityId={asString(entityId)}
+        initialEntityType={asDocumentEntityType(entityType)}
+      />
+    </>
   );
 }
 

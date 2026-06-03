@@ -1,4 +1,4 @@
-import { useLocalSearchParams } from 'expo-router';
+import { Stack, useLocalSearchParams } from 'expo-router';
 
 import { DocumentsScreen, documentEntityTypeOptions, documentTypeOptions } from '../../src/features/documents';
 import type { DocumentEntityType, DocumentType } from '../../src/features/documents';
@@ -11,12 +11,15 @@ export default function NewDocumentRoute() {
   }>();
 
   return (
-    <DocumentsScreen
-      initialMode="create"
-      initialDocumentType={asDocumentType(documentType)}
-      initialEntityId={asString(entityId)}
-      initialEntityType={asDocumentEntityType(entityType)}
-    />
+    <>
+      <Stack.Screen options={{ title: 'Subir documento' }} />
+      <DocumentsScreen
+        initialMode="create"
+        initialDocumentType={asDocumentType(documentType)}
+        initialEntityId={asString(entityId)}
+        initialEntityType={asDocumentEntityType(entityType)}
+      />
+    </>
   );
 }
 

@@ -1,4 +1,4 @@
-import { File as ExpoFile } from 'expo-file-system';
+import * as FileSystem from 'expo-file-system/legacy';
 
 import { getSupabaseClient } from '../../lib/supabase';
 import type { Database } from '../../types/database';
@@ -8,6 +8,10 @@ const DOCUMENTS_BUCKET = 'documents';
 const DEFAULT_MIME_TYPE = 'application/octet-stream';
 
 type DocumentInsert = Database['public']['Tables']['documents']['Insert'];
+type DocumentReadResult = {
+  arrayBuffer: ArrayBuffer;
+  method: string;
+};
 
 export async function listDocuments(
   kennelId: string,
@@ -61,30 +65,77 @@ export async function getDocument(kennelId: string, documentId: string): Promise
 export async function uploadDocument(kennelId: string, input: DocumentMutationInput): Promise<Document> {
   const supabase = getSupabaseClient();
   const mimeType = input.file.mimeType ?? DEFAULT_MIME_TYPE;
-  let fileBody: ArrayBuffer;
-
-  try {
-    fileBody = await readFileBody(input.file);
-  } catch (error) {
-    logDocumentError('readFileBody', error, { uriScheme: getUriScheme(input.file.uri) });
-    throw new Error(getFileReadErrorMessage(error));
-  }
-
   const filePath = buildDocumentStoragePath({
     entityId: input.entity_id,
     entityType: input.entity_type,
     fileName: input.file.name,
     kennelId,
   });
-  const { error: uploadError } = await supabase.storage.from(DOCUMENTS_BUCKET).upload(filePath, fileBody, {
-    contentType: mimeType,
-    upsert: false,
+  const uploadContext = {
+    bucket: DOCUMENTS_BUCKET,
+    documentType: input.document_type,
+    entityId: input.entity_id,
+    entityType: input.entity_type,
+    fileName: input.file.name,
+    filePath,
+    kennelId,
+    mimeType,
+    pickerSize: input.file.size ?? 'unknown',
+    uriScheme: getUriScheme(input.file.uri),
+  };
+  let readResult: DocumentReadResult;
+
+  console.info('[documentsService.upload.start] Preparing document upload', uploadContext);
+
+  try {
+    await requireSupabaseSession(supabase);
+  } catch (error) {
+    logDocumentError('auth.session', error, uploadContext);
+    throw createDiagnosticError('Autenticación Supabase', getAuthErrorMessage(error), error, uploadContext);
+  }
+
+  try {
+    readResult = await readFileBody(input.file);
+  } catch (error) {
+    logDocumentError('readFileBody', error, uploadContext);
+    throw createDiagnosticError('Lectura local del archivo', getFileReadErrorMessage(error), error, uploadContext);
+  }
+
+  console.info('[documentsService.upload.readFileBody] Document file read', {
+    ...uploadContext,
+    readMethod: readResult.method,
+    readSize: readResult.arrayBuffer.byteLength,
   });
 
-  if (uploadError) {
-    logDocumentError('storage.upload', uploadError, { bucket: DOCUMENTS_BUCKET, filePath });
-    throw new Error(getStorageUploadErrorMessage(uploadError));
+  const storageContext = {
+    ...uploadContext,
+    readMethod: readResult.method,
+    readSize: readResult.arrayBuffer.byteLength,
+  };
+  let uploadResult: Awaited<ReturnType<ReturnType<typeof supabase.storage.from>['upload']>>;
+
+  try {
+    uploadResult = await supabase.storage.from(DOCUMENTS_BUCKET).upload(filePath, readResult.arrayBuffer, {
+      contentType: mimeType,
+      upsert: false,
+    });
+  } catch (error) {
+    logDocumentError('storage.upload', error, storageContext);
+    throw createDiagnosticError('Supabase Storage upload', getStorageUploadErrorMessage(error), error, storageContext);
   }
+
+  const { data: uploadData, error: uploadError } = uploadResult;
+
+  if (uploadError) {
+    logDocumentError('storage.upload', uploadError, storageContext);
+    throw createDiagnosticError('Supabase Storage upload', getStorageUploadErrorMessage(uploadError), uploadError, storageContext);
+  }
+
+  console.info('[documentsService.storage.upload] Document uploaded to Storage', {
+    ...uploadContext,
+    storageId: uploadData?.id ?? 'unknown',
+    storagePath: uploadData?.path ?? filePath,
+  });
 
   const payload: DocumentInsert = {
     kennel_id: kennelId,
@@ -95,21 +146,36 @@ export async function uploadDocument(kennelId: string, input: DocumentMutationIn
     file_path: filePath,
     file_name: input.file.name,
     mime_type: mimeType,
-    size_bytes: input.file.size ?? fileBody.byteLength,
+    size_bytes: input.file.size ?? readResult.arrayBuffer.byteLength,
     notes: input.notes,
   };
 
-  const { data, error } = await supabase.from('documents').insert(payload).select().single();
+  const insertContext = {
+    ...uploadContext,
+    insertSizeBytes: payload.size_bytes,
+    readMethod: readResult.method,
+    readSize: readResult.arrayBuffer.byteLength,
+  };
+  let insertResult: Awaited<ReturnType<ReturnType<ReturnType<ReturnType<typeof supabase.from>['insert']>['select']>['single']>>;
+
+  try {
+    insertResult = await supabase.from('documents').insert(payload).select().single();
+  } catch (error) {
+    logDocumentError('documents.insert', error, insertContext);
+    await supabase.storage.from(DOCUMENTS_BUCKET).remove([filePath]).catch((cleanupError) => {
+      logDocumentError('storage.cleanupAfterInsert', cleanupError, insertContext);
+    });
+    throw createDiagnosticError('Inserción en tabla documents', getDocumentInsertErrorMessage(error), error, insertContext);
+  }
+
+  const { data, error } = insertResult;
 
   if (error) {
-    logDocumentError('documents.insert', error, {
-      documentType: input.document_type,
-      entityType: input.entity_type,
-      filePath,
-      kennelId,
+    logDocumentError('documents.insert', error, insertContext);
+    await supabase.storage.from(DOCUMENTS_BUCKET).remove([filePath]).catch((cleanupError) => {
+      logDocumentError('storage.cleanupAfterInsert', cleanupError, insertContext);
     });
-    await supabase.storage.from(DOCUMENTS_BUCKET).remove([filePath]).catch(() => undefined);
-    throw new Error(getDocumentInsertErrorMessage(error));
+    throw createDiagnosticError('Inserción en tabla documents', getDocumentInsertErrorMessage(error), error, insertContext);
   }
 
   return data;
@@ -151,15 +217,28 @@ export async function deleteDocument(kennelId: string, documentId: string): Prom
 
 async function readFileBody(file: DocumentFileAsset) {
   if (file.webFile) {
-    return file.webFile.arrayBuffer();
+    return {
+      arrayBuffer: await file.webFile.arrayBuffer(),
+      method: 'web File.arrayBuffer',
+    };
   }
 
   if (file.uri.startsWith('data:')) {
-    return dataUriToArrayBuffer(file.uri);
+    return {
+      arrayBuffer: dataUriToArrayBuffer(file.uri),
+      method: 'data URI base64',
+    };
   }
 
   try {
-    return await new ExpoFile(file.uri).arrayBuffer();
+    const base64 = await FileSystem.readAsStringAsync(file.uri, {
+      encoding: FileSystem.EncodingType.Base64,
+    });
+
+    return {
+      arrayBuffer: base64ToArrayBuffer(base64),
+      method: 'expo-file-system/legacy.readAsStringAsync(base64)',
+    };
   } catch (error) {
     throw new Error(getLocalFileReadErrorMessage(error));
   }
@@ -173,18 +252,63 @@ function dataUriToArrayBuffer(uri: string) {
     throw new Error('El archivo seleccionado no contiene datos en base64.');
   }
 
-  if (typeof globalThis.atob !== 'function') {
-    throw new Error('El entorno no permite decodificar archivos en base64.');
+  return base64ToArrayBuffer(uri.slice(markerIndex + marker.length));
+}
+
+function base64ToArrayBuffer(base64: string) {
+  const cleanBase64 = base64.replace(/\s/g, '');
+
+  if (!cleanBase64) {
+    throw new Error('El archivo seleccionado está vacío o no se ha podido leer en base64.');
   }
 
-  const binary = globalThis.atob(uri.slice(markerIndex + marker.length));
-  const bytes = new Uint8Array(binary.length);
+  const padding = cleanBase64.endsWith('==') ? 2 : cleanBase64.endsWith('=') ? 1 : 0;
+  const bytes = new Uint8Array(Math.floor((cleanBase64.length * 3) / 4) - padding);
+  let buffer = 0;
+  let bits = 0;
+  let byteIndex = 0;
 
-  for (let index = 0; index < binary.length; index += 1) {
-    bytes[index] = binary.charCodeAt(index);
+  for (const character of cleanBase64) {
+    if (character === '=') {
+      break;
+    }
+
+    const value = getBase64CharacterValue(character);
+
+    if (value < 0) {
+      throw new Error(`El archivo contiene base64 no válido cerca de "${character}".`);
+    }
+
+    buffer = (buffer << 6) | value;
+    bits += 6;
+
+    if (bits >= 8) {
+      bits -= 8;
+      bytes[byteIndex] = (buffer >> bits) & 0xff;
+      byteIndex += 1;
+    }
   }
 
   return bytes.buffer;
+}
+
+function getBase64CharacterValue(character: string) {
+  const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
+  const value = alphabet.indexOf(character);
+
+  if (value >= 0) {
+    return value;
+  }
+
+  if (character === '-') {
+    return 62;
+  }
+
+  if (character === '_') {
+    return 63;
+  }
+
+  return -1;
 }
 
 function buildDocumentStoragePath({
@@ -205,6 +329,77 @@ function buildDocumentStoragePath({
 
 function sanitizeFileName(fileName: string) {
   return fileName.trim().replace(/[/\\?#%]+/g, '-').replace(/\s+/g, '-') || 'documento';
+}
+
+async function requireSupabaseSession(supabase: ReturnType<typeof getSupabaseClient>) {
+  const { data, error } = await supabase.auth.getSession();
+
+  if (error) {
+    throw error;
+  }
+
+  if (!data.session) {
+    throw new Error('No hay sesión activa de Supabase para aplicar las políticas RLS.');
+  }
+
+  return data.session;
+}
+
+function createDiagnosticError(
+  stage: string,
+  summary: string,
+  error: unknown,
+  context: Record<string, unknown>,
+) {
+  const lines = [
+    summary,
+    `Fase: ${stage}`,
+    ...formatDiagnosticSection('Contexto', context),
+    ...formatDiagnosticSection('Error real', getErrorDiagnostics(error)),
+  ];
+
+  return new Error(lines.filter(Boolean).join('\n'));
+}
+
+function formatDiagnosticSection(title: string, values: Record<string, unknown>) {
+  const entries = Object.entries(values).filter(([, value]) => value !== undefined && value !== null && value !== '');
+
+  if (entries.length === 0) {
+    return [];
+  }
+
+  return [title, ...entries.map(([key, value]) => `- ${key}: ${formatDiagnosticValue(value)}`)];
+}
+
+function formatDiagnosticValue(value: unknown) {
+  if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') {
+    return String(value);
+  }
+
+  try {
+    return JSON.stringify(value);
+  } catch {
+    return String(value);
+  }
+}
+
+function getErrorDiagnostics(error: unknown) {
+  return {
+    code: getErrorField(error, 'code'),
+    details: getErrorField(error, 'details'),
+    hint: getErrorField(error, 'hint'),
+    message: getErrorMessage(error),
+    status: getStatusCode(error),
+    statusCode: getErrorField(error, 'statusCode'),
+  };
+}
+
+function getAuthErrorMessage(error: unknown) {
+  const message = getErrorMessage(error);
+
+  return message
+    ? `No se ha podido confirmar la sesión de Supabase antes de subir el documento. Detalle: ${message}`
+    : 'No se ha podido confirmar la sesión de Supabase antes de subir el documento.';
 }
 
 function getFileReadErrorMessage(error: unknown) {
