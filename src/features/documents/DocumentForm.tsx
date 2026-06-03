@@ -109,6 +109,7 @@ export function DocumentForm({
         name: asset.name,
         mimeType: asset.mimeType ?? null,
         size: asset.size ?? null,
+        webFile: asset.file ?? null,
       };
 
       setValue('file', file, { shouldDirty: true, shouldValidate: true });
@@ -322,7 +323,11 @@ function formatSize(size: number) {
   return `${(size / (1024 * 1024)).toFixed(1)} MB`;
 }
 
-function getErrorMessage(_error: unknown) {
+function getErrorMessage(error: unknown) {
+  if (error instanceof Error && error.message.trim()) {
+    return `No se ha podido elegir el archivo: ${error.message}`;
+  }
+
   return 'No se ha podido elegir el archivo.';
 }
 

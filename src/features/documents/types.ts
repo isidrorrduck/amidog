@@ -28,6 +28,7 @@ export interface DocumentFileAsset {
   name: string;
   mimeType: string | null;
   size: number | null;
+  webFile?: { arrayBuffer: () => Promise<ArrayBuffer> } | null;
 }
 
 export interface DocumentMutationInput {
