@@ -23,8 +23,7 @@ import { useLitters, type Litter } from '../litters';
 import { getPuppySexLabel, type Puppy } from './types';
 import { usePuppies } from './usePuppies';
 
-// TODO: Replace with the WooCommerce add-to-cart URL when the product URL is available.
-const FOOD_CHECKOUT_URL = 'https://www.sgservice.es/cart/?add-to-cart=23/';
+export const FOOD_CHECKOUT_URL = 'https://www.sgservice.es/cart/?add-to-cart=23';
 // TODO: Replace with the direct external Santévet landing URL when it is available.
 const SANTEVET_URL = 'https://www.sgservice.es/clinica-veterinaria-san-cristobal/';
 const BREEDER_NAME = 'Marlenne';
@@ -42,7 +41,6 @@ export function PuppyOwnerPreviewScreen({ puppyId }: PuppyOwnerPreviewScreenProp
 }
 
 function PuppyOwnerPreviewContent({ puppyId }: PuppyOwnerPreviewScreenProps) {
-  const [foodInfoVisible, setFoodInfoVisible] = useState(false);
   const { currentKennel } = useCurrentKennel();
   const kennelId = currentKennel?.id ?? null;
   const puppiesQuery = usePuppies(kennelId);
@@ -58,14 +56,6 @@ function PuppyOwnerPreviewContent({ puppyId }: PuppyOwnerPreviewScreenProps) {
   const breed = getBreedLabel(litter, dogsById);
   const isLoading = puppiesQuery.isLoading || littersQuery.isLoading || dogsQuery.isLoading;
   const hasError = puppiesQuery.error || littersQuery.error || dogsQuery.error;
-
-  const handleOpenExternalUrl = async (url: string) => {
-    try {
-      await Linking.openURL(url);
-    } catch {
-      Alert.alert('No se ha podido abrir el enlace', 'Inténtalo de nuevo en unos segundos.');
-    }
-  };
 
   if (isLoading) {
     return <LoadingState title="Preparando su espacio" message="Un momento, por favor." />;
@@ -91,12 +81,36 @@ function PuppyOwnerPreviewContent({ puppyId }: PuppyOwnerPreviewScreenProps) {
     );
   }
 
+  return <PuppyOwnerExperience brandName={currentKennel?.name ?? ''} breed={breed} healthKennelId={kennelId} puppy={puppy} showHealth showPrivateLabel />;
+}
+
+export interface PuppyOwnerExperienceProps {
+  brandName?: string;
+  breed: string;
+  healthKennelId?: string | null;
+  puppy: Puppy;
+  showHealth?: boolean;
+  showPrivateLabel?: boolean;
+}
+
+/** Shared presentation for the authenticated preview and the public web route. */
+export function PuppyOwnerExperience({ brandName = 'AmiDog', breed, healthKennelId = null, puppy, showHealth = false, showPrivateLabel = false }: PuppyOwnerExperienceProps) {
+  const [foodInfoVisible, setFoodInfoVisible] = useState(false);
+
+  const handleOpenExternalUrl = async (url: string) => {
+    try {
+      await Linking.openURL(url);
+    } catch {
+      Alert.alert('No se ha podido abrir el enlace', 'Inténtalo de nuevo en unos segundos.');
+    }
+  };
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.page}>
         <View style={styles.brandRow}>
-          <Text style={styles.brand}>{currentKennel?.name ?? ''}</Text>
-          <Text style={styles.privateLabel}>ESPACIO PRIVADO</Text>
+          <Text style={styles.brand}>{brandName}</Text>
+          {showPrivateLabel ? <Text style={styles.privateLabel}>ESPACIO PRIVADO</Text> : null}
         </View>
 
         <Hero puppy={puppy} breed={breed} />
@@ -108,7 +122,7 @@ function PuppyOwnerPreviewContent({ puppyId }: PuppyOwnerPreviewScreenProps) {
         <InsuranceCard onPress={() => handleOpenExternalUrl(SANTEVET_URL)} />
         <ContactCard />
 
-        <OwnerHealthSection kennelId={kennelId} puppy={puppy} />
+        {showHealth ? <OwnerHealthSection kennelId={healthKennelId} puppy={puppy} /> : null}
 
         <View style={styles.footer}>
           <Text style={styles.footerMark}>AmiDog</Text>

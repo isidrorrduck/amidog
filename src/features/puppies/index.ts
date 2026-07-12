@@ -1,5 +1,5 @@
 export { PuppiesScreen } from './PuppiesScreen';
-export { PuppyOwnerPreviewScreen } from './PuppyOwnerPreviewScreen';
+export { PuppyOwnerExperience, PuppyOwnerPreviewScreen } from './PuppyOwnerPreviewScreen';
 export { PuppyForm } from './PuppyForm';
 export { createPuppy, deletePuppy, getPuppy, listPuppies, updatePuppy } from './puppiesService';
 export { getPuppySexLabel, getPuppyStatusLabel } from './types';
