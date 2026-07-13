@@ -11,12 +11,15 @@ La exportacion estatica de Expo se sirve directamente desde el `DocumentRoot` de
   `<DocumentRoot>/cachorros-del-guadarrama-thor-sg-24ad4/index.html`.
 - `dist/_expo/` se copia a `<DocumentRoot>/_expo/`.
 - `dist/assets/` se copia a `<DocumentRoot>/assets/`; contiene los PNG versionados
-  de Dibaq y Santevet que referencia la experiencia.
+  de Dibaq, Santevet y el logotipo oficial de SGService que referencia la experiencia.
 - `dist/favicon.ico` se puede copiar a `<DocumentRoot>/favicon.ico` solo si no se
   desea conservar el favicon actual de WordPress. No es necesario para que la
   experiencia funcione.
 - `deploy/public-route.htaccess` se copia como
   `<DocumentRoot>/cachorros-del-guadarrama-thor-sg-24ad4/.htaccess`.
+- El script copia tambien desde `dist/pwa/` el manifiesto, el service worker y los
+  iconos PWA al directorio publico del slug. Sus URL finales quedan dentro de
+  `/cachorros-del-guadarrama-thor-sg-24ad4/`, que es tambien el `scope` de la PWA.
 
 No se copia `dist/index.html` sobre el `index.php` o el `index.html` de WordPress,
 ni se reemplaza el `.htaccess` raiz de WordPress. Al existir un directorio fisico
@@ -33,6 +36,9 @@ para el slug, las reglas estandar de WordPress (`!-f` y `!-d`) no capturan la UR
 6. Verificar que existe
    `dist/cachorros-del-guadarrama-thor-sg-24ad4/index.html` y que los recursos que
    referencia existen dentro de `dist/`.
+7. Verificar dentro del mismo directorio `manifest.webmanifest`,
+   `service-worker.js`, `icon-192.png`, `icon-512.png`,
+   `apple-touch-icon.png` y `favicon.png`.
 
 ## Primera publicacion
 
@@ -56,14 +62,24 @@ para el slug, las reglas estandar de WordPress (`!-f` y `!-d`) no capturan la UR
 
 8. Vaciar caches de WordPress, CDN y hosting para esa URL y `/_expo/`.
 9. Abrir la URL final con barra, recargarla y probarla en una ventana privada.
+10. En las herramientas del navegador, confirmar que el manifiesto y el service
+    worker se cargan por HTTPS sin redirecciones ni errores, que el manifiesto se
+    sirve como `application/manifest+json` (o un tipo JSON valido) y que su
+    `start_url` y `scope` son
+    `/cachorros-del-guadarrama-thor-sg-24ad4/`.
+11. Probar la CTA en Safari de iPhone/iPad y en Chrome de Android. Chromium puede
+    exigir una interaccion y unos segundos de uso antes de emitir
+    `beforeinstallprompt`; hasta entonces la CTA muestra las instrucciones
+    manuales.
 
 ## Actualizaciones
 
 1. Generar y validar un nuevo `dist/`.
 2. Hacer una copia fechada del directorio publico actual y de `/_expo/`.
 3. Subir primero los nuevos assets de `dist/_expo/` sin borrar los anteriores.
-4. Sustituir despues el contenido del directorio del slug, conservando su
-   `.htaccess` o volviendolo a copiar.
+4. Sustituir despues todo el contenido de
+   `dist/cachorros-del-guadarrama-thor-sg-24ad4/` en el directorio del slug,
+   incluyendo manifiesto, service worker, iconos y `.htaccess`.
 5. Validar la URL y, solo entonces, retirar assets antiguos que ya no use ningun
    despliegue. Esta secuencia evita que el HTML apunte temporalmente a assets que
    aun no existen.

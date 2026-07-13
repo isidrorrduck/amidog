@@ -1,6 +1,6 @@
 import { getSupabaseClient } from '../../lib/supabase';
 import type { Database } from '../../types/database';
-import type { Reservation, ReservationFilters, ReservationMutationInput } from './types';
+import type { CreateReservationResult, Reservation, ReservationFilters, ReservationMutationInput } from './types';
 
 type ReservationInsert = Database['public']['Tables']['reservations']['Insert'];
 type ReservationUpdate = Database['public']['Tables']['reservations']['Update'];
@@ -41,7 +41,7 @@ export async function listReservations(
 export async function createReservation(
   kennelId: string,
   input: ReservationMutationInput,
-): Promise<Reservation> {
+): Promise<CreateReservationResult> {
   const supabase = getSupabaseClient();
   const payload: ReservationInsert = {
     kennel_id: kennelId,
@@ -54,7 +54,15 @@ export async function createReservation(
     throw error;
   }
 
-  return data;
+  const { data: delivery, error: deliveryError } = await supabase.functions.invoke(
+    'send-experience-preparation-request',
+    { body: { reservationId: data.id } },
+  );
+
+  return {
+    reservation: data,
+    preparationEmailSent: !deliveryError && delivery?.sent === true,
+  };
 }
 
 export async function updateReservation(
