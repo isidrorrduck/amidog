@@ -1,0 +1,14 @@
+DirectoryIndex index.html
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /public/puppies/
+
+  RewriteCond %{REQUEST_FILENAME} -f [OR]
+  RewriteCond %{REQUEST_FILENAME} -d
+  RewriteRule ^ - [L]
+
+  # Every permanent UUID is hydrated by the same public Expo route.
+  RewriteRule ^[0-9a-fA-F-]{36}/?$ index.html [L]
+</IfModule>
+

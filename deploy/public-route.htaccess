@@ -1,0 +1,22 @@
+DirectoryIndex index.html
+
+AddType application/manifest+json .webmanifest
+
+<IfModule mod_headers.c>
+  <Files "service-worker.js">
+    Header set Cache-Control "no-cache, no-store, must-revalidate"
+  </Files>
+</IfModule>
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /cachorros-del-guadarrama-thor-sg-24ad4/
+
+  # Serve real exported files and directories directly.
+  RewriteCond %{REQUEST_FILENAME} -f [OR]
+  RewriteCond %{REQUEST_FILENAME} -d
+  RewriteRule ^ - [L]
+
+  # Defensive fallback for client-side navigation below this public route.
+  RewriteRule ^ index.html [L]
+</IfModule>

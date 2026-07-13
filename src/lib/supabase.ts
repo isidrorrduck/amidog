@@ -9,15 +9,16 @@ import { assertSupabaseEnv, env } from './env';
 const fallbackSupabaseUrl = 'https://example.supabase.co';
 const fallbackSupabaseAnonKey = 'missing-supabase-anon-key';
 const hasValidSupabaseConfig = env.isSupabaseConfigured && env.validationErrors.length === 0;
+const isStaticRendering = typeof window === 'undefined';
 
 export const supabase = createClient<Database>(
   hasValidSupabaseConfig ? env.supabaseUrl : fallbackSupabaseUrl,
   hasValidSupabaseConfig ? env.supabaseAnonKey : fallbackSupabaseAnonKey,
   {
     auth: {
-      storage: AsyncStorage,
-      autoRefreshToken: true,
-      persistSession: true,
+      storage: isStaticRendering ? undefined : AsyncStorage,
+      autoRefreshToken: !isStaticRendering,
+      persistSession: !isStaticRendering,
       detectSessionInUrl: false,
     },
   },

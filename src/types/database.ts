@@ -34,6 +34,8 @@ export type PromotionType =
   | 'other';
 export type PushTokenPlatform = 'ios' | 'android' | 'web' | 'windows' | 'macos' | 'unknown';
 export type ReservationStatus = 'pending' | 'paid' | 'cancelled' | 'completed';
+export type PuppyExperienceStatus = 'preparing' | 'review' | 'published';
+export type ExperiencePreparationRequestStatus = 'pending' | 'sending' | 'sent' | 'failed';
 
 export interface Database {
   public: {
@@ -698,6 +700,83 @@ export interface Database {
           },
         ];
       };
+      puppy_experiences: {
+        Row: {
+          puppy_id: string;
+          public_id: string;
+          status: PuppyExperienceStatus;
+          published_at: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          puppy_id: string;
+          public_id?: string;
+          status?: PuppyExperienceStatus;
+          published_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          puppy_id?: string;
+          public_id?: string;
+          status?: PuppyExperienceStatus;
+          published_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'puppy_experiences_puppy_id_fkey';
+            columns: ['puppy_id'];
+            referencedRelation: 'puppies';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      experience_preparation_requests: {
+        Row: {
+          id: string;
+          reservation_id: string;
+          recipient: string;
+          status: ExperiencePreparationRequestStatus;
+          attempts: number;
+          sent_at: string | null;
+          last_error: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          reservation_id: string;
+          recipient?: string;
+          status?: ExperiencePreparationRequestStatus;
+          attempts?: number;
+          sent_at?: string | null;
+          last_error?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          reservation_id?: string;
+          recipient?: string;
+          status?: ExperiencePreparationRequestStatus;
+          attempts?: number;
+          sent_at?: string | null;
+          last_error?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'experience_preparation_requests_reservation_id_fkey';
+            columns: ['reservation_id'];
+            referencedRelation: 'reservations';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
     };
     Views: Record<string, never>;
     Functions: {
@@ -706,6 +785,42 @@ export interface Database {
           kennel_name: string;
         };
         Returns: string;
+      };
+      get_public_puppy_experience: {
+        Args: { p_public_id: string };
+        Returns: {
+          public_id: string;
+          experience_status: PuppyExperienceStatus;
+          puppy_id: string;
+          kennel_id: string;
+          litter_id: string;
+          puppy_name: string;
+          puppy_sex: PuppySex;
+          puppy_birth_date: string | null;
+          puppy_color: string | null;
+          puppy_birth_weight: number | null;
+          puppy_photo_url: string | null;
+          puppy_status: PuppyStatus;
+          puppy_created_at: string;
+          puppy_updated_at: string;
+          litter_name: string;
+          breed: string | null;
+        }[];
+      };
+      claim_experience_preparation_request: {
+        Args: { p_reservation_id: string };
+        Returns: {
+          request_id: string;
+          recipient: string;
+          kennel_name: string;
+          puppy_name: string;
+          owner_name: string;
+          owner_phone: string | null;
+          owner_email: string | null;
+          litter_name: string;
+          public_id: string;
+          puppy_id: string;
+        }[];
       };
     };
     Enums: Record<string, never>;

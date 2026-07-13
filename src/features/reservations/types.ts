@@ -23,6 +23,11 @@ export interface ReservationMutationInput {
   notes: string | null;
 }
 
+export interface CreateReservationResult {
+  reservation: Reservation;
+  preparationEmailSent: boolean;
+}
+
 export const reservationFormSchema = z
   .object({
     puppyId: requiredUuid('Elige un cachorro para esta reserva.'),

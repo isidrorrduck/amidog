@@ -139,7 +139,13 @@ function ReservationsContent({
       if (editingReservation) {
         await updateReservationMutation.mutateAsync({ reservationId: editingReservation.id, input });
       } else {
-        await createReservationMutation.mutateAsync(input);
+        const result = await createReservationMutation.mutateAsync(input);
+
+        if (!result.preparationEmailSent) {
+          setScreenError(
+            'La reserva y la URL pública se han creado. El correo de preparación queda pendiente y puede reenviarse de forma segura.',
+          );
+        }
       }
 
       closeForm();

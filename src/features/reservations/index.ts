@@ -15,6 +15,7 @@ export {
 } from './useReservations';
 export type {
   Reservation,
+  CreateReservationResult,
   ReservationFilters,
   ReservationMutationInput,
   ReservationStatus,
