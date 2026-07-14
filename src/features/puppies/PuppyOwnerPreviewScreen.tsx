@@ -14,7 +14,7 @@ import {
   View,
 } from 'react-native';
 
-import { EmptyState, LoadingState } from '../../components';
+import { EmptyState, LoadingState, ProductDetailsModal, type ProductDetailSection } from '../../components';
 import { ProtectedRoute } from '../auth';
 import { useDogs, type Dog } from '../dogs';
 import { getHealthEventTypeLabel, usePuppyHealthEvents, type HealthEvent } from '../health';
@@ -28,8 +28,8 @@ import { usePuppies } from './usePuppies';
 
 export const FOOD_CHECKOUT_URL = 'https://www.sgservice.es/cart/?add-to-cart=23';
 // TODO: Replace with the direct external Santévet landing URL when it is available.
-const SANTEVET_URL = 'https://www.sgservice.es/clinica-veterinaria-san-cristobal/';
-const BREEDER_NAME = 'Marlenne';
+const SANTEVET_URL = 'https://www.santevet.es/';
+const BREEDER_NAME = 'Isidro';
 const SERVING_AGES = ['2 meses', '3 meses', '4 meses', '6 meses', '8 meses', '10 meses', '12 meses'];
 const SERVING_ROWS = [
   { weight: '8 kg', servings: ['100 g', '130 g', '160 g', '190 g', '180 g', '160 g', '180 g'] },
@@ -38,6 +38,81 @@ const SERVING_ROWS = [
   { weight: '20 kg', servings: ['240 g', '270 g', '260 g', '300 g', '300 g', '260 g', '320 g'] },
   { weight: '30 kg', servings: ['270 g', '315 g', '385 g', '420 g', '380 g', '385 g', '410 g'] },
   { weight: '40 kg', servings: ['350 g', '400 g', '450 g', '480 g', '500 g', '510 g', '550 g'] },
+];
+
+const FOOD_DETAIL_SECTIONS: ProductDetailSection[] = [
+  {
+    title: 'Composición',
+    body: 'Pollo 48% (pollo fresco 20%*, pollo deshidratado 28%), arroz 22%*, guisantes pelados*, almidón de guisante, aceite de pollo, proteína hidrolizada de pollo, pulpa de remolacha, hígado de pollo hidrolizado, sustancias minerales, fibra vegetal, verduras y frutas frescas 4% (judías verdes*, patatas*, mango* y manzana*), protectores articulares (condroitina sulfato, glucosamina sulfato y MSM, componentes de cartílago articular), yuca, raíz de achicoria (fuente de inulina-FOS), levaduras (MOS), orégano, romero, tomillo, melisa, valeriana y antioxidantes naturales (tocoferoles*).',
+    note: '* Ingredientes naturales.',
+  },
+  {
+    title: 'Componentes analíticos',
+    items: [
+      'Proteína bruta: 30%',
+      'Grasa bruta: 14%',
+      'Fibra bruta: 2,3%',
+      'Materia inorgánica: 5,9%',
+      'Vitamina A: 22.000 U.I./kg',
+      'Vitamina D3: 2.200 U.I./kg',
+      'Vitamina E, α-tocoferol: 110 mg/kg',
+      'Calcio: 1,2%',
+      'Fósforo: 0,9%',
+      'Sodio: 0,12%',
+      'Potasio: 0,24%',
+      'Energía metabolizable: 3.633 kcal/kg',
+    ],
+  },
+  {
+    title: 'Aditivos',
+    groups: [
+      {
+        title: 'Aditivos nutricionales por kilogramo',
+        items: ['Condroitina sulfato: 500 mg', 'Glucosamina sulfato: 500 mg'],
+      },
+      {
+        title: 'Oligoelementos',
+        items: [
+          'Hierro: 215 mg, como carbonato ferroso',
+          'Yodo: 2,2 mg, como yoduro potásico',
+          'Cobre: 16 mg, como sulfato de cobre II pentahidratado',
+          'Manganeso: 45 mg, como óxido manganoso',
+          'Zinc: 210 mg, como óxido de zinc',
+          'Selenio: 0,34 mg, como selenito sódico',
+        ],
+      },
+      {
+        title: 'Aditivos tecnológicos',
+        body: 'Conservantes y antioxidantes, incluyendo tocoferoles naturales.',
+      },
+    ],
+  },
+  {
+    title: 'Detalles del producto',
+    items: [
+      'Peso: 12 kg',
+      'Edad: cachorro',
+      'Tipo de alimento: alimento seco',
+      'Tamaño: medium y todos los tamaños',
+      'Mascota: perro',
+      'Referencia: 1007041',
+      'EAN: 8424160024812',
+    ],
+    groups: [
+      {
+        title: 'Función nutricional',
+        items: ['Bajo en cereales', 'Carne fresca', 'Monoproteico', 'Natural', 'Sin gluten'],
+      },
+      {
+        title: 'Cuidado especial',
+        items: ['Articulaciones', 'Fácil digestión', 'Hipoalergénico'],
+      },
+    ],
+  },
+  {
+    title: 'Ingredientes destacados',
+    chips: ['Pollo', 'Arroz', 'Patatas', 'Manzana', 'Plantas prebióticas', 'Mango', 'Judías verdes'],
+  },
 ];
 
 interface PuppyOwnerPreviewScreenProps {
@@ -157,13 +232,11 @@ export function PuppyOwnerExperience({ allowOwnerPhotoEditing = false, brandName
           </View>
         )}
       </ScrollView>
-      {!publicBranding ? (
-        <FoodInformationModal
-          visible={foodInfoVisible}
-          onClose={() => setFoodInfoVisible(false)}
-          onContinue={() => handleOpenExternalUrl(FOOD_CHECKOUT_URL)}
-        />
-      ) : null}
+      <FoodInformationModal
+        visible={foodInfoVisible}
+        onClose={() => setFoodInfoVisible(false)}
+        onContinue={() => handleOpenExternalUrl(FOOD_CHECKOUT_URL)}
+      />
     </SafeAreaView>
   );
 }
@@ -249,27 +322,25 @@ function FoodRecommendationCard({
               </View>
             </View>
 
-            <View style={styles.nutritionSummary}>
-              <Text style={styles.foodSubheading}>Información nutricional</Text>
-              <Text style={styles.foodDetail}>Pollo fresco y deshidratado · arroz · guisantes · patata · mango · manzana · judías verdes.</Text>
-              <Text style={styles.foodBenefits}>Alta digestibilidad · protección articular · sin trigo, soja ni huevo</Text>
-            </View>
+            <Pressable
+              accessibilityRole="button"
+              onPress={onMoreInformation}
+              style={({ pressed }) => [styles.productDetailsButton, pressed && styles.cardPressed]}
+            >
+              <Text style={styles.productDetailsButtonText}>Ver composición e información nutricional</Text>
+              <Text style={styles.productDetailsButtonArrow}>→</Text>
+            </Pressable>
 
             <View style={styles.welcomeGift}>
               <View style={styles.giftCopy}>
-                <Text style={styles.giftTitle}>🎁 Comida húmeda de regalo</Text>
+                <Text style={styles.giftTitle}>🎁 Además, te regalamos 4 latas de comida húmeda para cuidar su digestión y su flora intestinal 🐶. Mézclala con su pienso o prepárale un menú especial una vez por semana.</Text>
               </View>
-              <View accessibilityLabel="Cuatro latas de comida húmeda de regalo" style={styles.giftCans}>
-                {[0, 1, 2, 3].map((can) => (
-                  <View key={can} style={styles.wetFoodCanCrop}>
-                    <Image
-                      resizeMode="contain"
-                      source={require('../../../assets/Dibaq/Dibaq Natural moments.png')}
-                      style={styles.wetFoodCanImage}
-                    />
-                  </View>
-                ))}
-              </View>
+              <Image
+                accessibilityLabel="Pack de regalo con cuatro latas de comida húmeda Dibaq Natural Moments"
+                resizeMode="contain"
+                source={require('../../../assets/Dibaq/Dibaq Natural Moments pack regalo recortado.png')}
+                style={styles.giftPackImage}
+              />
             </View>
 
             <ServingTable />
@@ -321,7 +392,7 @@ function FoodRecommendationCard({
             onPress={onMoreInformation}
             style={({ pressed }) => [styles.secondaryButton, pressed && styles.cardPressed]}
           >
-            <Text style={styles.secondaryButtonText}>Ver información nutricional</Text>
+            <Text style={styles.secondaryButtonText}>Ver composición e información nutricional</Text>
           </Pressable>
         </View>
           </>
@@ -365,44 +436,19 @@ function FoodInformationModal({
   visible: boolean;
 }) {
   return (
-    <Modal animationType="slide" onRequestClose={onClose} presentationStyle="fullScreen" visible={visible}>
-      <SafeAreaView style={styles.modalSafeArea}>
-        <View style={styles.modalHeader}>
-          <View>
-            <Text style={styles.modalEyebrow}>ALIMENTACIÓN</Text>
-            <Text style={styles.modalTitle}>Información nutricional</Text>
-          </View>
-          <Pressable accessibilityLabel="Cerrar" accessibilityRole="button" hitSlop={10} onPress={onClose} style={styles.closeButton}>
-            <Text style={styles.closeButtonText}>×</Text>
-          </Pressable>
-        </View>
-
-        <ScrollView contentContainerStyle={styles.modalContent} showsVerticalScrollIndicator>
-          <ModalSection title="Por qué se recomienda" body="Receta hipoalergénica elaborada con carne fresca de pollo, frutas, verduras y plantas naturales." />
-          <ModalList title="Ingredientes principales" items={['Pollo fresco y deshidratado', 'Arroz', 'Guisantes', 'Patata', 'Mango', 'Manzana', 'Judías verdes', 'Prebióticos naturales']} />
-          <ModalSection title="Composición resumida" body="Una combinación equilibrada de proteína de pollo, arroz, vegetales, fruta y fuentes naturales de fibra." />
-          <ModalList title="Beneficios" items={['Alta digestibilidad', 'Protección articular', 'Ingredientes naturales', 'Sin trigo, soja ni huevo', 'Adecuado para cachorros y madres en gestación o lactancia']} />
-          <ModalSection title="Recomendaciones de uso" body="Introduce cualquier cambio de alimentación de forma gradual y mantén siempre agua fresca disponible." />
-          <View style={styles.servingNotice}><Text style={styles.servingNoticeText}>La ración debe adaptarse a la edad, el peso, la actividad y la condición corporal de cada perro.</Text></View>
-        </ScrollView>
-
-        <View style={styles.modalActions}>
+    <ProductDetailsModal
+      eyebrow="DIBAQ SENSE · PUPPY MINI CHICKEN"
+      footer={
+        <View style={styles.productModalPurchase}>
           <PrimaryButton label="Continuar con la alimentación recomendada" onPress={onContinue} />
-          <Pressable accessibilityRole="button" onPress={onClose} style={styles.modalCloseAction}>
-            <Text style={styles.modalCloseActionText}>Cerrar</Text>
-          </Pressable>
         </View>
-      </SafeAreaView>
-    </Modal>
+      }
+      onClose={onClose}
+      sections={FOOD_DETAIL_SECTIONS}
+      title="Composición e información nutricional"
+      visible={visible}
+    />
   );
-}
-
-function ModalSection({ body, title }: { body: string; title: string }) {
-  return <View style={styles.modalSection}><Text style={styles.modalSectionTitle}>{title}</Text><Text style={styles.modalSectionBody}>{body}</Text></View>;
-}
-
-function ModalList({ items, title }: { items: string[]; title: string }) {
-  return <View style={styles.modalSection}><Text style={styles.modalSectionTitle}>{title}</Text><View style={styles.modalList}>{items.map((item) => <View key={item} style={styles.modalListItem}><View style={styles.modalListMark} /><Text style={styles.modalSectionBody}>{item}</Text></View>)}</View></View>;
 }
 
 function InsuranceCard({ onPress }: { onPress: () => void }) {
@@ -686,24 +732,22 @@ const styles = StyleSheet.create({
   productCard: { width: '100%', maxWidth: 960, minWidth: 0, alignSelf: 'center', overflow: 'hidden', borderRadius: 30, backgroundColor: '#FFFFFF', ...softShadow },
   panelsContainer: { width: '100%', minWidth: 0, alignSelf: 'stretch', gap: 8 },
   foodActions: { width: '100%', minWidth: 0, paddingHorizontal: 14, paddingBottom: 14 },
-  publicFoodContent: { width: '100%', padding: 20 },
-  publicProductIntro: { flexDirection: 'row', alignItems: 'center', gap: 15 },
-  foodBagCrop: { width: 104, height: 138, overflow: 'hidden', borderRadius: 18, backgroundColor: '#FAF8F5' },
-  foodBagImage: { position: 'absolute', width: 690, height: 345, left: -243, top: -80 },
+  publicFoodContent: { width: '100%', minWidth: 0, padding: 20 },
+  publicProductIntro: { minWidth: 0, flexDirection: 'row', alignItems: 'center', gap: 15 },
+  foodBagCrop: { width: 120, height: 174, flexShrink: 0, overflow: 'hidden', borderRadius: 20, backgroundColor: '#FAF8F5' },
+  foodBagImage: { position: 'absolute', width: 520, height: 292.5, left: -204, top: -58 },
   publicProductCopy: { flex: 1, minWidth: 0 },
   foodEyebrow: { fontSize: 9, fontWeight: '800', letterSpacing: 1.4, color: '#9A7765' },
   foodProductTitle: { marginTop: 7, fontSize: 23, lineHeight: 28, fontWeight: '700', letterSpacing: -0.5, color: '#28241F' },
   foodProductBody: { marginTop: 8, fontSize: 13, lineHeight: 20, color: '#706962' },
-  nutritionSummary: { marginTop: 18, padding: 17, borderRadius: 18, backgroundColor: '#F7F5F1' },
   foodSubheading: { fontSize: 17, lineHeight: 22, fontWeight: '700', color: '#302A26' },
-  foodDetail: { marginTop: 8, fontSize: 13, lineHeight: 20, color: '#706962' },
-  foodBenefits: { marginTop: 8, fontSize: 12, lineHeight: 18, fontWeight: '700', color: '#6F5143' },
-  welcomeGift: { marginTop: 14, minHeight: 116, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8, overflow: 'hidden', paddingHorizontal: 16, paddingVertical: 14, borderWidth: StyleSheet.hairlineWidth, borderColor: '#DED7D0', borderRadius: 18, backgroundColor: '#FAF8F5' },
-  giftCopy: { flex: 1, minWidth: 110 },
+  productDetailsButton: { width: '100%', minWidth: 0, minHeight: 48, marginTop: 18, paddingHorizontal: 16, paddingVertical: 6, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12, borderWidth: StyleSheet.hairlineWidth, borderColor: '#CFC5BC', borderRadius: 16, backgroundColor: '#FFFFFF' },
+  productDetailsButtonText: { flex: 1, fontSize: 13, lineHeight: 18, fontWeight: '700', color: '#4B4039' },
+  productDetailsButtonArrow: { flexShrink: 0, fontSize: 18, color: '#8A6C5B' },
+  welcomeGift: { marginTop: 14, minHeight: 205, alignItems: 'center', overflow: 'visible', paddingHorizontal: 16, paddingTop: 16, paddingBottom: 12, borderWidth: StyleSheet.hairlineWidth, borderColor: '#DED7D0', borderRadius: 18, backgroundColor: '#FAF8F5' },
+  giftCopy: { width: '100%', minWidth: 0, alignItems: 'center' },
   giftTitle: { fontSize: 15, lineHeight: 21, fontWeight: '700', color: '#302A26' },
-  giftCans: { width: 156, height: 74, flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'center' },
-  wetFoodCanCrop: { width: 39, height: 66, overflow: 'hidden' },
-  wetFoodCanImage: { position: 'absolute', width: 300, height: 150, left: -105, top: -44 },
+  giftPackImage: { width: '106%', maxWidth: 270, aspectRatio: 565 / 258, marginTop: 8, borderRadius: 12 },
   servingTableSection: { marginTop: 22 },
   servingTableHint: { marginTop: 5, fontSize: 12, lineHeight: 18, color: '#7B746D' },
   servingTableScroll: { paddingTop: 13, paddingBottom: 3 },
@@ -722,24 +766,7 @@ const styles = StyleSheet.create({
   primaryButtonText: { minWidth: 0, flexShrink: 1, fontSize: 14, fontWeight: '700', color: '#FFFFFF' },
   primaryButtonTextLight: { color: '#3B2B24' },
   primaryButtonArrow: { flexShrink: 0, marginLeft: 8, fontSize: 18, color: '#FFFFFF' },
-  modalSafeArea: { flex: 1, backgroundColor: '#F7F5F1' },
-  modalHeader: { width: '100%', maxWidth: 900, alignSelf: 'center', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 20, paddingVertical: 16 },
-  modalEyebrow: { fontSize: 9, fontWeight: '700', letterSpacing: 1.5, color: '#9A7765' },
-  modalTitle: { marginTop: 4, fontSize: 24, lineHeight: 29, fontWeight: '600', color: '#28231F' },
-  closeButton: { width: 42, height: 42, alignItems: 'center', justifyContent: 'center', borderRadius: 21, backgroundColor: '#ECE7E1' },
-  closeButtonText: { marginTop: -2, fontSize: 28, lineHeight: 30, fontWeight: '300', color: '#443B35' },
-  modalContent: { width: '100%', maxWidth: 760, alignSelf: 'center', paddingHorizontal: 20, paddingVertical: 12, gap: 12 },
-  modalSection: { padding: 20, borderRadius: 20, backgroundColor: '#FFFFFF' },
-  modalSectionTitle: { fontSize: 17, fontWeight: '700', color: '#302A26' },
-  modalSectionBody: { flex: 1, marginTop: 7, fontSize: 14, lineHeight: 21, color: '#706962' },
-  modalList: { marginTop: 6, gap: 5 },
-  modalListItem: { flexDirection: 'row', alignItems: 'flex-start', gap: 10 },
-  modalListMark: { width: 6, height: 6, marginTop: 14, borderRadius: 3, backgroundColor: '#9A7765' },
-  servingNotice: { padding: 18, borderWidth: 1, borderColor: '#D9C9BE', borderRadius: 18, backgroundColor: '#F1E9E3' },
-  servingNoticeText: { fontSize: 13, lineHeight: 20, fontWeight: '600', color: '#5B4E46' },
-  modalActions: { width: '100%', maxWidth: 900, alignSelf: 'center', paddingHorizontal: 20, paddingBottom: 16 },
-  modalCloseAction: { minHeight: 45, alignItems: 'center', justifyContent: 'center' },
-  modalCloseActionText: { fontSize: 14, fontWeight: '700', color: '#6F625A' },
+  productModalPurchase: { marginTop: -17 },
   insuranceCard: { width: '100%', maxWidth: 960, minWidth: 0, alignSelf: 'center', overflow: 'hidden', borderRadius: 30, backgroundColor: '#6F4E40', ...softShadow },
   insuranceBanner: { width: '100%', maxWidth: '100%', minWidth: 0, alignSelf: 'stretch', aspectRatio: 671 / 171, backgroundColor: '#E2F2ED' },
   insuranceContent: { width: '100%', minWidth: 0, padding: 25 },
