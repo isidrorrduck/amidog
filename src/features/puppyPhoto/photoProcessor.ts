@@ -14,8 +14,8 @@ export async function processPuppyPhoto(photo: PickedPuppyPhoto): Promise<Stored
       const context = ImageManipulator.manipulate(photo.uri);
 
       if (Math.max(photo.width, photo.height) > maxDimension) {
-        if (photo.width >= photo.height) context.resize({ width: maxDimension, height: null });
-        else context.resize({ height: maxDimension, width: null });
+        if (photo.width >= photo.height) context.resize({ width: maxDimension });
+        else context.resize({ height: maxDimension });
       }
 
       const rendered = await context.renderAsync();
