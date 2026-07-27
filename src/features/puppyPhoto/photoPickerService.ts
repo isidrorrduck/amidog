@@ -30,11 +30,24 @@ export async function pickPuppyPhoto(source: PuppyPhotoSource): Promise<PickedPu
 
     if (result.canceled || !result.assets[0]) return null;
 
-    return validatePickedPhoto(result.assets[0]);
+    const photo = validatePickedPhoto(result.assets[0]);
+
+    console.info('[puppyPhoto:selection]', {
+      stage: 'selection',
+      platform: Platform.OS,
+      source,
+      mimeType: photo.mimeType,
+      sizeBytes: photo.sizeBytes,
+      width: photo.width,
+      height: photo.height,
+      uriScheme: getUriScheme(photo.uri),
+    });
+
+    return photo;
   } catch (error) {
     if (error instanceof PuppyPhotoError) throw error;
-    if (source === 'camera') throw new PuppyPhotoError('camera-unavailable');
-    throw new PuppyPhotoError('picker-failed');
+    if (source === 'camera') throw new PuppyPhotoError('camera-unavailable', undefined, { cause: error });
+    throw new PuppyPhotoError('picker-failed', undefined, { cause: error });
   }
 }
 
@@ -96,4 +109,8 @@ function getFileNameFromUri(uri: string) {
   } catch {
     return value;
   }
+}
+
+function getUriScheme(uri: string) {
+  return uri.match(/^([a-z][a-z0-9+.-]*):/i)?.[1]?.toLowerCase() ?? 'unknown';
 }
