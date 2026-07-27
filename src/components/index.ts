@@ -5,5 +5,6 @@ export { default as EmptyState } from './EmptyState';
 export { default as Input } from './Input';
 export { default as LoadingState } from './LoadingState';
 export { default as QuickActionCard } from './QuickActionCard';
+export { ProductDetailsModal, type ProductDetailSection } from './ProductDetailsModal';
 export { default as ScreenHeader } from './ScreenHeader';
 export { default as StatCard } from './StatCard';
