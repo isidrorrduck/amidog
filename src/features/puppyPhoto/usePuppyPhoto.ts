@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Platform } from 'react-native';
 
 import { localPuppyPhotoRepository } from './localPuppyPhotoRepository';
@@ -6,9 +6,13 @@ import { pickPuppyPhoto, releasePickedPuppyPhoto } from './photoPickerService';
 import { processPuppyPhoto } from './photoProcessor';
 import {
   getPuppyPhotoErrorMessage,
+  logPuppyPhotoError,
+  type PickedPuppyPhoto,
   type PuppyPhotoPhase,
   type PuppyPhotoRepository,
   type PuppyPhotoSource,
+  type PuppyPhotoStage,
+  type StoredPuppyPhoto,
 } from './types';
 
 export function usePuppyPhoto({
@@ -23,6 +27,7 @@ export function usePuppyPhoto({
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [phase, setPhase] = useState<PuppyPhotoPhase>('loading');
   const [photoUri, setPhotoUri] = useState<string | null>(initialUri ?? null);
+  const operationInProgressRef = useRef(false);
 
   useEffect(() => {
     let active = true;
@@ -39,9 +44,14 @@ export function usePuppyPhoto({
   }, [initialUri, puppyId, repository]);
 
   const choosePhoto = useCallback(async (source: PuppyPhotoSource) => {
+    if (operationInProgressRef.current) return false;
+    operationInProgressRef.current = true;
     setErrorMessage(null);
     setPhase(source === 'camera' && Platform.OS !== 'web' ? 'permission' : 'picking');
-    let pickedPhoto = null;
+    let stage: PuppyPhotoStage = 'selection';
+    let pickedPhoto: PickedPuppyPhoto | null = null;
+    let processedPhoto: StoredPuppyPhoto | null = null;
+    const previousPhotoUri = photoUri;
 
     try {
       pickedPhoto = await pickPuppyPhoto(source);
@@ -50,29 +60,30 @@ export function usePuppyPhoto({
         return false;
       }
 
+      stage = 'processing';
       setPhase('processing');
-      const processedPhoto = await processPuppyPhoto(pickedPhoto);
+      processedPhoto = await processPuppyPhoto(pickedPhoto);
       setPhotoUri(processedPhoto.uri);
+      stage = 'persistence';
       setPhase('saving');
-
-      try {
-        await repository.save(puppyId, processedPhoto);
-      } catch (error) {
-        setErrorMessage(getPuppyPhotoErrorMessage(error));
-        setPhase('idle');
-        return false;
-      }
+      await repository.save(puppyId, processedPhoto);
 
       setPhase('idle');
       return true;
     } catch (error) {
+      if (processedPhoto) setPhotoUri(previousPhotoUri);
+      logPuppyPhotoError(stage, Platform.OS, error, {
+        source,
+        originalSizeBytes: pickedPhoto?.sizeBytes ?? null,
+      });
       setErrorMessage(getPuppyPhotoErrorMessage(error));
       setPhase('idle');
       return false;
     } finally {
       if (pickedPhoto) releasePickedPuppyPhoto(pickedPhoto);
+      operationInProgressRef.current = false;
     }
-  }, [puppyId, repository]);
+  }, [photoUri, puppyId, repository]);
 
   return {
     choosePhoto,
