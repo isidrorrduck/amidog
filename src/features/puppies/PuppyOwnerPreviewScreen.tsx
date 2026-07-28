@@ -11,6 +11,7 @@ import {
   ScrollView,
   StyleSheet,
   Text,
+  useWindowDimensions,
   View,
 } from 'react-native';
 
@@ -29,6 +30,7 @@ import { usePuppies } from './usePuppies';
 export const FOOD_CHECKOUT_URL = 'https://www.sgservice.es/cart/?add-to-cart=23';
 // TODO: Replace with the direct external Santévet landing URL when it is available.
 const SANTEVET_URL = 'https://www.santevet.es/';
+const MDR1_INFORMATION_URL = 'https://vgl.ucdavis.edu/test/multidrug-sensitivity-mdr1';
 const BREEDER_NAME = 'Isidro';
 const SERVING_AGES = ['2 meses', '3 meses', '4 meses', '6 meses', '8 meses', '10 meses', '12 meses'];
 const SERVING_ROWS = [
@@ -195,6 +197,8 @@ export function PuppyOwnerExperience({ allowOwnerPhotoEditing = false, brandName
     }
   };
 
+  const handleOpenFoodCheckout = () => handleOpenExternalUrl(FOOD_CHECKOUT_URL);
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.page}>
@@ -216,11 +220,11 @@ export function PuppyOwnerExperience({ allowOwnerPhotoEditing = false, brandName
         {showPwaInstall ? <PwaInstallCallToAction petName={puppy.name || 'tu cachorro'} /> : null}
 
         <FoodRecommendationCard
-          onContinue={() => handleOpenExternalUrl(FOOD_CHECKOUT_URL)}
+          onContinue={handleOpenFoodCheckout}
           onMoreInformation={() => setFoodInfoVisible(true)}
           publicLayout={Boolean(publicBranding)}
         />
-        <InsuranceCard onPress={() => handleOpenExternalUrl(SANTEVET_URL)} />
+        <InsuranceCard />
         <ContactCard petName={puppy.name || 'tu cachorro'} publicBranding={publicBranding} />
 
         {showHealth ? <OwnerHealthSection kennelId={healthKennelId} puppy={puppy} /> : null}
@@ -237,7 +241,7 @@ export function PuppyOwnerExperience({ allowOwnerPhotoEditing = false, brandName
       <FoodInformationModal
         visible={foodInfoVisible}
         onClose={() => setFoodInfoVisible(false)}
-        onContinue={() => handleOpenExternalUrl(FOOD_CHECKOUT_URL)}
+        onContinue={handleOpenFoodCheckout}
       />
     </SafeAreaView>
   );
@@ -299,6 +303,8 @@ function FoodRecommendationCard({
   publicLayout?: boolean;
 }) {
   const [panelsWidth, setPanelsWidth] = useState(0);
+  const { width: viewportWidth } = useWindowDimensions();
+  const isMobilePublicLayout = publicLayout && viewportWidth <= 480;
   const gap = 8;
   const panelsInRow = panelsWidth >= 768;
   const panelWidth = panelsInRow ? (panelsWidth - gap) / 2 : panelsWidth;
@@ -307,26 +313,32 @@ function FoodRecommendationCard({
   return (
     <View style={styles.commercialSection}>
       <View style={styles.commercialHeading}>
-        <Text style={styles.sectionTitle}>Alimentación recomendada</Text>
+        <Text style={[styles.sectionTitle, isMobilePublicLayout && styles.foodSectionTitleMobile]}>Alimentación recomendada</Text>
       </View>
 
       <View style={styles.productCard}>
         {publicLayout ? (
           <View style={styles.publicFoodContent}>
-            <View style={styles.publicProductIntro}>
-              <View style={styles.foodBagCrop}>
-                <Image
-                  accessibilityLabel="Saco de Dibaq Sense Puppy"
-                  resizeMode="contain"
-                  source={require('../../../assets/Dibaq/Dibaq Sense.png')}
-                  style={styles.foodBagImage}
-                />
-              </View>
+            <View style={[styles.publicProductIntro, isMobilePublicLayout && styles.publicProductIntroMobile]}>
               <View style={styles.publicProductCopy}>
                 <Text style={styles.foodEyebrow}>DIBAQ SENSE</Text>
                 <Text style={styles.foodProductTitle}>Puppy Mini Chicken</Text>
                 <Text style={styles.foodProductBody}>Receta hipoalergénica con pollo, arroz, frutas, verduras y prebióticos naturales.</Text>
               </View>
+              <Link
+                accessibilityHint="Abre la página de compra del alimento"
+                accessibilityLabel="Comprar saco de Dibaq Sense Puppy"
+                href={FOOD_CHECKOUT_URL as Href}
+                rel="noopener noreferrer"
+                style={[styles.foodBagCrop, isMobilePublicLayout && styles.foodBagCropMobile]}
+                target="_blank"
+              >
+                <Image
+                  resizeMode="contain"
+                  source={require('../../../assets/Dibaq/Dibaq Sense.png')}
+                  style={styles.foodBagImage}
+                />
+              </Link>
             </View>
 
             <Pressable
@@ -342,16 +354,24 @@ function FoodRecommendationCard({
               <View style={styles.giftCopy}>
                 <Text style={styles.giftTitle}>🎁 Además, te regalamos 4 latas de comida húmeda para cuidar su digestión y su flora intestinal 🐶. Mézclala con su pienso o prepárale un menú especial una vez por semana.</Text>
               </View>
+            </View>
+            <Link
+              accessibilityHint="Abre la misma página de compra que el botón de alimentación"
+              accessibilityLabel="Comprar alimento con pack de regalo de cuatro latas Dibaq Natural Moments"
+              href={FOOD_CHECKOUT_URL as Href}
+              rel="noopener noreferrer"
+              style={styles.giftPackLink}
+              target="_blank"
+            >
               <Image
-                accessibilityLabel="Pack de regalo con cuatro latas de comida húmeda Dibaq Natural Moments"
                 resizeMode="contain"
                 source={require('../../../assets/Dibaq/Dibaq Natural Moments pack regalo recortado.png')}
                 style={styles.giftPackImage}
               />
-            </View>
+            </Link>
 
-            <ServingTable />
             <PrimaryButton label="🛒 Comprar este alimento" onPress={onContinue} />
+            <ServingTable />
           </View>
         ) : (
           <>
@@ -458,34 +478,47 @@ function FoodInformationModal({
   );
 }
 
-function InsuranceCard({ onPress }: { onPress: () => void }) {
+function InsuranceCard() {
   return (
     <View style={styles.commercialSection}>
       <View style={styles.commercialHeading}>
-        <Text style={styles.eyebrow}>SEGURO RECOMENDADO</Text>
+        <View style={styles.insuranceHeadingRow}>
+          <Text style={styles.insuranceQuestion}>¿SEGURO DE SALUD VETERINARIO?</Text>
+          <Text style={styles.insuranceRecommended}>RECOMENDADO</Text>
+        </View>
         <Text style={styles.sectionTitle}>Cuidar sin imprevistos</Text>
       </View>
       <View style={styles.insuranceCard}>
-        <Image
-          accessibilityLabel="Promoción oficial Santévet: 50 euros extra para prevención con el código MEDPREV50ES"
-          resizeMode="contain"
-          source={require('../../../assets/Santevet/ES - MEDPREV50ES (1).png')}
-          style={styles.insuranceBanner}
-        />
         <View style={styles.insuranceContent}>
-          <View style={styles.insuranceTop}>
-          <Text style={styles.recommendedBadge}>RECOMENDADO</Text>
-          </View>
-          <Text style={styles.insuranceName}>Santévet</Text>
-          <Text style={styles.insuranceBody}>Un seguro veterinario para proteger la salud de tu cachorro y ayudarte con los gastos veterinarios a lo largo de su vida.</Text>
-          <View style={styles.promoBox}>
-            <Text style={styles.promoLabel}>BENEFICIO PROMOCIONAL</Text>
-            <Text style={styles.promoValue}>Condiciones especiales para familias del criadero</Text>
-            <Text style={styles.promoCode}>Código promocional: consultar</Text>
-          </View>
-          <PrimaryButton label="Ver seguro recomendado" onPress={onPress} light />
+          <Text style={styles.insuranceInfoTitle}>Más que protección ante imprevistos</Text>
+          <Text style={styles.insuranceBody}>Un buen seguro veterinario también puede ayudarte a cuidar la salud de tu cachorro desde el principio. Algunas pólizas incluyen un presupuesto para prevención que puede utilizarse en vacunas, desparasitaciones, análisis de ADN y otros cuidados preventivos.</Text>
+          <Text style={styles.insuranceBody}>Estas pruebas genéticas pueden aportar información especialmente útil en determinadas razas. Por ejemplo, algunos perros pastores pueden presentar sensibilidad genética a ciertos medicamentos.</Text>
+          <Link
+            accessibilityLabel="Información sobre la sensibilidad MDR1"
+            href={MDR1_INFORMATION_URL as Href}
+            rel="noopener noreferrer"
+            style={styles.insuranceInfoLink}
+            target="_blank"
+          >
+            ¿Qué es la sensibilidad MDR1? ↗
+          </Link>
+          <Text style={styles.insuranceBody}>También conviene valorar una cobertura veterinaria real en todo el territorio nacional y servicios que eviten adelantar el importe completo de la factura, abonando únicamente la parte que corresponda según las condiciones de la póliza.</Text>
         </View>
       </View>
+      <Link asChild href={SANTEVET_URL as Href} rel="noopener noreferrer" target="_blank">
+        <Pressable
+          accessibilityHint="Abre la página comercial de Santévet"
+          accessibilityLabel="Promoción oficial Santévet: 50 euros extra para prevención con el código MEDPREV50ES"
+          accessibilityRole="link"
+          style={({ pressed }) => [styles.insuranceBannerLink, pressed && styles.cardPressed]}
+        >
+          <Image
+            resizeMode="contain"
+            source={require('../../../assets/Santevet/ES - MEDPREV50ES (1).png')}
+            style={styles.insuranceBanner}
+          />
+        </Pressable>
+      </Link>
     </View>
   );
 }
@@ -743,9 +776,12 @@ const styles = StyleSheet.create({
   panelsContainer: { width: '100%', minWidth: 0, alignSelf: 'stretch', gap: 8 },
   foodActions: { width: '100%', minWidth: 0, paddingHorizontal: 14, paddingBottom: 14 },
   publicFoodContent: { width: '100%', minWidth: 0, padding: 20 },
-  publicProductIntro: { minWidth: 0, flexDirection: 'row', alignItems: 'center', gap: 15 },
-  foodBagCrop: { width: 120, height: 174, flexShrink: 0, overflow: 'hidden', borderRadius: 20, backgroundColor: '#FAF8F5' },
-  foodBagImage: { position: 'absolute', width: 520, height: 292.5, left: -204, top: -58 },
+  foodSectionTitleMobile: { fontSize: 27, lineHeight: 32 },
+  publicProductIntro: { minWidth: 0, flexDirection: 'row-reverse', alignItems: 'center', gap: 20 },
+  publicProductIntroMobile: { flexDirection: 'column', alignItems: 'stretch', gap: 0 },
+  foodBagCrop: { width: 180, maxWidth: '100%', aspectRatio: 7 / 8, flexShrink: 0, alignSelf: 'center', overflow: 'hidden', borderRadius: 20, backgroundColor: '#FAF8F5' },
+  foodBagCropMobile: { width: '100%', maxWidth: 280, marginTop: 16 },
+  foodBagImage: { width: '100%', height: '100%', transform: [{ scale: 3.1 }] },
   publicProductCopy: { flex: 1, minWidth: 0 },
   foodEyebrow: { fontSize: 9, fontWeight: '800', letterSpacing: 1.4, color: '#9A7765' },
   foodProductTitle: { marginTop: 7, fontSize: 23, lineHeight: 28, fontWeight: '700', letterSpacing: -0.5, color: '#28241F' },
@@ -754,10 +790,11 @@ const styles = StyleSheet.create({
   productDetailsButton: { width: '100%', minWidth: 0, minHeight: 48, marginTop: 18, paddingHorizontal: 16, paddingVertical: 6, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12, borderWidth: StyleSheet.hairlineWidth, borderColor: '#CFC5BC', borderRadius: 16, backgroundColor: '#FFFFFF' },
   productDetailsButtonText: { flex: 1, fontSize: 13, lineHeight: 18, fontWeight: '700', color: '#4B4039' },
   productDetailsButtonArrow: { flexShrink: 0, fontSize: 18, color: '#8A6C5B' },
-  welcomeGift: { marginTop: 14, minHeight: 205, alignItems: 'center', overflow: 'visible', paddingHorizontal: 16, paddingTop: 16, paddingBottom: 12, borderWidth: StyleSheet.hairlineWidth, borderColor: '#DED7D0', borderRadius: 18, backgroundColor: '#FAF8F5' },
-  giftCopy: { width: '100%', minWidth: 0, alignItems: 'center' },
-  giftTitle: { fontSize: 15, lineHeight: 21, fontWeight: '700', color: '#302A26' },
-  giftPackImage: { width: '106%', maxWidth: 270, aspectRatio: 565 / 258, marginTop: 8, borderRadius: 12 },
+  welcomeGift: { marginTop: 14, alignItems: 'stretch', padding: 14, borderWidth: StyleSheet.hairlineWidth, borderColor: '#DED7D0', borderRadius: 18, backgroundColor: '#FAF8F5' },
+  giftCopy: { width: '100%', minWidth: 0 },
+  giftTitle: { fontSize: 13, lineHeight: 19, fontWeight: '600', color: '#4A433E' },
+  giftPackLink: { width: '100%', maxWidth: 300, aspectRatio: 565 / 258, alignSelf: 'center', overflow: 'hidden', marginTop: 12, borderRadius: 12 },
+  giftPackImage: { width: '100%', height: '100%', borderRadius: 12 },
   servingTableSection: { marginTop: 22 },
   servingTableHint: { marginTop: 5, fontSize: 12, lineHeight: 18, color: '#7B746D' },
   servingTableScroll: { paddingTop: 13, paddingBottom: 3 },
@@ -777,17 +814,16 @@ const styles = StyleSheet.create({
   primaryButtonTextLight: { color: '#3B2B24' },
   primaryButtonArrow: { flexShrink: 0, marginLeft: 8, fontSize: 18, color: '#FFFFFF' },
   productModalPurchase: { marginTop: -17 },
+  insuranceHeadingRow: { minWidth: 0, flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: 9 },
+  insuranceQuestion: { fontSize: 10, fontWeight: '700', letterSpacing: 1.5, color: '#8A6C5B' },
+  insuranceRecommended: { paddingHorizontal: 9, paddingVertical: 5, overflow: 'hidden', borderRadius: 99, fontSize: 8, fontWeight: '800', letterSpacing: 1.1, color: '#6F4E40', backgroundColor: '#EADFD8' },
   insuranceCard: { width: '100%', maxWidth: 960, minWidth: 0, alignSelf: 'center', overflow: 'hidden', borderRadius: 30, backgroundColor: '#6F4E40', ...softShadow },
+  insuranceBannerLink: { width: '100%', maxWidth: 960, minWidth: 0, alignSelf: 'center', overflow: 'hidden', marginTop: 14, borderRadius: 20, backgroundColor: '#E2F2ED', ...softShadow },
   insuranceBanner: { width: '100%', maxWidth: '100%', minWidth: 0, alignSelf: 'stretch', aspectRatio: 671 / 171, backgroundColor: '#E2F2ED' },
   insuranceContent: { width: '100%', minWidth: 0, padding: 25 },
-  insuranceTop: { minWidth: 0, flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end' },
-  recommendedBadge: { paddingHorizontal: 11, paddingVertical: 7, borderRadius: 99, overflow: 'hidden', fontSize: 8, fontWeight: '800', letterSpacing: 1.2, color: '#F6EDE7', backgroundColor: 'rgba(255,255,255,0.11)' },
-  insuranceName: { marginTop: 29, fontSize: 31, lineHeight: 36, fontWeight: '600', letterSpacing: -0.8, color: '#FFFFFF' },
-  insuranceBody: { marginTop: 10, fontSize: 14, lineHeight: 22, color: '#E9DDD6' },
-  promoBox: { marginTop: 23, padding: 17, borderRadius: 18, backgroundColor: 'rgba(255,255,255,0.09)' },
-  promoLabel: { fontSize: 8, fontWeight: '800', letterSpacing: 1.3, color: '#DBCBC3' },
-  promoValue: { marginTop: 7, fontSize: 15, lineHeight: 20, fontWeight: '600', color: '#FFFFFF' },
-  promoCode: { marginTop: 10, fontSize: 11, color: '#E7DAD3' },
+  insuranceInfoTitle: { fontSize: 25, lineHeight: 31, fontWeight: '600', letterSpacing: -0.6, color: '#FFFFFF' },
+  insuranceBody: { marginTop: 15, fontSize: 14, lineHeight: 22, color: '#E9DDD6' },
+  insuranceInfoLink: { alignSelf: 'flex-start', marginTop: 12, fontSize: 13, lineHeight: 20, fontWeight: '700', color: '#F3E8E1', textDecorationLine: 'underline' },
   contactCard: { minHeight: 145, flexDirection: 'row', alignItems: 'flex-start', gap: 16, padding: 22, borderRadius: 28, backgroundColor: '#FFFFFF', ...softShadow },
   contactAvatar: { width: 54, height: 54, alignItems: 'center', justifyContent: 'center', borderRadius: 27, backgroundColor: '#E9DDD5' },
   contactInitial: { fontSize: 20, fontWeight: '600', color: '#745747' },
