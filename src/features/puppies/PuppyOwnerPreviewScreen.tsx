@@ -198,18 +198,20 @@ export function PuppyOwnerExperience({ allowOwnerPhotoEditing = false, brandName
   return (
     <SafeAreaView style={styles.safeArea}>
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.page}>
-        <View style={styles.brandRow}>
-          <Text style={styles.brand}>{brandName}</Text>
-          {showPrivateLabel ? <Text style={styles.privateLabel}>ESPACIO PRIVADO</Text> : null}
-        </View>
+        <View style={styles.header}>
+          <View style={styles.brandRow}>
+            <Text style={styles.brand}>{brandName}</Text>
+            {showPrivateLabel ? <Text style={styles.privateLabel}>ESPACIO PRIVADO</Text> : null}
+          </View>
 
-        {allowOwnerPhotoEditing ? (
-          <EditablePuppyHero initialUri={puppy.photo_url} petName={puppy.name || 'tu cachorro'} puppyId={puppy.id}>
-            {(photoUri, controls) => <Hero breed={breed} controls={controls} photoUri={photoUri} puppy={puppy} />}
-          </EditablePuppyHero>
-        ) : (
-          <Hero puppy={puppy} breed={breed} />
-        )}
+          {allowOwnerPhotoEditing ? (
+            <EditablePuppyHero initialUri={puppy.photo_url} petName={puppy.name || 'tu cachorro'} puppyId={puppy.id}>
+              {(photoUri, controls) => <Hero breed={breed} controls={controls} photoUri={photoUri} puppy={puppy} />}
+            </EditablePuppyHero>
+          ) : (
+            <Hero puppy={puppy} breed={breed} />
+          )}
+        </View>
 
         {showPwaInstall ? <PwaInstallCallToAction petName={puppy.name || 'tu cachorro'} /> : null}
 
@@ -246,20 +248,25 @@ function Hero({ breed, controls = null, photoUri = null, puppy }: { breed: strin
 
   return (
     <View>
-      <View style={styles.photoFrame}>
-        {resolvedPhotoUri ? (
-          <Image source={{ uri: resolvedPhotoUri }} resizeMode="cover" style={styles.photo} />
-        ) : (
-          <View style={styles.photoFallback}>
-            <Text style={styles.photoInitial}>{(puppy.name || '?').slice(0, 1).toUpperCase()}</Text>
-          </View>
-        )}
-        <View style={styles.photoShade} />
-        <View style={styles.photoCaption}>
+      <View style={styles.heroIdentity}>
+        <View style={styles.heroCopy}>
           <Text style={styles.heroName}>{puppy.name || 'Cachorro sin nombre'}</Text>
           <Text style={styles.identifier}>{formatIdentifier(puppy.id)}</Text>
         </View>
-        {controls}
+
+        <View style={styles.avatarShell}>
+          <View style={styles.avatarFrame}>
+            {resolvedPhotoUri ? (
+              <Image source={{ uri: resolvedPhotoUri }} resizeMode="cover" style={styles.photo} />
+            ) : (
+              <View style={styles.photoFallback}>
+                <Text style={styles.photoInitial}>{(puppy.name || '?').slice(0, 1).toUpperCase()}</Text>
+              </View>
+            )}
+            <View pointerEvents="none" style={styles.avatarRing} />
+          </View>
+          {controls}
+        </View>
       </View>
 
       <View style={styles.facts}>
@@ -707,18 +714,21 @@ const styles = StyleSheet.create({
   centered: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 32, backgroundColor: '#F7F5F1' },
   errorTitle: { fontSize: 22, fontWeight: '600', color: '#211F1C', textAlign: 'center' },
   errorBody: { marginTop: 8, fontSize: 15, color: '#77716A', textAlign: 'center' },
-  brandRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 4, marginBottom: 4 },
+  header: { width: '100%', padding: 16, borderWidth: StyleSheet.hairlineWidth, borderColor: '#E9E3DC', borderRadius: 26, backgroundColor: '#FFFFFF', ...softShadow },
+  brandRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   brand: { flex: 1, fontSize: 15, fontWeight: '600', letterSpacing: -0.2, color: '#292622' },
   privateLabel: { fontSize: 9, fontWeight: '700', letterSpacing: 1.5, color: '#918A82' },
-  photoFrame: { height: 480, maxHeight: Platform.OS === 'web' ? 620 : 480, overflow: 'hidden', borderRadius: 30, backgroundColor: '#D9D3CA' },
+  heroIdentity: { minHeight: 98, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 16, paddingTop: 5, paddingBottom: 7 },
+  heroCopy: { flex: 1, minWidth: 0, paddingLeft: 4 },
+  avatarShell: { width: 84, height: 84, flexShrink: 0 },
+  avatarFrame: { width: 84, height: 84, overflow: 'hidden', borderRadius: 42, backgroundColor: '#D9D3CA', ...softShadow },
   photo: { width: '100%', height: '100%' },
   photoFallback: { flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: '#DDD6CC' },
-  photoInitial: { fontSize: 112, fontWeight: '300', color: '#F7F4EF' },
-  photoShade: { ...StyleSheet.absoluteFillObject, top: '42%', backgroundColor: 'rgba(19, 16, 13, 0.22)' },
-  photoCaption: { position: 'absolute', left: 24, right: 24, bottom: 23 },
-  heroName: { fontSize: 44, lineHeight: 48, fontWeight: '600', letterSpacing: -1.7, color: '#FFFFFF' },
-  identifier: { marginTop: 5, fontSize: 11, fontWeight: '700', letterSpacing: 2, color: 'rgba(255,255,255,0.76)' },
-  facts: { flexDirection: 'row', alignItems: 'stretch', marginTop: 12, paddingVertical: 17, paddingHorizontal: 6, backgroundColor: '#FFFFFF', borderRadius: 22, ...softShadow },
+  photoInitial: { fontSize: 35, fontWeight: '300', color: '#F7F4EF' },
+  avatarRing: { ...StyleSheet.absoluteFillObject, borderWidth: 3, borderColor: '#FFFFFF', borderRadius: 42 },
+  heroName: { fontSize: 36, lineHeight: 40, fontWeight: '600', letterSpacing: -1.3, color: '#25211E' },
+  identifier: { marginTop: 6, fontSize: 9, fontWeight: '700', letterSpacing: 1.6, color: '#9A9189' },
+  facts: { flexDirection: 'row', alignItems: 'stretch', paddingVertical: 11, paddingHorizontal: 2, backgroundColor: '#F7F5F1', borderRadius: 16 },
   fact: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 7 },
   factDivider: { width: StyleSheet.hairlineWidth, backgroundColor: '#E8E3DC' },
   factLabel: { fontSize: 9, fontWeight: '700', letterSpacing: 1, color: '#A09991', textTransform: 'uppercase' },

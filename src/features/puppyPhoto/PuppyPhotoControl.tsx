@@ -117,9 +117,9 @@ function getPhaseLabel(phase: PuppyPhotoPhase) {
 }
 
 const styles = StyleSheet.create({
-  photoButton: { position: 'absolute', zIndex: 4, top: 16, right: 16, minHeight: 46, maxWidth: '72%', flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 14, borderRadius: 23, backgroundColor: 'rgba(255, 255, 255, 0.94)', ...Platform.select({ default: { boxShadow: '0 7px 20px rgba(36, 27, 22, 0.18)' }, android: { elevation: 4 }, ios: { shadowColor: '#241B16', shadowOffset: { width: 0, height: 6 }, shadowOpacity: 0.18, shadowRadius: 14 } }) },
-  photoButtonIcon: { fontSize: 17, color: '#8D5942' },
-  photoButtonText: { flexShrink: 1, fontSize: 12, lineHeight: 16, fontWeight: '800', color: '#3A2E27' },
+  photoButton: { position: 'absolute', zIndex: 4, right: -2, bottom: -2, width: 32, height: 32, alignItems: 'center', justifyContent: 'center', borderWidth: 2, borderColor: '#FFFFFF', borderRadius: 16, backgroundColor: '#F3E9E2', ...Platform.select({ default: { boxShadow: '0 5px 14px rgba(36, 27, 22, 0.18)' }, android: { elevation: 4 }, ios: { shadowColor: '#241B16', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.18, shadowRadius: 10 } }) },
+  photoButtonIcon: { fontSize: 14, color: '#8D5942' },
+  photoButtonText: { display: 'none' },
   pressed: { opacity: 0.82, transform: [{ scale: 0.99 }] },
   disabled: { opacity: 0.55 },
   processingOverlay: { ...StyleSheet.absoluteFillObject, zIndex: 3, alignItems: 'center', justifyContent: 'center', gap: 9, backgroundColor: 'rgba(31, 25, 21, 0.48)' },
